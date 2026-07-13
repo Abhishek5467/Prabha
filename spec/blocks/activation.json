@@ -1,0 +1,40 @@
+{
+  "id": "activation",
+  "title": "Activation",
+  "category": "Output",
+  "block_type": "primitive",
+  "implementation": "Activation",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "digital",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "z",
+        "kind": "digital",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "kind",
+      "type": "enum",
+      "default": "sigmoid",
+      "options": [
+        "sigmoid",
+        "tanh",
+        "relu"
+      ]
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 1
+    }
+  ]
+}

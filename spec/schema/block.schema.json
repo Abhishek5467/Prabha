@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prabha.dev/spec/schema/0.1.0/block.schema.json",
+  "title": "Prabha Block Definition",
+  "version": "0.1.0",
+  "description": "Shape of a block definition (spec/blocks/*.json). A block is 'primitive' (native compute, no internals) or 'compound' (expands into a subnetlist). Same file, one concept, two flavors — mirrors signal.schema.json's kind-conditional pattern.",
+
+  "$defs": {
+    "param": {
+      "type": "object",
+      "properties": {
+        "name":        { "type": "string", "minLength": 1 },
+        "type":        { "enum": ["number", "string", "boolean", "enum"] },
+        "default":     {},
+        "unit":        { "type": "string" },
+        "min":         { "type": "number" },
+        "max":         { "type": "number" },
+        "step":        { "type": "number" },
+        "options":     { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "description": { "type": "string" }
+      },
+      "required": ["name", "type", "default"],
+      "additionalProperties": false,
+      "if":   { "properties": { "type": { "const": "enum" } }, "required": ["type"] },
+      "then": { "required": ["options"] }
+    },
+
+    "base": {
+      "type": "object",
+      "properties": {
+        "id":         { "type": "string", "minLength": 1 },
+        "title":      { "type": "string", "minLength": 1 },
+        "category":   { "type": "string", "minLength": 1 },
+        "block_type": { "enum": ["primitive", "compound"] },
+        "description":{ "type": "string" },
+        "ports": {
+          "type": "object",
+          "properties": {
+            "inputs":  { "type": "array", "items": { "$ref": "port.schema.json#/$defs/inputPort" } },
+            "outputs": { "type": "array", "items": { "$ref": "port.schema.json#/$defs/outputPort" } }
+          },
+          "required": ["inputs", "outputs"],
+          "additionalProperties": false
+        },
+        "params": { "type": "array", "items": { "$ref": "#/$defs/param" } },
+
+        "implementation": { "type": "string", "minLength": 1 },
+        "subnetlist":      { "$ref": "netlist.schema.json#/$defs/netlist" },
+        "boundary_map": {
+          "type": "object",
+          "additionalProperties": { "$ref": "netlist.schema.json#/$defs/portRef" }
+        }
+      },
+      "required": ["id", "title", "category", "block_type", "ports", "params"],
+      "additionalProperties": false
+    }
+  },
+
+  "allOf": [
+    { "$ref": "#/$defs/base" },
+    {
+      "if":   { "required": ["block_type"], "properties": { "block_type": { "const": "primitive" } } },
+      "then": {
+        "required": ["implementation"],
+        "properties": { "subnetlist": false, "boundary_map": false }
+      },
+      "else": {
+        "required": ["subnetlist", "boundary_map"],
+        "properties": { "implementation": false }
+      }
+    }
+  ]
+}

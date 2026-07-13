@@ -1,0 +1,1 @@
+from . import peman_primitives  # noqa: F401  (kernel registration side-effect)

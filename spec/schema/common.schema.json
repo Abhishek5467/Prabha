@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prabha.dev/spec/schema/0.1.0/common.schema.json",
+  "title": "Prabha Common Definitions",
+  "version": "0.1.0",
+  "description": "Single source of truth for enums shared across signal, port, and block schemas.",
+
+  "$defs": {
+    "kind":   { "enum": ["optical", "voltage", "current", "digital"] },
+    "domain": { "enum": ["time", "frequency"] }
+  }
+}

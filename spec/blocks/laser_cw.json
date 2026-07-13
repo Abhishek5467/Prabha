@@ -1,0 +1,57 @@
+{
+  "id": "laser_cw",
+  "title": "CW Laser",
+  "category": "Sources",
+  "block_type": "primitive",
+  "implementation": "CWLaser",
+  "ports": {
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "optical",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "P0",
+      "type": "number",
+      "default": 1,
+      "unit": "mW",
+      "min": 0.01,
+      "max": 100,
+      "step": 0.1
+    },
+    {
+      "name": "wavelength",
+      "type": "number",
+      "default": 1550,
+      "unit": "nm"
+    },
+    {
+      "name": "linewidth",
+      "type": "number",
+      "default": 1000000.0,
+      "unit": "Hz"
+    },
+    {
+      "name": "RIN",
+      "type": "number",
+      "default": -150,
+      "unit": "dB/Hz"
+    },
+    {
+      "name": "fs",
+      "type": "number",
+      "default": 160000000000.0,
+      "unit": "Hz"
+    },
+    {
+      "name": "seed",
+      "type": "number",
+      "default": 1
+    }
+  ]
+}

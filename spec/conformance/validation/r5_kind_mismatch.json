@@ -1,0 +1,180 @@
+{
+ "name": "r5_kind_mismatch",
+ "requires": [
+  "activation",
+  "adc",
+  "balanced_pair",
+  "bias_gain",
+  "cap_integrator",
+  "drive_source",
+  "intensity_mod",
+  "laser_cw",
+  "photodetector",
+  "photonic_mac",
+  "splitter",
+  "weight_source"
+ ],
+ "context": {
+  "duration": 4e-10,
+  "noise": false
+ },
+ "design": {
+  "blocks": [
+   {
+    "id": "laser",
+    "ref": "laser_cw",
+    "params": {
+     "P0": 1,
+     "fs": 160000000000.0
+    }
+   },
+   {
+    "id": "x",
+    "ref": "drive_source",
+    "params": {
+     "values": "0.9,0.3,0.7,0.5"
+    }
+   },
+   {
+    "id": "w",
+    "ref": "weight_source",
+    "params": {
+     "values": "0.8,-0.6,0.4,-0.9"
+    }
+   },
+   {
+    "id": "mac",
+    "ref": "photonic_mac"
+   },
+   {
+    "id": "cap",
+    "ref": "cap_integrator",
+    "params": {
+     "C": 1
+    }
+   },
+   {
+    "id": "amp",
+    "ref": "bias_gain",
+    "params": {
+     "gain": 22.22222222222222,
+     "theta": 0.2
+    }
+   },
+   {
+    "id": "adc",
+    "ref": "adc",
+    "params": {
+     "bits": 8
+    }
+   },
+   {
+    "id": "act",
+    "ref": "activation",
+    "params": {
+     "kind": "sigmoid"
+    }
+   }
+  ],
+  "connections": [
+   {
+    "from": [
+     "laser",
+     "out"
+    ],
+    "to": [
+     "mac",
+     "light"
+    ]
+   },
+   {
+    "from": [
+     "laser",
+     "out"
+    ],
+    "to": [
+     "cap",
+     "I"
+    ]
+   },
+   {
+    "from": [
+     "w",
+     "upper"
+    ],
+    "to": [
+     "mac",
+     "wu"
+    ]
+   },
+   {
+    "from": [
+     "w",
+     "lower"
+    ],
+    "to": [
+     "mac",
+     "wl"
+    ]
+   },
+   {
+    "from": [
+     "mac",
+     "I"
+    ],
+    "to": [
+     "cap",
+     "I"
+    ]
+   },
+   {
+    "from": [
+     "cap",
+     "Vc"
+    ],
+    "to": [
+     "amp",
+     "in"
+    ]
+   },
+   {
+    "from": [
+     "amp",
+     "out"
+    ],
+    "to": [
+     "adc",
+     "in"
+    ]
+   },
+   {
+    "from": [
+     "adc",
+     "code"
+    ],
+    "to": [
+     "act",
+     "in"
+    ]
+   }
+  ]
+ },
+ "expect_violations": [
+  {
+   "rule": "R10",
+   "severity": "error"
+  },
+  {
+   "rule": "R5",
+   "severity": "error"
+  },
+  {
+   "rule": "R7",
+   "severity": "error"
+  },
+  {
+   "rule": "R8",
+   "severity": "error"
+  }
+ ]
+}

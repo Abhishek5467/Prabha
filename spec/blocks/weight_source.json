@@ -1,0 +1,40 @@
+{
+  "id": "weight_source",
+  "title": "Weight Source w_i",
+  "category": "Sources",
+  "block_type": "primitive",
+  "implementation": "WeightSource",
+  "ports": {
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "upper",
+        "kind": "voltage",
+        "domain": "time"
+      },
+      {
+        "name": "lower",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "values",
+      "type": "string",
+      "default": "0.8,-0.6,0.4,-0.9"
+    },
+    {
+      "name": "rate",
+      "type": "number",
+      "default": 10,
+      "unit": "GHz"
+    },
+    {
+      "name": "sps",
+      "type": "number",
+      "default": 16
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "drive_source",
+  "title": "Input Drive x_i",
+  "category": "Sources",
+  "block_type": "primitive",
+  "implementation": "DriveSource",
+  "ports": {
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "values",
+      "type": "string",
+      "default": "0.9,0.3,0.7,0.5"
+    },
+    {
+      "name": "rate",
+      "type": "number",
+      "default": 10,
+      "unit": "GHz"
+    },
+    {
+      "name": "sps",
+      "type": "number",
+      "default": 16
+    }
+  ]
+}

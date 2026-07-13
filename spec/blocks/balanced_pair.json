@@ -1,0 +1,29 @@
+{
+  "id": "balanced_pair",
+  "title": "Balanced Pair",
+  "category": "Detection",
+  "block_type": "primitive",
+  "implementation": "BalancedPair",
+  "ports": {
+    "inputs": [
+      {
+        "name": "i1",
+        "kind": "current",
+        "domain": "time"
+      },
+      {
+        "name": "i2",
+        "kind": "current",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "I",
+        "kind": "current",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": []
+}

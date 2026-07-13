@@ -1,0 +1,39 @@
+{
+  "id": "intensity_mod",
+  "title": "Intensity Modulator",
+  "category": "Photonic",
+  "block_type": "primitive",
+  "implementation": "IntensityModulator",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "optical",
+        "domain": "time"
+      },
+      {
+        "name": "drive",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "optical",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "type",
+      "type": "enum",
+      "default": "MZM",
+      "options": [
+        "MZM",
+        "MRM"
+      ]
+    }
+  ]
+}

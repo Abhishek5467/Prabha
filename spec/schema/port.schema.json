@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prabha.dev/spec/schema/0.1.0/port.schema.json",
+  "title": "Prabha Port",
+  "version": "0.1.0",
+  "description": "Input/output port definitions used inside a block definition. Not a standalone document — referenced by block.schema.json.",
+
+  "$defs": {
+    "inputPort": {
+      "type": "object",
+      "properties": {
+        "name":        { "type": "string", "minLength": 1 },
+        "kind":        { "$ref": "common.schema.json#/$defs/kind" },
+        "domain":      { "$ref": "common.schema.json#/$defs/domain", "default": "time" },
+        "optional":    { "type": "boolean", "default": false },
+        "description": { "type": "string" }
+      },
+      "required": ["name", "kind", "domain"],
+      "additionalProperties": false
+    },
+
+    "outputPort": {
+      "type": "object",
+      "properties": {
+        "name":        { "type": "string", "minLength": 1 },
+        "kind":        { "$ref": "common.schema.json#/$defs/kind" },
+        "domain":      { "$ref": "common.schema.json#/$defs/domain", "default": "time" },
+        "description": { "type": "string" }
+      },
+      "required": ["name", "kind", "domain"],
+      "additionalProperties": false
+    }
+  }
+}

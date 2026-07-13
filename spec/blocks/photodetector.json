@@ -1,0 +1,54 @@
+{
+  "id": "photodetector",
+  "title": "Photodetector",
+  "category": "Detection",
+  "block_type": "primitive",
+  "implementation": "Photodetector",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "optical",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "I",
+        "kind": "current",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "resp",
+      "type": "number",
+      "default": 0.9,
+      "unit": "A/W"
+    },
+    {
+      "name": "dark",
+      "type": "number",
+      "default": 1e-09,
+      "unit": "A"
+    },
+    {
+      "name": "load",
+      "type": "number",
+      "default": 50,
+      "unit": "ohm"
+    },
+    {
+      "name": "Trx",
+      "type": "number",
+      "default": 300,
+      "unit": "K"
+    },
+    {
+      "name": "seed",
+      "type": "number",
+      "default": 1
+    }
+  ]
+}

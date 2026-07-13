@@ -1,0 +1,164 @@
+{
+  "id": "photonic_mac",
+  "title": "Photonic MAC",
+  "category": "Compound",
+  "block_type": "compound",
+  "ports": {
+    "inputs": [
+      {
+        "name": "light",
+        "kind": "optical",
+        "domain": "time"
+      },
+      {
+        "name": "x",
+        "kind": "voltage",
+        "domain": "time"
+      },
+      {
+        "name": "wu",
+        "kind": "voltage",
+        "domain": "time"
+      },
+      {
+        "name": "wl",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "I",
+        "kind": "current",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [],
+  "subnetlist": {
+    "blocks": [
+      {
+        "id": "xmod",
+        "ref": "intensity_mod"
+      },
+      {
+        "id": "split",
+        "ref": "splitter"
+      },
+      {
+        "id": "wmod_u",
+        "ref": "intensity_mod"
+      },
+      {
+        "id": "wmod_l",
+        "ref": "intensity_mod"
+      },
+      {
+        "id": "pd1",
+        "ref": "photodetector"
+      },
+      {
+        "id": "pd2",
+        "ref": "photodetector"
+      },
+      {
+        "id": "bal",
+        "ref": "balanced_pair"
+      }
+    ],
+    "connections": [
+      {
+        "from": [
+          "xmod",
+          "out"
+        ],
+        "to": [
+          "split",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "split",
+          "out1"
+        ],
+        "to": [
+          "wmod_u",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "split",
+          "out2"
+        ],
+        "to": [
+          "wmod_l",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "wmod_u",
+          "out"
+        ],
+        "to": [
+          "pd1",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "wmod_l",
+          "out"
+        ],
+        "to": [
+          "pd2",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "pd1",
+          "I"
+        ],
+        "to": [
+          "bal",
+          "i1"
+        ]
+      },
+      {
+        "from": [
+          "pd2",
+          "I"
+        ],
+        "to": [
+          "bal",
+          "i2"
+        ]
+      }
+    ]
+  },
+  "boundary_map": {
+    "light": [
+      "xmod",
+      "in"
+    ],
+    "x": [
+      "xmod",
+      "drive"
+    ],
+    "wu": [
+      "wmod_u",
+      "drive"
+    ],
+    "wl": [
+      "wmod_l",
+      "drive"
+    ],
+    "I": [
+      "bal",
+      "I"
+    ]
+  }
+}

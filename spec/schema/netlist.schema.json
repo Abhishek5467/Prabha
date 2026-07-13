@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prabha.dev/spec/schema/0.1.0/netlist.schema.json",
+  "title": "Prabha Netlist",
+  "version": "0.1.0",
+  "description": "Shape of a wiring graph: instantiated blocks + connections between their ports. Used both as a top-level .prabha design and, nested, as a compound block's internal subnetlist. Relational checks (do refs/ports exist, kind/fs match, cycles) are ENGINE validation, not schema.",
+
+  "$defs": {
+    "portRef": {
+      "type": "array",
+      "description": "[block_instance_id, port_name]",
+      "prefixItems": [ { "type": "string", "minLength": 1 }, { "type": "string", "minLength": 1 } ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+
+    "blockInstance": {
+      "type": "object",
+      "properties": {
+        "id":     { "type": "string", "minLength": 1, "description": "Instance id, unique within this netlist." },
+        "ref":    { "type": "string", "minLength": 1, "description": "Id of the block DEFINITION this instantiates (resolved by the engine)." },
+        "params": { "type": "object", "description": "Overrides of the block definition's default params. Validated against that block's param schema by the engine, not here." }
+      },
+      "required": ["id", "ref"],
+      "additionalProperties": false
+    },
+
+    "connection": {
+      "type": "object",
+      "properties": {
+        "from": { "$ref": "#/$defs/portRef" },
+        "to":   { "$ref": "#/$defs/portRef" }
+      },
+      "required": ["from", "to"],
+      "additionalProperties": false
+    },
+
+    "netlist": {
+      "type": "object",
+      "properties": {
+        "blocks":      { "type": "array", "items": { "$ref": "#/$defs/blockInstance" } },
+        "connections": { "type": "array", "items": { "$ref": "#/$defs/connection" } }
+      },
+      "required": ["blocks", "connections"],
+      "additionalProperties": false
+    }
+  },
+
+  "$ref": "#/$defs/netlist"
+}

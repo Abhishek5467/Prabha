@@ -1,0 +1,8 @@
+# build artifacts
+core-cpp/build/
+__pycache__/
+*.pyc
+
+# editor/OS noise
+.vscode/
+Thumbs.db

@@ -1,0 +1,43 @@
+{
+  "id": "adc",
+  "title": "ADC",
+  "category": "Electronic",
+  "block_type": "primitive",
+  "implementation": "ADC",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "code",
+        "kind": "digital",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "bits",
+      "type": "number",
+      "default": 8,
+      "min": 2,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "vmin",
+      "type": "number",
+      "default": -5
+    },
+    {
+      "name": "vmax",
+      "type": "number",
+      "default": 5
+    }
+  ]
+}

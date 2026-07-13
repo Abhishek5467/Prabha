@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prabha.dev/spec/schema/0.1.0/signal.schema.json",
+  "title": "Prabha Signal",
+  "version": "0.1.0",
+  "description": "Type contract for a signal on a port/wire. Describes TYPE and METADATA only; sample data lives in RAM at runtime and HDF5 when persisted.",
+
+  "$defs": {
+    "channel": {
+      "type": "object",
+      "description": "One optical channel. Lumerical-faithful: frequency canonical + mode label + orthogonal id. Polarization is a value of mode_label (TE0/TM0), never a separate field. Wavelength is derived c/frequency for display only, never stored.",
+      "properties": {
+        "frequency":     { "type": "number",  "exclusiveMinimum": 0 },
+        "mode_label":    { "type": "string",  "default": "TE0" },
+        "orthogonal_id": { "type": "integer", "minimum": 0, "default": 0 }
+      },
+      "required": ["frequency", "mode_label"],
+      "additionalProperties": false
+    },
+
+    "base": {
+      "type": "object",
+      "properties": {
+        "kind":   { "$ref": "common.schema.json#/$defs/kind" },
+        "domain": { "$ref": "common.schema.json#/$defs/domain", "default": "time",
+                    "description": "time: fs is sample rate (Hz). frequency: fs is grid spacing (Hz)." },
+        "fs":     { "type": "number", "exclusiveMinimum": 0 },
+        "units":  { "type": "string",
+                    "description": "optical envelope = 'sqrt(W)', voltage = 'V', current = 'A', digital = 'code'." },
+        "channels": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/channel" },
+          "description": "Optical only. >=1 channels. Length-1 is enforced by single-channel BLOCKS, never by this schema (keeps WDM/multimode open)."
+        }
+      },
+      "required": ["kind", "domain", "fs", "units"],
+      "additionalProperties": false
+    }
+  },
+
+  "allOf": [
+    { "$ref": "#/$defs/base" },
+    {
+      "if":   { "required": ["kind"], "properties": { "kind": { "const": "optical" } } },
+      "then": { "required": ["channels"] },
+      "else": { "properties": { "channels": false } }
+    }
+  ]
+}

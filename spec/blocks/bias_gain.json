@@ -1,0 +1,35 @@
+{
+  "id": "bias_gain",
+  "title": "Amp + Bias",
+  "category": "Electronic",
+  "block_type": "primitive",
+  "implementation": "BiasGain",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "gain",
+      "type": "number",
+      "default": 1
+    },
+    {
+      "name": "theta",
+      "type": "number",
+      "default": 0
+    }
+  ]
+}
