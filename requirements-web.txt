@@ -1,0 +1,3 @@
+# Dependencies for the Studio, Python API and documentation build.
+-r requirements.txt
+mkdocs>=1.6,<2

@@ -1,0 +1,8 @@
+**/node_modules
+**/__pycache__
+.git
+.venv
+upload
+desktop
+output
+**/dist

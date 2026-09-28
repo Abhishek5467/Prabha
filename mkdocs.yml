@@ -1,0 +1,26 @@
+site_name: Prabha Documentation
+site_description: Open photonic-electronic simulation, from devices to ANN inference
+site_url: https://abhishek5467.github.io/Prabha/docs/
+repo_url: https://github.com/Abhishek5467/Prabha
+edit_uri: ''
+docs_dir: docs/site
+site_dir: frontend/studio/public/docs
+use_directory_urls: true
+theme:
+  name: readthedocs
+  highlightjs: false
+extra_javascript:
+  - assets/community.js
+nav:
+  - Overview: index.md
+  - Quick start: quickstart.md
+  - Studio guide: studio.md
+  - Model scope: model-scope.md
+  - Architecture: architecture.md
+  - API: api.md
+  - Validation: validation.md
+  - Desktop builds: desktop.md
+  - Deployment: deployment.md
+  - Community: community.md
+  - Contributing: contributing.md
+  - Roadmap: roadmap.md

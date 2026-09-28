@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>प्रभा Prabha — System Designer</title>
+<style>
+/* IBM Plex Sans (UI) + JetBrains Mono (values) — engineering look, not the AI default */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---- Monochrome light theme: white / black / grey only ---- */
+  --bg:        #ececec;   /* app + canvas background        */
+  --panel:     #f7f7f7;   /* side panels, header            */
+  --panel2:    #ffffff;   /* cards, nodes, inputs           */
+  --edge:      #c9c9c9;   /* borders                        */
+  --edge-soft: #dedede;
+  --ink:       #1a1a1a;   /* primary text                   */
+  --muted:     #6e6e6e;   /* secondary text                 */
+  --hover:     #f0f0f0;
+
+  /* Signal kinds — the ONLY color in the UI; encodes engine port types (rule R5).
+     For strict greyscale set all three to greys, e.g. #111 / #666 / #aaa. */
+  --opt:  #c85a17;
+  --elec: #2b6cb0;
+  --dig:  #2f8a4c;
+
+  --warn:   #9a7b23;  --warn-bg:   #f5efdc;
+  --danger: #b3362e;  --danger-bg: #f7e3e1;
+  --select: #1a1a1a;  /* selection = strong black, monochrome */
+
+  --shadow:  0 2px 10px rgba(0,0,0,.10);
+  --shadow2: 0 6px 20px rgba(0,0,0,.14);
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 13px/1.5 "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+}
+
+header {
+  height: 48px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--edge);
+}
+header .logo { font-weight: 700; font-size: 16px; letter-spacing: .3px; }
+.pblock .pl { flex: 1; }
+
+/* ---- menubar ---- */
+.menubar { display: flex; gap: 2px; margin-right: 8px; }
+.menu { position: relative; }
+.menu > button {
+  background: none; border: none; color: var(--ink); font: inherit;
+  padding: 6px 10px; border-radius: 5px; cursor: pointer;
+}
+.menu > button:hover, .menu.open > button { background: var(--hover); }
+.dropdown {
+  display: none; position: absolute; top: 100%; left: 0; z-index: 40;
+  min-width: 210px; background: var(--panel2); border: 1px solid var(--edge);
+  border-radius: var(--radius); box-shadow: var(--shadow2); padding: 5px;
+}
+.menu.open .dropdown { display: block; }
+.dropdown .mi {
+  display: flex; justify-content: space-between; align-items: center; gap: 18px;
+  padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12.5px;
+  color: var(--ink); white-space: nowrap;
+}
+.dropdown .mi:hover { background: var(--hover); }
+.dropdown .mi .kb { color: var(--muted); font: 11px "JetBrains Mono", monospace; }
+.dropdown hr { border: none; border-top: 1px solid var(--edge-soft); margin: 5px 4px; }
+.dropdown .mh { padding: 4px 10px; font-size: 10px; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--muted); }
+.dropdown .mi.dis { color: var(--muted); cursor: default; }
+.dropdown .mi.dis:hover { background: none; }
+
+/* ---- Shift+A add menu ---- */
+#addMenu {
+  position: absolute; z-index: 45; width: 230px; display: none;
+  background: var(--panel2); border: 1px solid var(--edge);
+  border-radius: var(--radius); box-shadow: var(--shadow2); padding: 6px;
+}
+#addMenu input {
+  width: 100%; margin-bottom: 6px; background: var(--panel);
+  border: 1px solid var(--edge); border-radius: 4px; padding: 6px 8px; font: inherit;
+}
+#addMenu .list { max-height: 300px; overflow: auto; }
+#addMenu .cat { padding: 4px 8px 2px; font-size: 10px; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--muted); }
+#addMenu .item { display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+  border-radius: 4px; cursor: pointer; font-size: 12.5px; }
+#addMenu .item:hover, #addMenu .item.hot { background: var(--hover); }
+#addMenu .item .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ---- modal (Help) ---- */
+#modal { position: fixed; inset: 0; z-index: 60; display: none;
+  background: rgba(0,0,0,.35); align-items: center; justify-content: center; }
+#modal.show { display: flex; }
+#modal .box { background: var(--panel2); border: 1px solid var(--edge);
+  border-radius: 10px; box-shadow: var(--shadow2); padding: 20px 24px;
+  max-width: 460px; width: 90%; }
+#modal h2 { margin: 0 0 10px; font-size: 15px; }
+#modal table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+#modal td { padding: 4px 6px; border-bottom: 1px solid var(--edge-soft); }
+#modal td.kb { font-family: "JetBrains Mono", monospace; color: var(--muted); width: 120px; }
+header .logo b { color: var(--ink); }
+header .sub { color: var(--muted); font-size: 12px; }
+header .spacer { flex: 1; }
+header label { font-size: 11px; color: var(--muted); display:flex; align-items:center; gap:4px; }
+
+.btn {
+  background: var(--panel2);
+  color: var(--ink);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  font: inherit; font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.btn:hover { border-color: var(--ink); background: var(--hover); }
+.btn.run { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600; }
+.btn.run:hover { background: #333; }
+.btn.mode { min-width: 74px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: var(--left-w, 230px) 1fr var(--right-w, 320px);
+  height: calc(100% - 48px - 30px);
+  transition: grid-template-columns .2s ease;
+}
+body.no-left  { --left-w: 0px; }
+body.no-right { --right-w: 0px; }
+body.no-left .palette, body.no-right .inspect { padding: 0; border: none; }
+body.no-left .palette > *, body.no-right .inspect > * { display: none; }
+
+.btn.toggle.off { color: var(--muted); background: var(--panel); }
+
+.canvasbar {
+  position: absolute; left: 12px; bottom: 12px; z-index: 10;
+  display: flex; gap: 6px; align-items: center;
+  background: var(--panel2); border: 1px solid var(--edge);
+  border-radius: var(--radius); padding: 4px 6px; box-shadow: var(--shadow);
+}
+.canvasbar button {
+  width: 26px; height: 26px; border: none; background: none; color: var(--ink);
+  font: 600 14px "JetBrains Mono", monospace; cursor: pointer; border-radius: 4px;
+}
+.canvasbar button:hover { background: var(--hover); }
+.canvasbar .zl { font: 500 11px "JetBrains Mono", monospace; color: var(--muted); min-width: 42px; text-align: center; }
+
+#world { position: absolute; inset: 0; transform-origin: 0 0; }
+
+.scroll-h, .scroll-v { position: absolute; background: transparent; z-index: 9; }
+.scroll-h { left: 0; right: 14px; bottom: 0; height: 12px; }
+.scroll-v { top: 0; bottom: 14px; right: 0; width: 12px; }
+.scroll-h .thumb, .scroll-v .thumb {
+  position: absolute; background: #b5b5b5; border-radius: 6px; cursor: pointer;
+  transition: background .15s;
+}
+.scroll-h .thumb { height: 7px; top: 2px; min-width: 30px; }
+.scroll-v .thumb { width: 7px; left: 2px; min-height: 30px; }
+.scroll-h .thumb:hover, .scroll-v .thumb:hover { background: #8a8a8a; }
+.scroll-h.hidden, .scroll-v.hidden { display: none; }
+sub, sup { font-size: .72em; line-height: 0; }
+.iid { opacity: .55; font-size: .92em; }
+
+.palette, .inspect {
+  background: var(--panel);
+  overflow-y: auto; overflow-x: hidden;
+  padding: 14px;
+}
+.palette { border-right: 1px solid var(--edge); }
+.inspect { border-left: 1px solid var(--edge); }
+
+.palette h3, .inspect h3 {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); margin: 16px 0 8px; font-weight: 600;
+}
+.palette h3:first-child, .inspect h3:first-child { margin-top: 0; }
+
+.pblock {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 11px; margin-bottom: 6px;
+  background: var(--panel2);
+  border: 1px solid var(--edge-soft);
+  border-radius: var(--radius);
+  cursor: grab; font-size: 12.5px;
+  transition: border-color .15s;
+}
+.pblock:hover { border-color: var(--ink); }
+.pblock .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+.stage {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(circle at 1px 1px, #d3d3d3 1px, transparent 0) 0 0/24px 24px,
+    var(--bg);
+}
+#wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* ================= NODE ================= */
+.node {
+  position: absolute;
+  width: 240px;
+  background: var(--panel2);
+  border: 1px solid var(--edge);
+  border-left: 4px solid #9a9a9a;   /* per-node accent set inline from signal kind */
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: visible;                 /* ports protrude past the edge */
+  user-select: none;
+  transition: box-shadow .15s, border-color .15s;
+}
+.node:hover { box-shadow: var(--shadow2); }   /* no translate: wires stay aligned */
+
+.node.sel {
+  border-color: var(--select);
+  border-left-width: 4px;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.12), var(--shadow2);
+}
+.node.err {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 2px rgba(179,54,46,.18), var(--shadow2);
+}
+
+.node .hd {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 11px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--edge-soft);
+  border-radius: 7px 7px 0 0;
+  cursor: move;
+}
+.node-icon {
+  width: 22px; height: 22px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--ink); color: #fff;
+  border-radius: 5px;
+  font-size: 11px; font-weight: 700;
+  font-family: "JetBrains Mono", monospace;
+}
+img.node-icon { background: none; object-fit: contain; }
+.node-title {
+  flex: 1; font-size: 13px; font-weight: 600; color: var(--ink);
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.node .del {
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 5px; color: var(--muted); cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.node .del:hover { background: var(--danger-bg); color: var(--danger); }
+
+/* the ports zone is reserved space: .bd is pushed below it via inline margin-top */
+.node .bd {
+  padding: 8px 12px 10px;
+  font-size: 11px; line-height: 1.55;
+  color: var(--muted);
+  font-family: "JetBrains Mono", Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.node .learn {
+  padding: 8px 12px 10px;
+  border-top: 1px dashed var(--edge-soft);
+  font-size: 11px; line-height: 1.55; color: #4a4a4a;
+  background: var(--panel);
+  border-radius: 0 0 7px 7px;
+  display: none;
+}
+body.learn .node .learn { display: block; }
+
+/* ================= PORTS ================= */
+.port {
+  position: absolute;
+  width: 13px; height: 13px; border-radius: 50%;
+  border: 2px solid var(--panel2);
+  box-shadow: 0 0 0 1px var(--edge);
+  pointer-events: all; cursor: crosshair;
+  transition: transform .1s;
+}
+.port:hover { transform: scale(1.25); }
+.port.in  { left: -7px; }
+.port.out { right: -7px; }
+.port .lbl {
+  position: absolute; top: 0;
+  font-size: 10px; color: var(--muted);
+  white-space: nowrap;
+  font-family: "JetBrains Mono", monospace;
+}
+.port.in  .lbl { left: 17px; }
+.port.out .lbl { right: 17px; }
+
+/* ================= INSPECTOR ================= */
+.field { margin-bottom: 12px; }
+.field label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 4px; font-weight: 500; }
+.field input, .field select, .inspect select {
+  width: 100%;
+  background: var(--panel2);
+  color: var(--ink);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  font: inherit; font-size: 12px;
+}
+.field input:focus, .field select:focus { outline: none; border-color: var(--ink); }
+
+.viol {
+  border-left: 3px solid var(--danger);
+  background: var(--danger-bg);
+  border-radius: 4px; padding: 8px 10px; margin-bottom: 8px; font-size: 11px;
+  color: var(--ink);
+}
+.viol.warning { border-color: var(--warn); background: var(--warn-bg); }
+.viol b { font-family: "JetBrains Mono", monospace; }
+
+.out-card {
+  background: var(--panel2);
+  border: 1px solid var(--edge-soft);
+  border-radius: var(--radius);
+  padding: 10px; margin-bottom: 10px;
+}
+.out-card .k { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 600; letter-spacing: .5px; }
+.out-card .v { font-size: 18px; font-variant-numeric: tabular-nums; margin-top: 3px; color: var(--ink); font-family: "JetBrains Mono", monospace; }
+
+#scope { width: 100%; background: var(--panel2); border: 1px solid var(--edge); border-radius: var(--radius); margin-top: 8px; }
+.muted { color: var(--muted); }
+
+.legend {
+  height: 30px;
+  display: flex; align-items: center; gap: 16px;
+  font-size: 11px; color: var(--muted);
+  padding: 0 16px;
+  background: var(--panel); border-top: 1px solid var(--edge);
+}
+.legend i { display: inline-block; width: 16px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+.toast {
+  position: fixed; bottom: 44px; left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: var(--ink); color: #fff;
+  padding: 9px 18px; border-radius: 18px;
+  font-size: 12.5px; font-weight: 500;
+  opacity: 0; transition: all .25s ease;
+  pointer-events: none; z-index: 50;
+  box-shadow: var(--shadow2);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">प्रभा <b>Prabha</b></span>
+  <nav class="menubar" id="menubar">
+    <div class="menu" data-m="file"><button>File</button>
+      <div class="dropdown">
+        <div class="mi" onclick="fileNew()">New <span class="kb">empty canvas</span></div>
+        <div class="mi" onclick="document.getElementById('imp').click();closeMenus()">Open… <span class="kb">.prabha</span></div>
+        <div class="mh">Recent</div>
+        <div id="recentList"></div>
+        <hr>
+        <div class="mi" onclick="loadTemplate();closeMenus()">New from PEMAN template</div>
+        <div class="mi" onclick="saveDesign()">Save .prabha <span class="kb">Ctrl+S</span></div>
+      </div></div>
+    <div class="menu" data-m="edit"><button>Edit</button>
+      <div class="dropdown">
+        <div class="mi" onclick="openAddMenuCenter()">Add node… <span class="kb">Shift+A</span></div>
+        <div class="mi" onclick="duplicateSel();closeMenus()">Duplicate selected <span class="kb">Shift+D</span></div>
+        <div class="mi" onclick="deleteSel();closeMenus()">Delete selected <span class="kb">Del / X</span></div>
+      </div></div>
+    <div class="menu" data-m="view"><button>View</button>
+      <div class="dropdown">
+        <div class="mi" onclick="frameSelected();closeMenus()">Focus selected <span class="kb">F</span></div>
+        <div class="mi" onclick="frameAll();closeMenus()">Fit all <span class="kb">.</span></div>
+        <div class="mi" onclick="zoomBy(1.2);closeMenus()">Zoom in <span class="kb">wheel</span></div>
+        <div class="mi" onclick="zoomBy(1/1.2);closeMenus()">Zoom out</div>
+        <div class="mi" onclick="viewReset();closeMenus()">Reset view</div>
+        <hr>
+        <div class="mi" onclick="toggleMode();closeMenus()">Toggle Fast / Learn</div>
+      </div></div>
+    <div class="menu" data-m="tools"><button>Tools</button>
+      <div class="dropdown">
+        <div class="mi" onclick="runSim();closeMenus()">Run simulation <span class="kb">Ctrl+Enter</span></div>
+        <div class="mi" onclick="exportPlots();closeMenus()">Export all plots (.zip)</div>
+      </div></div>
+    <div class="menu" data-m="window"><button>Window</button>
+      <div class="dropdown">
+        <div class="mi" onclick="togglePanel('left');closeMenus()">Blocks panel</div>
+        <div class="mi" onclick="togglePanel('right');closeMenus()">Inspector panel</div>
+      </div></div>
+    <div class="menu" data-m="help"><button>Help</button>
+      <div class="dropdown">
+        <div class="mi" onclick="showShortcuts()">Keyboard shortcuts</div>
+        <div class="mi" onclick="showAbout()">About Prabha</div>
+      </div></div>
+  </nav>
+  <span class="sub">all physics &amp; validation by core-py</span>
+  <span class="spacer"></span>
+  <button class="btn toggle" id="leftT" onclick="togglePanel('left')" title="blocks panel">☰</button>
+  <button class="btn mode" id="modeBtn" onclick="toggleMode()">Fast</button>
+  <label>noise <input id="noise" type="checkbox" checked></label>
+  <button class="btn run" onclick="runSim()">&#9654; Run</button>
+  <button class="btn toggle" id="rightT" onclick="togglePanel('right')" title="inspector panel">☰</button>
+  <input id="imp" type="file" accept=".prabha,.json" style="display:none" onchange="importJSON(event)">
+</header>
+
+<div class="layout">
+  <aside class="palette" id="palette"><span class="muted">loading blocks from engine…</span></aside>
+  <div class="stage" id="stage"><svg id="wires"></svg><div id="world"></div>
+    <div class="scroll-h" id="sbH"><div class="thumb" id="sbHT"></div></div>
+    <div class="scroll-v" id="sbV"><div class="thumb" id="sbVT"></div></div>
+    <div id="addMenu">
+      <input id="addSearch" placeholder="search blocks…" oninput="fillAddMenu(this.value)">
+      <div class="list" id="addList"></div>
+    </div>
+    <div class="canvasbar">
+      <button onclick="zoomBy(1/1.2)" title="zoom out">−</button>
+      <span class="zl" id="zoomLbl">100%</span>
+      <button onclick="zoomBy(1.2)" title="zoom in">+</button>
+      <button onclick="viewReset()" title="reset view" style="font-size:11px">⌂</button>
+      <button onclick="frameAll()" title="fit all (.)" style="font-size:11px">⛶</button>
+    </div>
+  </div>
+  <aside class="inspect">
+    <h3>Inspector</h3><div id="insBody" class="muted">Select a block.</div>
+    <div id="violBox"></div><div id="results"></div>
+  </aside>
+</div>
+<div class="legend">
+  <span><i style="background:var(--opt)"></i>optical</span>
+  <span><i style="background:var(--elec)"></i>voltage/current</span>
+  <span><i style="background:var(--dig)"></i>digital</span>
+  <span class="muted">F = focus selected · . = fit all · drag canvas to pan · wheel = zoom · click wire to delete · Learn mode = block theory</span>
+</div>
+<div class="toast" id="toast"></div>
+<div id="modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="box" id="modalBox"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+/* Prabha thin client. NO physics here: the palette, parameter forms, validation
+   markers and waveforms all come from the engine via /api. */
+let DEFS = {};
+let G = {blocks: [], connections: []};
+let POS = {};
+let selId = null, uid = 1, lastRun = null;
+const COLK = {optical:'var(--opt)', voltage:'var(--elec)', current:'var(--elec)', digital:'var(--dig)'};
+const CAT_ORDER = ["Sources","Photonic","Detection","Electronic","Output","Compound"];
+const CAT_GLYPH = {Sources:"S", Photonic:"P", Detection:"D", Electronic:"E", Output:"O", Compound:"C"};
+const stage = document.getElementById('stage'), wires = document.getElementById('wires');
+const world = document.getElementById('world');
+let VIEW = {x: 0, y: 0, z: 1};                 // pan (screen px) + zoom
+function applyView(){
+  world.style.transform = `translate(${VIEW.x}px,${VIEW.y}px) scale(${VIEW.z})`;
+  document.getElementById('zoomLbl').textContent = Math.round(VIEW.z*100)+'%';
+  scheduleFrame();
+}
+function zoomBy(f, cx, cy){
+  const r = stage.getBoundingClientRect();
+  cx = cx===undefined ? r.width/2 : cx;  cy = cy===undefined ? r.height/2 : cy;
+  const z2 = Math.min(2.5, Math.max(0.3, VIEW.z*f));
+  VIEW.x = cx - (cx - VIEW.x) * (z2/VIEW.z);
+  VIEW.y = cy - (cy - VIEW.y) * (z2/VIEW.z);
+  VIEW.z = z2; applyView();
+}
+function viewReset(){ VIEW = {x:0,y:0,z:1}; applyView(); }
+
+/* ---------- framing (Cadence/Blender style) ---------- */
+function contentBBox(){
+  const els=[...world.querySelectorAll('.node')]; if(!els.length) return null;
+  let x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;
+  for(const el of els){
+    const x=parseFloat(el.style.left), y=parseFloat(el.style.top);
+    x1=Math.min(x1,x); y1=Math.min(y1,y);
+    x2=Math.max(x2,x+el.offsetWidth); y2=Math.max(y2,y+el.offsetHeight);
+  }
+  return {x1,y1,x2,y2};
+}
+function frameRect(x1,y1,x2,y2,pad,zmax){
+  const r=stage.getBoundingClientRect();
+  const bw=x2-x1+2*pad, bh=y2-y1+2*pad;
+  const z=Math.min(zmax, Math.max(0.3, Math.min(r.width/bw, r.height/bh)));
+  VIEW.z=z;
+  VIEW.x=r.width/2  - (x1+x2)/2*z;
+  VIEW.y=r.height/2 - (y1+y2)/2*z;
+  applyView();
+}
+function frameAll(){
+  const bb=contentBBox(); if(!bb){toast('canvas is empty');return;}
+  frameRect(bb.x1,bb.y1,bb.x2,bb.y2,60,1.6);
+}
+function frameSelected(){
+  if(!selId || !POS[selId]){toast('select a block first (click it)');return;}
+  const el=[...world.querySelectorAll('.node')].find(n=>
+    parseFloat(n.style.left)===POS[selId].x && parseFloat(n.style.top)===POS[selId].y);
+  const w=el?el.offsetWidth:240, h=el?el.offsetHeight:160;
+  frameRect(POS[selId].x, POS[selId].y, POS[selId].x+w, POS[selId].y+h, 150, 1.3);
+}
+/* ---------- menubar ---------- */
+function closeMenus(){ document.querySelectorAll('.menu.open').forEach(m=>m.classList.remove('open')); }
+document.querySelectorAll('.menu > button').forEach(btn=>{
+  btn.addEventListener('click', e=>{
+    e.stopPropagation();
+    const m = btn.parentElement, was = m.classList.contains('open');
+    closeMenus(); if(!was){ m.classList.add('open'); if(m.dataset.m==='file') renderRecent(); }
+  });
+});
+document.querySelectorAll('.menu').forEach(m=>{
+  m.addEventListener('mouseenter', ()=>{           // slide between open menus
+    if(document.querySelector('.menu.open') && !m.classList.contains('open')){
+      closeMenus(); m.classList.add('open'); if(m.dataset.m==='file') renderRecent();
+    }
+  });
+});
+addEventListener('click', ()=>{ closeMenus(); hideAddMenu(); });
+
+/* ---------- recent files (browser localStorage, this machine only) ---------- */
+function loadRecent(){ try{ return JSON.parse(localStorage.getItem('prabha_recent')||'[]'); }catch(e){ return []; } }
+function pushRecent(name){
+  const rec = loadRecent().filter(r=>r.name!==name);
+  rec.unshift({name, when: Date.now(), G: JSON.parse(JSON.stringify(G)), POS: {...POS}});
+  localStorage.setItem('prabha_recent', JSON.stringify(rec.slice(0,8)));
+}
+function renderRecent(){
+  const box = document.getElementById('recentList');
+  const rec = loadRecent();
+  box.innerHTML = rec.length
+    ? rec.map((r,i)=>`<div class="mi" onclick="openRecent(${i})">${r.name}
+        <span class="kb">${new Date(r.when).toLocaleDateString()}</span></div>`).join('')
+    : '<div class="mi dis">no recent designs</div>';
+}
+function openRecent(i){
+  const r = loadRecent()[i]; if(!r) return;
+  G = r.G; POS = r.POS;
+  uid = G.blocks.length + 1; selId = null;
+  render(); frameAll(); closeMenus(); toast('opened: ' + r.name);
+}
+function fileNew(){
+  if(G.blocks.length && !confirm('Clear the canvas and start a new design?')) return;
+  G = {blocks: [], connections: []}; POS = {}; selId = null; uid = 1; lastRun = null;
+  document.getElementById('results').innerHTML=''; document.getElementById('violBox').innerHTML='';
+  render(); showInspector(); viewReset(); closeMenus(); toast('new design');
+}
+function saveDesign(){
+  const name = prompt('Design name:', 'design-' + new Date().toISOString().slice(0,10));
+  if(name === null) return;
+  pushRecent(name || 'untitled');
+  const blob = new Blob([JSON.stringify({blocks:G.blocks,connections:G.connections},null,1)],
+                        {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = (name||'design') + '.prabha'; a.click();
+  closeMenus(); toast('saved & added to recent');
+}
+
+/* ---------- Shift+A add-node menu ---------- */
+let lastMouse = {x: 300, y: 200};     // stage-relative, for placing added nodes
+stage.addEventListener('mousemove', e=>{
+  const r = stage.getBoundingClientRect();
+  lastMouse = {x: e.clientX - r.left, y: e.clientY - r.top};
+});
+let addAt = null;
+function openAddMenu(sx, sy){
+  addAt = {x: (sx - VIEW.x)/VIEW.z, y: (sy - VIEW.y)/VIEW.z};
+  const m = document.getElementById('addMenu');
+  m.style.display = 'block';
+  m.style.left = Math.min(sx, stage.clientWidth - 240) + 'px';
+  m.style.top  = Math.min(sy, stage.clientHeight - 340) + 'px';
+  const inp = document.getElementById('addSearch');
+  inp.value = ''; fillAddMenu(''); setTimeout(()=>inp.focus(), 0);
+}
+function openAddMenuCenter(){ closeMenus(); openAddMenu(stage.clientWidth/2-115, stage.clientHeight/3); }
+function hideAddMenu(){ document.getElementById('addMenu').style.display = 'none'; }
+function fillAddMenu(q){
+  q = q.toLowerCase();
+  const cats = {};
+  for(const d of Object.values(DEFS))
+    if(!q || d.title.toLowerCase().includes(q) || d.id.includes(q) || d.category.toLowerCase().includes(q))
+      (cats[d.category] = cats[d.category] || []).push(d);
+  const order = [...CAT_ORDER.filter(c=>cats[c]), ...Object.keys(cats).filter(c=>!CAT_ORDER.includes(c))];
+  let h = '';
+  for(const cat of order){
+    h += `<div class="cat">${cat}</div>`;
+    for(const d of cats[cat])
+      h += `<div class="item" onclick="addFromMenu('${d.id}')">
+              <span class="dot" style="background:${accentOf(d)}"></span><span>${fmt(d.title)}</span></div>`;
+  }
+  document.getElementById('addList').innerHTML = h || '<div class="cat">no matches</div>';
+}
+function addFromMenu(ref){
+  hideAddMenu();
+  const id = addBlock(ref, addAt.x - 120, addAt.y - 20);
+  selId = id; render(); showInspector();
+}
+document.getElementById('addMenu').addEventListener('click', e=>e.stopPropagation());
+document.getElementById('addSearch').addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){ hideAddMenu(); }
+  if(e.key === 'Enter'){                       // add the first match
+    const it = document.querySelector('#addList .item'); if(it) it.click();
+  }
+  e.stopPropagation();
+});
+
+/* ---------- edit ops ---------- */
+function deleteSel(){
+  if(!selId){ toast('select a block first'); return; }
+  delBlock(selId);
+}
+function duplicateSel(){
+  if(!selId){ toast('select a block first'); return; }
+  const b = G.blocks.find(x=>x.id===selId); if(!b) return;
+  const id = b.ref.split('_')[0] + '_' + (uid++);
+  G.blocks.push({id, ref: b.ref, params: JSON.parse(JSON.stringify(b.params||{}))});
+  POS[id] = {x: POS[selId].x + 36, y: POS[selId].y + 36};
+  selId = id; render(); showInspector(); toast('duplicated (wires not copied)');
+}
+
+/* ---------- help modals ---------- */
+function showShortcuts(){
+  closeMenus();
+  document.getElementById('modalBox').innerHTML = `<h2>Keyboard shortcuts</h2>
+  <table>
+    <tr><td class="kb">Shift + A</td><td>add node at cursor</td></tr>
+    <tr><td class="kb">Del / X</td><td>delete selected node</td></tr>
+    <tr><td class="kb">Shift + D</td><td>duplicate selected node</td></tr>
+    <tr><td class="kb">F</td><td>focus selected node</td></tr>
+    <tr><td class="kb">.</td><td>fit all nodes in view</td></tr>
+    <tr><td class="kb">Ctrl + Enter</td><td>run simulation</td></tr>
+    <tr><td class="kb">Ctrl + S</td><td>save design (.prabha + recent)</td></tr>
+    <tr><td class="kb">Esc</td><td>close menus</td></tr>
+    <tr><td class="kb">wheel / drag</td><td>zoom (at cursor) / pan canvas</td></tr>
+  </table>`;
+  document.getElementById('modal').classList.add('show');
+}
+function showAbout(){
+  closeMenus();
+  document.getElementById('modalBox').innerHTML = `<h2>प्रभा Prabha</h2>
+  <p style="font-size:12.5px;line-height:1.6">Indigenous photonic–electronic system designer.
+  This interface is a <b>thin client</b>: every waveform, number and validation
+  message comes from the conformance-tested core-py engine — no physics runs in
+  the browser.</p>
+  <p class="muted" style="font-size:11.5px">spec v0.1.0 · dual-engine (Python / C++) · 14/14 conformance</p>`;
+  document.getElementById('modal').classList.add('show');
+}
+
+/* ---------- keyboard ---------- */
+addEventListener('keydown', e=>{
+  const t = e.target.tagName;
+  if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA') return;
+  if(e.key==='Escape'){ closeMenus(); hideAddMenu(); document.getElementById('modal').classList.remove('show'); return; }
+  if((e.key==='a'||e.key==='A') && e.shiftKey){ e.preventDefault(); openAddMenu(lastMouse.x, lastMouse.y); return; }
+  if((e.key==='d'||e.key==='D') && e.shiftKey){ e.preventDefault(); duplicateSel(); return; }
+  if(e.key==='Delete' || e.key==='x' || e.key==='X'){ deleteSel(); return; }
+  if(e.key==='Enter' && e.ctrlKey){ runSim(); return; }
+  if((e.key==='s'||e.key==='S') && e.ctrlKey){ e.preventDefault(); saveDesign(); return; }
+  if(e.key==='f'||e.key==='F') frameSelected();
+  else if(e.key==='.') frameAll();
+});
+
+/* ---------- scrollbars: appear when content exceeds the view ---------- */
+function updateScrollbars(){
+  const bb=contentBBox();
+  const r=stage.getBoundingClientRect();
+  const setup=(axis)=>{
+    const horiz = axis==='h';
+    const track=document.getElementById(horiz?'sbH':'sbV');
+    const thumb=document.getElementById(horiz?'sbHT':'sbVT');
+    if(!bb){track.classList.add('hidden');return;}
+    const z=VIEW.z;
+    const c1=(horiz?bb.x1:bb.y1)*z+(horiz?VIEW.x:VIEW.y);
+    const c2=(horiz?bb.x2:bb.y2)*z+(horiz?VIEW.x:VIEW.y);
+    const vp=horiz?r.width:r.height;
+    const lo=Math.min(0,c1-40), hi=Math.max(vp,c2+40), len=hi-lo;
+    if(len<=vp+2){track.classList.add('hidden');return;}
+    track.classList.remove('hidden');
+    const tl=horiz?track.clientWidth:track.clientHeight;
+    const tsz=Math.max(30, vp/len*tl), tpos=(0-lo)/len*tl;
+    if(horiz){thumb.style.width=tsz+'px'; thumb.style.left=tpos+'px';}
+    else{thumb.style.height=tsz+'px'; thumb.style.top=tpos+'px';}
+    thumb.dataset.ratio=len/tl;
+  };
+  setup('h'); setup('v');
+}
+function thumbDrag(id, horiz){
+  document.getElementById(id).addEventListener('mousedown', e=>{
+    e.stopPropagation(); e.preventDefault();
+    const s=horiz?e.clientX:e.clientY, o=horiz?VIEW.x:VIEW.y;
+    const ratio=+e.target.dataset.ratio||1;
+    const mv=ev=>{const d=((horiz?ev.clientX:ev.clientY)-s)*ratio;
+      if(horiz)VIEW.x=o-d; else VIEW.y=o-d; applyView();};
+    const up=()=>{removeEventListener('mousemove',mv);removeEventListener('mouseup',up);};
+    addEventListener('mousemove',mv); addEventListener('mouseup',up);
+  });
+}
+thumbDrag('sbHT',true); thumbDrag('sbVT',false);
+
+/* ---------- export every probe plot as PNGs in a zip ---------- */
+/* ---- engineering-unit helpers ---- */
+const ENG = [[1e-15,'f'],[1e-12,'p'],[1e-9,'n'],[1e-6,'µ'],[1e-3,'m'],[1,''],[1e3,'k'],[1e6,'M'],[1e9,'G']];
+function engScale(maxAbs){
+  if(!isFinite(maxAbs) || maxAbs === 0) return {s:1, p:''};
+  for(let i=ENG.length-1; i>=0; i--) if(maxAbs >= ENG[i][0]) return {s:ENG[i][0], p:ENG[i][1]};
+  return {s:1e-15, p:'f'};
+}
+function niceTicks(a,b,n){
+  const span=b-a; if(!(span>0)) return [a];
+  const mag=10**Math.floor(Math.log10(span/n));
+  const step=[1,2,2.5,5,10].map(m=>m*mag).find(s=>span/s<=n+1)||mag*10;
+  const out=[]; for(let v=Math.ceil(a/step)*step; v<=b+span*1e-9; v+=step) out.push(v);
+  return out;
+}
+function fnum(v){
+  const a=Math.abs(v);
+  if(a===0) return '0';
+  if(a>=100) return v.toFixed(0);
+  if(a>=10)  return v.toFixed(1);
+  if(a>=1)   return v.toFixed(2);
+  return v.toPrecision(3);
+}
+const KINDNAME={optical:'optical power',voltage:'voltage',current:'current',digital:'code'};
+const KINDUNIT={optical:'W',voltage:'V',current:'A',digital:''};
+
+function plotSVG(inst,p,pr,W,H){
+  const yr=pr.data, n=yr.length, pl=86, pb=64, pt=46, prr=26;
+  const col=pr.kind==='optical'?'#c85a17':pr.kind==='digital'?'#2f8a4c':'#2b6cb0';
+
+  /* time axis from the ORIGINAL length + fs; decimated samples map linearly */
+  const T=pr.n/pr.fs, tsc=engScale(T);
+  const tx=k=>k/(n-1)*T/tsc.s;                       // scaled time of sample k
+  let mn=Math.min(...yr), mx=Math.max(...yr);
+  if(mx-mn<1e-18){mx+=Math.abs(mx)||1; mn-=Math.abs(mn)||1;}
+  const ysc=engScale(Math.max(Math.abs(mn),Math.abs(mx)));
+  const ys=v=>v/ysc.s;
+  const yunit=(ysc.p+KINDUNIT[pr.kind])||'value';
+
+  const X=t=>pl+t/(T/tsc.s)*(W-pl-prr);
+  const Y=v=>pt+(1-(ys(v)-ys(mn))/(ys(mx)-ys(mn)))*(H-pt-pb);
+
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <rect width="${W}" height="${H}" fill="#ffffff"/>
+  <text x="${pl}" y="26" font-family="sans-serif" font-size="16" font-weight="600" fill="#1a1a1a">${inst}.${p}</text>`;
+
+  /* grid + ticks */
+  for(const t of niceTicks(0, T/tsc.s, 6)){
+    s+=`<line x1="${X(t)}" y1="${pt}" x2="${X(t)}" y2="${H-pb}" stroke="#efefef"/>
+        <line x1="${X(t)}" y1="${H-pb}" x2="${X(t)}" y2="${H-pb+5}" stroke="#8a8a8a"/>
+        <text x="${X(t)}" y="${H-pb+20}" text-anchor="middle" font-family="monospace" font-size="12" fill="#4a4a4a">${fnum(t)}</text>`;
+  }
+  for(const v of niceTicks(ys(mn), ys(mx), 5)){
+    const yy=pt+(1-(v-ys(mn))/(ys(mx)-ys(mn)))*(H-pt-pb);
+    s+=`<line x1="${pl}" y1="${yy}" x2="${W-prr}" y2="${yy}" stroke="#efefef"/>
+        <line x1="${pl-5}" y1="${yy}" x2="${pl}" y2="${yy}" stroke="#8a8a8a"/>
+        <text x="${pl-9}" y="${yy+4}" text-anchor="end" font-family="monospace" font-size="12" fill="#4a4a4a">${fnum(v)}</text>`;
+  }
+  s+=`<line x1="${pl}" y1="${H-pb}" x2="${W-prr}" y2="${H-pb}" stroke="#4a4a4a"/>
+      <line x1="${pl}" y1="${pt}" x2="${pl}" y2="${H-pb}" stroke="#4a4a4a"/>`;
+  if(mn<0&&mx>0) s+=`<line x1="${pl}" y1="${Y(0)}" x2="${W-prr}" y2="${Y(0)}" stroke="#c9c9c9" stroke-dasharray="4 3"/>`;
+
+  /* axis titles */
+  s+=`<text x="${(pl+W-prr)/2}" y="${H-16}" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#1a1a1a">time (${tsc.p}s)</text>
+      <text transform="translate(20 ${(pt+H-pb)/2}) rotate(-90)" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#1a1a1a">${KINDNAME[pr.kind]} (${yunit})</text>`;
+
+  /* trace */
+  let d='M '+X(tx(0))+' '+Y(yr[0]);
+  for(let k=1;k<n;k++) d+=' L '+X(tx(k))+' '+Y(yr[k]);
+  s+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="2"/>`;
+
+  /* legend */
+  s+=`<g><rect x="${W-prr-208}" y="${pt+6}" width="200" height="26" fill="#ffffff" stroke="#c9c9c9" rx="4"/>
+      <line x1="${W-prr-198}" y1="${pt+19}" x2="${W-prr-170}" y2="${pt+19}" stroke="${col}" stroke-width="2.5"/>
+      <text x="${W-prr-162}" y="${pt+23}" font-family="sans-serif" font-size="12" fill="#1a1a1a">${inst}.${p} — ${KINDNAME[pr.kind]}</text></g>`;
+
+  /* min / max markers with (t, y) */
+  const kmax=yr.indexOf(mx), kmin=yr.indexOf(mn);
+  for(const [k,v,lab] of [[kmax,mx,'max'],[kmin,mn,'min']]){
+    const ax=X(tx(k)), ay=Y(v);
+    const left=ax>(pl+W-prr)/2;
+    s+=`<circle cx="${ax}" cy="${ay}" r="4" fill="${col}"/>
+        <text x="${ax+(left?-8:8)}" y="${ay+(lab==='max'?-8:16)}" text-anchor="${left?'end':'start'}"
+          font-family="monospace" font-size="12" fill="#1a1a1a">${lab}: (${fnum(tx(k))} ${tsc.p}s, ${fnum(ys(v))} ${yunit})</text>`;
+  }
+
+  /* step-edge annotations for square-like traces */
+  const range=mx-mn; const edges=[];
+  for(let k=1;k<n && edges.length<4;k++)
+    if(Math.abs(yr[k]-yr[k-1])>0.25*range) edges.push(k);
+  for(const k of edges){
+    const ex=X(tx(k));
+    s+=`<line x1="${ex}" y1="${pt}" x2="${ex}" y2="${H-pb}" stroke="#b5b5b5" stroke-dasharray="3 4"/>
+        <circle cx="${X(tx(k-1))}" cy="${Y(yr[k-1])}" r="3" fill="#555"/>
+        <circle cx="${ex}" cy="${Y(yr[k])}" r="3" fill="#555"/>
+        <text x="${ex+4}" y="${(Y(yr[k])+Y(yr[k-1]))/2+4}" font-family="monospace" font-size="11" fill="#4a4a4a">${fnum(ys(yr[k-1]))}→${fnum(ys(yr[k]))} ${yunit}</text>
+        <text x="${ex}" y="${pt-6}" text-anchor="middle" font-family="monospace" font-size="11" fill="#8a8a8a">t=${fnum(tx(k))}</text>`;
+  }
+
+  s+=`<text x="${W-prr}" y="${H-16}" text-anchor="end" font-family="sans-serif" font-size="13" fill="#9a9a9a">प्रभा · Prabha</text></svg>`;
+  return s;
+}
+function svgToPng(svg,W,H){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{const c=document.createElement('canvas');c.width=W*2;c.height=H*2;
+      const g=c.getContext('2d');g.scale(2,2);g.drawImage(img,0,0);
+      c.toBlob(b=>res(b),'image/png');};
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  });
+}
+async function exportPlots(){
+  if(!lastRun || !lastRun.ok){toast('run the engine first');return;}
+  if(typeof JSZip==='undefined'){toast('JSZip failed to load (offline?)');return;}
+  toast('rendering plots…');
+  const zip=new JSZip();
+  for(const [inst,ports] of Object.entries(lastRun.probes))
+    for(const [pname,pr] of Object.entries(ports)){
+      const png=await svgToPng(plotSVG(inst,pname,pr,1000,500),1000,500);
+      zip.file(`${inst.replaceAll('/','_')}.${pname}.png`, png);
+    }
+  const blob=await zip.generateAsync({type:'blob'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='prabha_plots.zip'; a.click(); toast('⤓ all plots exported');
+}
+/* display-only typography: x_i -> x<sub>i</sub>; spec files stay plain ASCII */
+function fmt(s){ return String(s).replace(/_([A-Za-z0-9\u0370-\u03FF()·]+)/g, '<sub>$1</sub>'); }
+
+/* how an engineer writes each spec param / port name (display only) */
+const PSYM = {P0:'P_0', wavelength:'λ', linewidth:'Δν', RIN:'RIN', fs:'f_s',
+  resp:'ℛ', dark:'I_d', load:'R_L', Trx:'T', C:'C', gain:'A_v', theta:'θ',
+  bits:'bits', vmin:'V_min', vmax:'V_max', kind:'f(·)', scale:'k',
+  ratio:'split', rate:'rate', sps:'sps'};
+const PORTSYM = {Vc:'V_c', i1:'i_1', i2:'i_2', wu:'w_u', wl:'w_l'};
+
+function fmtVal(v){
+  if(typeof v !== 'number') return String(v);
+  if(v !== 0 && (Math.abs(v) >= 1e4 || Math.abs(v) < 1e-3)){
+    const e = Math.floor(Math.log10(Math.abs(v)));
+    const m = Math.round(v/10**e*100)/100;
+    return m + '×10<sup>' + e + '</sup>';
+  }
+  return String(Math.round(v*10000)/10000);
+}
+function labelFor(p){
+  const s = PSYM[p.name] ?? p.name;
+  let h = fmt(s);
+  if(s !== p.name) h += ` <span class="muted" style="font-weight:400">${p.name}</span>`;
+  if(p.unit) h += ` <span class="muted">${p.unit}</span>`;
+  return h;
+}
+function bodyText(b, d){
+  const has = n => d.params.some(p => p.name === n);
+  if(has('values') && has('rate')){                      // sources: show the vector
+    const vec = String(paramVal(b,'values')).split(',').map(s=>s.trim()).filter(Boolean);
+    const sym = /weight/i.test(d.id) ? 'w' : 'x';
+    return `${sym} = [${vec.join(', ')}] @ ${fmtVal(+paramVal(b,'rate'))} GHz`;
+  }
+  const parts = [];
+  for(const p of d.params){
+    if(p.name === 'seed' || parts.length >= 3) continue;
+    const sym = PSYM[p.name] ?? p.name;
+    parts.push(`${fmt(sym)} = ${fmtVal(paramVal(b,p.name))}${p.unit ? ' ' + p.unit : ''}`);
+  }
+  return parts.join(' · ');
+}
+function togglePanel(side){
+  const cls = side==='left' ? 'no-left' : 'no-right';
+  document.body.classList.toggle(cls);
+  document.getElementById(side==='left'?'leftT':'rightT')
+    .classList.toggle('off', document.body.classList.contains(cls));
+  setTimeout(drawWires, 210);   // after the grid transition
+}
+
+/* node geometry — single source of truth for layout AND wire endpoints */
+const HD_H = 41;          /* header height                     */
+const PORT_Y0 = 52;       /* first port row (below header)     */
+const PORT_DY = 24;       /* spacing between port rows         */
+
+function accentOf(d){
+  const p = d.ports.outputs[0] || d.ports.inputs[0];
+  return p ? COLK[p.kind] : '#9a9a9a';
+}
+
+/* ---------- boot: palette from the engine, in canonical category order ---------- */
+async function boot(){
+  const defs = await (await fetch('/api/blocks')).json();
+  for(const d of defs) DEFS[d.id] = d;
+  const cats = {};
+  for(const d of defs) (cats[d.category] = cats[d.category] || []).push(d);
+  const order = [...CAT_ORDER.filter(c=>cats[c]), ...Object.keys(cats).filter(c=>!CAT_ORDER.includes(c))];
+  let h = '';
+  for(const cat of order){
+    h += `<h3>${cat}</h3>`;
+    for(const d of cats[cat]){
+      h += `<div class="pblock" draggable="true"
+              ondragstart="event.dataTransfer.setData('t','${d.id}')">
+              <span class="dot" style="background:${accentOf(d)}"></span><span class="pl">${fmt(d.title)}</span></div>`;
+    }
+  }
+  document.getElementById('palette').innerHTML = h;
+  loadTemplate();
+}
+stage.addEventListener('dragover', e=>e.preventDefault());
+stage.addEventListener('drop', e=>{
+  e.preventDefault();
+  const t = e.dataTransfer.getData('t'); if(!t || !DEFS[t]) return;
+  const r = stage.getBoundingClientRect();
+  const wx = (e.clientX - r.left - VIEW.x) / VIEW.z;
+  const wy = (e.clientY - r.top  - VIEW.y) / VIEW.z;
+  addBlock(t, wx - 120, wy - 20);
+});
+
+/* ---------- pan (drag empty canvas) + wheel zoom, Blender-style ---------- */
+stage.addEventListener('mousedown', e=>{
+  if(e.target.closest('.node') || e.target.closest('.canvasbar') || e.target.closest('path')) return;
+  const sx=e.clientX, sy=e.clientY, ox=VIEW.x, oy=VIEW.y;
+  stage.style.cursor='grabbing';
+  const mv=ev=>{VIEW.x=ox+ev.clientX-sx; VIEW.y=oy+ev.clientY-sy; applyView();};
+  const up=()=>{stage.style.cursor=''; removeEventListener('mousemove',mv); removeEventListener('mouseup',up);};
+  addEventListener('mousemove',mv); addEventListener('mouseup',up);
+});
+stage.addEventListener('wheel', e=>{
+  e.preventDefault();
+  const r = stage.getBoundingClientRect();
+  zoomBy(e.deltaY < 0 ? 1.12 : 1/1.12, e.clientX - r.left, e.clientY - r.top);
+}, {passive:false});
+
+function addBlock(ref, x, y){
+  const id = ref.split('_')[0] + '_' + (uid++);
+  G.blocks.push({id, ref, params: {}});
+  POS[id] = {x: Math.max(8,x), y: Math.max(8,y)};
+  render(); return id;
+}
+function delBlock(id){
+  G.blocks = G.blocks.filter(b=>b.id!==id);
+  G.connections = G.connections.filter(c=>c.from[0]!==id && c.to[0]!==id);
+  delete POS[id]; if(selId===id) selId=null;
+  render(); showInspector();
+}
+function paramVal(b, name){
+  if(b.params && name in b.params) return b.params[name];
+  const pr = DEFS[b.ref].params.find(p=>p.name===name);
+  return pr ? pr.default : undefined;
+}
+
+/* ---------- rendering ---------- */
+function render(errInstances){
+  errInstances = errInstances || new Set();
+  [...world.querySelectorAll(".node")].forEach(n => n.remove());
+
+  for(const b of G.blocks){
+    const d = DEFS[b.ref];
+    if(!d) continue;
+
+    const el = document.createElement("div");
+    el.className = "node" + (b.id===selId ? " sel" : "") + (errInstances.has(b.id) ? " err" : "");
+    el.style.left = POS[b.id].x + "px";
+    el.style.top  = POS[b.id].y + "px";
+    el.style.borderLeftColor = accentOf(d);
+
+    const nPorts = Math.max(d.ports.inputs.length, d.ports.outputs.length);
+    const portZone = nPorts ? (PORT_Y0 - HD_H) + nPorts*PORT_DY : 6;
+
+    const icon = d.icon
+      ? `<img class="node-icon" src="${d.icon}" alt="">`
+      : `<span class="node-icon">${CAT_GLYPH[d.category] || d.title[0]}</span>`;
+
+    el.innerHTML = `
+      <div class="hd">${icon}
+        <span class="node-title">${fmt(d.title)}</span>
+        <span class="del" title="delete">✕</span>
+      </div>
+      <div class="bd" style="margin-top:${portZone}px">${bodyText(b,d)} <span class="iid">#${b.id}</span></div>
+      ${d.description ? `<div class="learn">${d.description}</div>` : ""}`;
+
+    d.ports.inputs.forEach((p,i)=>{
+      const port = mkPort(b.id,p,"in");
+      port.style.top = (PORT_Y0 + i*PORT_DY) + "px";
+      el.appendChild(port);
+    });
+    d.ports.outputs.forEach((p,i)=>{
+      const port = mkPort(b.id,p,"out");
+      port.style.top = (PORT_Y0 + i*PORT_DY) + "px";
+      el.appendChild(port);
+    });
+
+    world.appendChild(el);
+    el.querySelector(".hd").addEventListener("mousedown", e=>startDrag(e,b.id,el));
+    el.querySelector(".del").addEventListener("mousedown", e=>{ e.stopPropagation(); delBlock(b.id); });
+    el.addEventListener("mousedown", ()=>{
+      if(selId !== b.id){
+        selId = b.id;
+        world.querySelectorAll('.node.sel').forEach(n=>n.classList.remove('sel'));
+        el.classList.add('sel');
+        showInspector();
+      }
+    });
+  }
+  drawWires(); updateScrollbars();
+}
+function mkPort(inst,p,dir){
+  const el = document.createElement("div");
+  el.className = `port ${dir}`;
+  el.style.background = COLK[p.kind];
+  el.dataset.inst = inst; el.dataset.port = p.name; el.dataset.kind = p.kind;
+  el.innerHTML = `<span class="lbl">${fmt(PORTSYM[p.name] ?? p.name)}</span>`;
+  el.addEventListener("mousedown", e=>{ e.stopPropagation(); if(dir==="out") startWire(inst,p.name,p.kind); });
+  el.addEventListener("mouseup",   e=>{ e.stopPropagation(); if(dir==="in")  endWire(inst,p.name,p.kind); });
+  return el;
+}
+let _raf = 0;
+function scheduleFrame(){          /* coalesce wire+scrollbar redraws to one per frame */
+  if(_raf) return;
+  _raf = requestAnimationFrame(()=>{ _raf = 0; drawWires(); updateScrollbars(); });
+}
+function startDrag(e,id,el){
+  e.preventDefault();
+  e.stopPropagation();             /* CRITICAL: don't bubble into handlers that re-render */
+  if(selId !== id){ selId = id;
+    world.querySelectorAll('.node.sel').forEach(n=>n.classList.remove('sel'));
+    el.classList.add('sel'); showInspector(); }
+  const sx=e.clientX, sy=e.clientY, ox=POS[id].x, oy=POS[id].y;
+  const mv = ev=>{POS[id].x=ox+(ev.clientX-sx)/VIEW.z; POS[id].y=oy+(ev.clientY-sy)/VIEW.z;
+    el.style.left=POS[id].x+'px'; el.style.top=POS[id].y+'px'; scheduleFrame();};
+  const up = ()=>{removeEventListener('mousemove',mv); removeEventListener('mouseup',up); scheduleFrame();};
+  addEventListener('mousemove',mv); addEventListener('mouseup',up);
+}
+let pending=null;
+function startWire(inst,port,kind){
+  pending={inst,port,kind};
+  const mv=ev=>{const r=stage.getBoundingClientRect(); drawWires({x:ev.clientX-r.left,y:ev.clientY-r.top});};
+  const up=()=>{removeEventListener('mousemove',mv);removeEventListener('mouseup',up);
+    setTimeout(()=>{pending=null;drawWires();},0);};
+  addEventListener('mousemove',mv); addEventListener('mouseup',up);
+}
+function endWire(inst,port,kind){
+  if(!pending) return;
+  if(pending.kind!==kind){toast('type mismatch: '+pending.kind+' → '+kind+' (engine rule R5)');return;}
+  G.connections = G.connections.filter(c=>!(c.to[0]===inst && c.to[1]===port));
+  G.connections.push({from:[pending.inst,pending.port], to:[inst,port]});
+  pending=null; render();
+}
+function portCenter(inst,port,dir){
+  const el = world.querySelector(`.port.${dir}[data-inst="${inst}"][data-port="${port}"]`);
+  if(!el) return null;
+  const r=el.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+  return {x:r.left-sr.left+r.width/2, y:r.top-sr.top+r.height/2};
+}
+function drawWires(tmp){
+  let s='';
+  G.connections.forEach((c,i)=>{
+    const a=portCenter(c.from[0],c.from[1],'out'), b=portCenter(c.to[0],c.to[1],'in');
+    if(!a||!b) return;
+    const kind = (DEFS[G.blocks.find(x=>x.id===c.from[0])?.ref]?.ports.outputs
+                  .find(p=>p.name===c.from[1])||{}).kind;
+    s += path(a,b,COLK[kind]||'#888',i);
+  });
+  if(pending && tmp){const a=portCenter(pending.inst,pending.port,'out');
+    if(a) s+=path(a,tmp,COLK[pending.kind],-1,true);}
+  wires.innerHTML=s;
+  wires.querySelectorAll('path.w').forEach(p=>{
+    p.style.pointerEvents='stroke';
+    p.addEventListener('click',()=>{G.connections.splice(+p.dataset.i,1);render();});
+  });
+}
+function path(a,b,col,i,dash){
+  const dx=Math.max(40,Math.abs(b.x-a.x)*0.5);
+  return `<path class="w" data-i="${i}" d="M ${a.x} ${a.y} C ${a.x+dx} ${a.y}, ${b.x-dx} ${b.y}, ${b.x} ${b.y}"
+    fill="none" stroke="${col}" stroke-width="2.2" ${dash?'stroke-dasharray="5 4"':''} style="cursor:pointer"/>`;
+}
+
+/* ---------- inspector ---------- */
+function showInspector(){
+  const box=document.getElementById('insBody');
+  const b=G.blocks.find(x=>x.id===selId);
+  if(!b){box.innerHTML='<span class="muted">Select a block.</span>';return;}
+  const d=DEFS[b.ref];
+  let h=`<div style="font-weight:600;margin-bottom:8px">${fmt(d.title)} <span class="muted">(${b.id})</span></div>`;
+  if(document.body.classList.contains('learn') && d.description)
+    h+=`<div class="muted" style="margin-bottom:10px;font-size:11px">${d.description}</div>`;
+  for(const p of d.params){
+    const v = paramVal(b,p.name);
+    if(p.type==='enum'){
+      h+=`<div class="field"><label>${labelFor(p)}</label>
+        <select onchange="setP('${b.id}','${p.name}',this.value)">
+        ${p.options.map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select></div>`;
+    } else if(p.type==='boolean'){
+      h+=`<div class="field"><label>${labelFor(p)}</label>
+        <select onchange="setP('${b.id}','${p.name}',this.value==='true')">
+        <option ${v?'selected':''}>true</option><option ${!v?'selected':''}>false</option></select></div>`;
+    } else if(p.type==='number'){
+      h+=`<div class="field"><label>${labelFor(p)}</label>
+        <input type="number" step="any" value="${v}"
+          onchange="setP('${b.id}','${p.name}',+this.value)"></div>`;
+    } else {
+      h+=`<div class="field"><label>${labelFor(p)}</label>
+        <input type="text" value="${v}" onchange="setP('${b.id}','${p.name}',this.value)"></div>`;
+    }
+  }
+  box.innerHTML=h;
+}
+function setP(id,name,val){
+  const b=G.blocks.find(x=>x.id===id); if(!b) return;
+  b.params=b.params||{}; b.params[name]=val; render();
+}
+
+/* ---------- run: POST to the engine ---------- */
+function inferDuration(){
+  let dur=4e-10;
+  for(const b of G.blocks){
+    const d=DEFS[b.ref]; if(!d) continue;
+    const hasValues=d.params.some(p=>p.name==='values'), hasRate=d.params.some(p=>p.name==='rate');
+    if(hasValues&&hasRate){
+      const N=String(paramVal(b,'values')).split(',').filter(s=>s.trim()).length;
+      const rate=+paramVal(b,'rate')*1e9;
+      dur=Math.max(dur,N/rate);
+    }
+  }
+  return dur;
+}
+async function runSim(){
+  if(!G.blocks.length){toast('canvas is empty');return;}
+  toast('running on core-py…');
+  const req={design:{blocks:G.blocks,connections:G.connections},
+             duration:inferDuration(), noise:document.getElementById('noise').checked, seed:0};
+  let resp;
+  try{ resp=await (await fetch('/api/run',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(req)})).json(); }
+  catch(e){ toast('server unreachable — is server.py running?'); return; }
+  lastRun=resp;
+  showViolations(resp);
+  if(resp.ok){ toast('✔ engine run complete'); showResults(resp); }
+  else{ toast('✖ validation errors — see inspector'); document.getElementById('results').innerHTML=''; }
+}
+function showViolations(resp){
+  const box=document.getElementById('violBox');
+  const items=[...(resp.violations||[]),...(resp.warnings||[])];
+  const errInst=new Set();
+  for(const v of (resp.violations||[])) if(v.where&&v.where.instance) errInst.add(v.where.instance.split('/')[0]);
+  render(errInst);
+  if(!items.length){box.innerHTML='';return;}
+  box.innerHTML='<h3>Engine validation</h3>'+items.map(v=>
+    `<div class="viol ${v.severity}"><b>${v.rule}</b> · ${v.severity}<br>${v.message}</div>`).join('');
+}
+function showResults(resp){
+  const div=document.getElementById('results');
+  const opts=[];
+  for(const [inst,ports] of Object.entries(resp.probes))
+    for(const p of Object.keys(ports)) opts.push(`${inst}:${p}`);
+  let cards='';
+  for(const key of opts){
+    const [i,p]=key.split(':');
+    const pr=resp.probes[i][p];
+    if(pr.kind==='digital'||i==='amp')
+      cards+=`<div class="out-card"><div class="k">${i}.${p} (last)</div>
+              <div class="v">${pr.last.toPrecision(5)}</div></div>`;
+  }
+  div.innerHTML=`<h3>Results (from engine)</h3>
+    <button class="btn" style="width:100%;margin-bottom:10px" onclick="exportPlots()">⤓ Export all plots (.zip)</button>${cards}
+    <select id="scopeSel" onchange="drawScope()">
+      ${opts.map(o=>`<option>${o}</option>`).join('')}</select>
+    <svg id="scope" viewBox="0 0 280 150"></svg>`;
+  const prefer=opts.find(o=>o.startsWith('cap:'))||opts[0];
+  document.getElementById('scopeSel').value=prefer;
+  drawScope();
+}
+function drawScope(){
+  const sel=document.getElementById('scopeSel'); if(!sel||!lastRun||!lastRun.ok)return;
+  const [i,p]=sel.value.split(':'); const pr=lastRun.probes[i][p];
+  const y=pr.data, n=y.length, W=280,H=150,pl=44,pb=24,pt=10;
+  let mn=Math.min(...y),mx=Math.max(...y); if(mx-mn<1e-18){mx+=1;mn-=1;}
+  const ysc=engScale(Math.max(Math.abs(mn),Math.abs(mx)));
+  const yunit=(ysc.p+KINDUNIT[pr.kind])||'';
+  const T=pr.n/pr.fs, tsc=engScale(T);
+  const X=k=>pl+k/(n-1)*(W-pl-8), Y=v=>pt+(1-(v-mn)/(mx-mn))*(H-pt-pb);
+  let s=`<line x1="${pl}" y1="${Y(0)}" x2="${W-8}" y2="${Y(0)}" stroke="#c9c9c9"/>
+         <line x1="${pl}" y1="${pt}" x2="${pl}" y2="${H-pb}" stroke="#c9c9c9"/>`;
+  let d='M '+X(0)+' '+Y(y[0]);
+  for(let k=1;k<n;k++)d+=' L '+X(k)+' '+Y(y[k]);
+  const col=pr.kind==='optical'?'#c85a17':pr.kind==='digital'?'#2f8a4c':'#2b6cb0';
+  s+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="1.6"/>`;
+  s+=`<text x="3" y="${Y(mx)+4}" fill="#6e6e6e" font-size="8">${fnum(mx/ysc.s)}</text>`;
+  s+=`<text x="3" y="${Y(mn)+2}" fill="#6e6e6e" font-size="8">${fnum(mn/ysc.s)} ${yunit}</text>`;
+  s+=`<text x="${pl}" y="${H-8}" fill="#6e6e6e" font-size="8">0</text>`;
+  s+=`<text x="${W-8}" y="${H-8}" text-anchor="end" fill="#6e6e6e" font-size="8">${fnum(T/tsc.s)} ${tsc.p}s</text>`;
+  document.getElementById('scope').innerHTML=s;
+}
+
+/* ---------- mode / io / template ---------- */
+function toggleMode(){
+  document.body.classList.toggle('learn');
+  document.getElementById('modeBtn').textContent =
+    document.body.classList.contains('learn') ? 'Learn' : 'Fast';
+  render(); showInspector();
+}
+function exportJSON(){
+  const blob=new Blob([JSON.stringify({blocks:G.blocks,connections:G.connections},null,1)],
+                      {type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='design.prabha';a.click();toast('exported .prabha');
+}
+function importJSON(ev){
+  const f=ev.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result); G={blocks:d.blocks,connections:d.connections};
+    let x=40,y=40; POS={};
+    for(const b of G.blocks){POS[b.id]={x,y}; x+=270; if(x>1100){x=40;y+=230;}}
+    uid=G.blocks.length+1; render(); toast('imported');
+  }catch(e){toast('bad .prabha file');}};
+  r.readAsText(f); ev.target.value='';
+}
+function loadTemplate(){
+  G={blocks:[
+    {id:"laser",ref:"laser_cw",params:{P0:1,fs:1.6e11}},
+    {id:"x",ref:"drive_source",params:{values:"0.9,0.3,0.7,0.5"}},
+    {id:"w",ref:"weight_source",params:{values:"0.8,-0.6,0.4,-0.9"}},
+    {id:"mac",ref:"photonic_mac"},
+    {id:"cap",ref:"cap_integrator",params:{C:1}},
+    {id:"amp",ref:"bias_gain",params:{gain:22.22222222222222,theta:0.2}},
+    {id:"adc",ref:"adc",params:{bits:8}},
+    {id:"act",ref:"activation",params:{kind:"sigmoid"}}],
+   connections:[
+    {from:["laser","out"],to:["mac","light"]},
+    {from:["x","out"],to:["mac","x"]},
+    {from:["w","upper"],to:["mac","wu"]},
+    {from:["w","lower"],to:["mac","wl"]},
+    {from:["mac","I"],to:["cap","I"]},
+    {from:["cap","Vc"],to:["amp","in"]},
+    {from:["amp","out"],to:["adc","in"]},
+    {from:["adc","code"],to:["act","in"]}]};
+  /* columns spaced for 240px-wide nodes */
+  POS={laser:{x:30,y:30}, x:{x:30,y:210}, w:{x:30,y:390},
+       mac:{x:330,y:170},
+       cap:{x:630,y:40},  amp:{x:630,y:280},
+       adc:{x:930,y:170}, act:{x:1210,y:170}};
+  uid=1; render(); toast('PEMAN template loaded — press Run');
+}
+let toastT;
+function toast(m){const el=document.getElementById('toast');el.textContent=m;
+  el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
+boot();
+</script>
+</body>
+</html>

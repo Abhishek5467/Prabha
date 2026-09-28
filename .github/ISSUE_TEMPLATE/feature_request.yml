@@ -1,0 +1,16 @@
+name: Feature or experiment proposal
+description: Propose a component, experiment or product improvement
+title: "[Proposal] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and proposed change
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Model assumptions, sources and validation plan
+    validations:
+      required: true

@@ -1,0 +1,22 @@
+name: Bug report
+description: Report a reproducible simulation or Studio problem
+title: "[Bug] "
+body:
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps and inputs
+      description: Include the version, execution mode, model settings and seed.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and observed behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs or evidence
+      description: Remove credentials and personal information before posting.
