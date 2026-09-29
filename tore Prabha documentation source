@@ -1,0 +1,16 @@
+ .../0002-spec-v0.1.0-dual-engine-conformance.md    | 24 [31m-------------[m
+ docs/decisions/001-cross-compiler-builds.md        | 21 [31m------------[m
+ docs/site/api.md                                   | 22 [32m++++++++++++[m
+ docs/site/architecture.md                          | 19 [32m+++++++++++[m
+ docs/site/assets/community.js                      | 13 [32m++++++++[m
+ docs/site/community.md                             | 26 [32m+++++++++++++++[m
+ docs/site/contributing.md                          | 11 [32m++++++[m
+ docs/site/deployment.md                            | 39 [32m++++++++++++++++++++++[m
+ docs/site/desktop.md                               | 25 [32m++++++++++++++[m
+ docs/site/index.md                                 | 17 [32m++++++++++[m
+ docs/site/model-scope.md                           | 26 [32m+++++++++++++++[m
+ docs/site/quickstart.md                            | 29 [32m++++++++++++++++[m
+ docs/site/roadmap.md                               | 18 [32m++++++++++[m
+ docs/site/studio.md                                | 23 [32m+++++++++++++[m
+ docs/site/validation.md                            | 26 [32m+++++++++++++++[m
+ 15 files changed, 294 insertions(+), 45 deletions(-)
