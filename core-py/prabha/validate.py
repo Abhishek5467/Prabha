@@ -162,8 +162,7 @@ def validate_netlist(netlist: dict, registry, *,
     ids = [b["id"] for b in blocks]
     deps = {i: set() for i in ids}
     for ci, fi, fport, ti, tport in resolved:
-        if fi != ti:
-            deps[ti].add(fi)
+        deps[ti].add(fi)
     order, ready = [], [i for i in ids if not deps[i]]
     seen2 = set(ready)
     while ready:

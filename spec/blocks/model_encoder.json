@@ -1,0 +1,44 @@
+{
+  "id": "model_encoder",
+  "title": "Inverse MZM encoder",
+  "category": "Photonic",
+  "block_type": "primitive",
+  "implementation": "ComponentEncoder",
+  "description": "Calibration helper: x in [0,1] \u2192 V=(2Vpi/\u03c0)[acos(sqrt(x))\u2212bias/2]. It inverts ideal normalized transmission before insertion loss. Match its parameters to the MZM.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "x",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "v_pi",
+      "type": "number",
+      "default": 1.0,
+      "description": "MZM half-wave voltage.",
+      "unit": "V",
+      "min": 1e-09,
+      "max": 1000
+    },
+    {
+      "name": "bias_rad",
+      "type": "number",
+      "default": 1.5707963267948966,
+      "description": "Differential bias phase; transfer uses bias_rad / 2.",
+      "unit": "rad",
+      "min": -100,
+      "max": 100
+    }
+  ]
+}

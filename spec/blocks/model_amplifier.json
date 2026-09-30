@@ -1,0 +1,73 @@
+{
+  "id": "model_amplifier",
+  "title": "Voltage amplifier",
+  "category": "Electronic",
+  "block_type": "primitive",
+  "implementation": "ComponentAmplifier",
+  "description": "Uses Amplifier.amplify: gain \u00d7 Vin + offset, followed by enabled rail limits. No bandwidth, slew-rate or amplifier noise beyond the separately modeled TIA.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "gain",
+      "type": "number",
+      "default": 2.0,
+      "description": "Voltage gain.",
+      "min": -1000000.0,
+      "max": 1000000.0
+    },
+    {
+      "name": "offset_V",
+      "type": "number",
+      "default": 0.2,
+      "description": "Additive bias after gain.",
+      "unit": "V",
+      "min": -1000000.0,
+      "max": 1000000.0
+    },
+    {
+      "name": "lower_rail_enabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Enable lower-rail saturation."
+    },
+    {
+      "name": "v_min",
+      "type": "number",
+      "default": -1.0,
+      "description": "Lower output rail; must be below upper rail if both enabled.",
+      "unit": "V",
+      "min": -1000000.0,
+      "max": 1000000.0
+    },
+    {
+      "name": "upper_rail_enabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Enable upper-rail saturation."
+    },
+    {
+      "name": "v_max",
+      "type": "number",
+      "default": 1.0,
+      "description": "Upper output rail.",
+      "unit": "V",
+      "min": -1000000.0,
+      "max": 1000000.0
+    }
+  ]
+}

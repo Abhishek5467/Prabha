@@ -8,9 +8,10 @@ from . import SpecSchemas, BlockRegistry, System, RunContext, ValidationError
 from .systems import infer, batch, physical_neuron, NeuronConfig, DEFAULT_NETWORK
 from .blocks.cw_laser import CWLaser
 from .blocks.mzm import MachZehnderModulator
+from .blocks.component_kernels import MODEL_REVISION
 
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[2]))
-VERSION = '0.1.0-preview.1'
+VERSION = '0.1.0-preview.3'
 
 
 def registry():
@@ -56,7 +57,10 @@ def graph(payload):
                 raise ValueError(f'{k} must be finite.')
             if isinstance(v, list) and len(v) > 256:
                 raise ValueError('Preview vector limit: 256 values.')
-    sysm = System(design, reg, RunContext(duration, bool(payload.get('noise', True)), seed))
+    noise = payload.get('noise', True)
+    if not isinstance(noise, bool):
+        raise ValueError('Noise must be a boolean.')
+    sysm = System(design, reg, RunContext(duration, noise, seed))
     if len(sysm.flat['blocks']) > 256:
         raise ValueError('Preview limit: 256 flattened blocks.')
     # Flattened compounds can contain sources absent from the top-level design.
@@ -64,7 +68,7 @@ def graph(payload):
         definition = reg.get(block['ref'])
         params = {p['name']: p['default'] for p in definition['params']}
         params.update(block.get('params') or {})
-        if definition['implementation'] in {'DriveSource', 'WeightSource'}:
+        if definition['implementation'] in {'DriveSource', 'WeightSource', 'ComponentSource'}:
             sps = finite(params['sps'], 'Samples per symbol', 1, 256)
             if int(sps) != sps:
                 raise ValueError('Samples per symbol must be an integer.')
@@ -88,9 +92,18 @@ def graph(payload):
             if not len(a) or not np.all(np.isfinite(a)):
                 raise ValueError('The model produced a non-finite or empty signal. Check parameters.')
             idx = np.linspace(0, len(a) - 1, min(1200, len(a))).astype(int)
-            probes[inst][name] = {'kind': sig.kind, 'fs': sig.fs, 'n': int(sig.n),
-                                 'last': float(a[-1]), 'data': a[idx].tolist()}
-    return {'warnings': [vars(v) for v in sysm.warnings], 'probes': probes}
+            probe = {'kind': sig.kind, 'fs': sig.fs, 'n': int(sig.n),
+                     'unit': 'W' if sig.kind == 'optical' else sig.units,
+                     'last': float(a[-1]), 'data': a[idx].tolist(),
+                     'sample_indices': idx.tolist()}
+            if sig.kind == 'optical':
+                probe['phase_rad'] = np.unwrap(np.angle(sig.single_channel()))[idx].tolist()
+            probes[inst][name] = probe
+    return {'warnings': [vars(v) for v in sysm.warnings], 'probes': probes,
+            'model_revision': MODEL_REVISION, 'version': VERSION,
+            'settings': {'duration': duration, 'noise': noise, 'seed': seed},
+            'model_profiles': sorted({'components' if b['ref'].startswith('model_') else 'legacy-peman'
+                                      for b in design['blocks']})}
 
 
 def component(payload):
@@ -126,6 +139,7 @@ def dispatch(payload):
         cfg = NeuronConfig(payload.get('dac_bits', 12), payload.get('adc_bits', 12))
         if action == 'meta':
             result = {'version': VERSION, 'network': DEFAULT_NETWORK, 'default_inputs': [.9, .3, .7, .5],
+                      'model_revision': MODEL_REVISION,
                       'scope': 'behavioural simulation', 'actions': ['infer', 'batch', 'neuron', 'component', 'graph', 'blocks', 'example']}
         elif action == 'infer':
             result = infer(payload.get('inputs', [.9, .3, .7, .5]), payload.get('network'), cfg)
@@ -140,7 +154,13 @@ def dispatch(payload):
         elif action == 'blocks':
             result = list(registry()[1].defs.values())
         elif action == 'example':
-            result = json.loads((ROOT / 'peman.prabha').read_text())
+            name = payload.get('name', 'legacy')
+            if name == 'legacy':
+                result = json.loads((ROOT / 'peman.prabha').read_text())
+            elif name in {'neuron', 'expanded', 'receiver', 'nonlinear'}:
+                result = json.loads((ROOT / 'spec/examples' / (name + '.json')).read_text())
+            else:
+                raise ValueError('Unknown example; choose neuron, expanded, receiver, nonlinear or legacy.')
         else:
             raise ValueError('Unknown operation.')
         return {'ok': True, 'result': result}

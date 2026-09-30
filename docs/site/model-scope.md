@@ -1,26 +1,36 @@
 # Model scope and limitations
 
-## Two documented execution paths
+## Three explicit paths
 
-| Property | Typed graph / original PEMAN | Standalone perceptron and ANN |
-|---|---|---|
-| Purpose | Spec conformance and composable signal graph | Later component-based numerical validation |
-| Signal treatment | Sampled time-domain arrays | Per-channel behavioural transfer and integration |
-| Reference resolution | 8-bit ADC in the original fixture | 12-bit DAC and ADC |
-| Nonlinearity/readout | ADC before digital sigmoid | Behavioural sigmoid before ADC |
-| Noise | Seeded noise in supported primitive kernels | Disabled in the ANN baseline |
-| Conformance coverage | 14 shared Python/C++ fixtures | Python CSV regression and frontend/API checks |
+| Property | Current Designer (`model_*`) | Legacy PEMAN | Standalone ANN |
+|---|---|---|---|
+| Purpose | Compose the established component models | Preserve original graphs and conformance fixtures | Fixed 4–3–2 regression network |
+| Signal treatment | Sampled time arrays, explicit integration | Original sampled kernels | Per-channel behavioral computation |
+| Readout | Analog activation before ADC in reference example | ADC before digital activation in fixture | Analog sigmoid before ADC |
+| Noise | Configurable laser, detector and TIA sources | Original laser/PD noise rules | Disabled in archived baseline |
+| Nonlinear/deterministic effects | MZM transfer, DAC/ADC quantization, optional leakage/rails, activation | Original simplified kernels | Reference MZM/converter/activation chain |
+| Execution | Python API, browser Pyodide, Python desktop sidecar | Python and limited C++ fixture engine | Python shared dispatcher |
 
-Do not compare the two outputs as if they were the same physical pipeline. The C++ conformance engine does not implement the later standalone ANN frontend operation.
+Current Designer adapters call the **same Python component classes** as the standalone experiments. The compact MAC and expanded chain expose that computation in a graph. Historical IDs remain unchanged so old files preserve their semantics. C++ has **not** been extended to run the new `model_*` kernels or standalone ANN operations; its conformance result applies to the original fixtures.
+
+## Reference correspondence
+
+The B22 neuron uses 1 mW optical power, inverse MZM encoding (Vπ=1 V, differential bias π/2), 12-bit DAC, balanced ideal signed transmissions, 1 A/W responsivity, 1 pF capacitance, gain 2, bias 0.2, sigmoid and 12-bit ADC.
+
+The Designer reference sends four sequential symbols held for 1 ns each (16 samples/symbol at 16 GHz). With leakage off, the final charge equals B22's sum of four parallel currents each integrated for 1 ns. The final voltage/output agrees. **This is a numerical final-value correspondence, not a claim of equal circuit latency, bandwidth or parallel architecture.** Changing integration time, leakage, weights, gain or noise changes the modeled experiment.
 
 ## Physical assumptions
 
-The reference ANN uses a 1 mW CW source, ideal MZM inverse encoding (Vπ=1 V, quadrature bias), balanced signed transmissions, 1 A/W responsivity, 1 pF capacitance, 1 ns integration and gain 2. The sigmoid is an abstract behavioural electronic function. Weights are ideal normalized transmissions, not calibrated fabricated weight banks.
+MZM is a power-transfer model; the Designer preserves incident envelope phase but does not model chirp, coherent arm field signs or interferometric phase-to-intensity conversion. Laser phase diffusion therefore appears in the optical phase probe without changing a direct-detection power trace when RIN is disabled. Zero optical amplitude has no meaningful phase.
 
-Converter quantization is included. Laser noise, shot/dark noise, TIA bandwidth/noise, calibration drift, weight setting cost, parasitics, thermal effects and inter-layer timing are not propagated through this ANN validation. Separate noisy-link experiments do not establish noisy ANN accuracy.
+Weights are ideal normalized transmissions, not calibrated fabricated weight banks. The activation is a behavioral transfer on a normalized voltage scale, not a transistor implementation. TIA uses the established backward-Euler first-order filter; its initial output equals the first input times gain, and its discrete response depends on sample rate.
 
-## What the result establishes
+Photodetector shot noise uses the one-sided white-sample convention `variance = 2 q Imean fs/2`. TIA input noise density is an explicit user parameter, applied before filtering. No separate load thermal noise is silently added. Dark current and deterministic nonidealities remain active when global noise is off. RIN is a linearized Gaussian power perturbation; negative-power realizations are rejected instead of propagating NaNs.
 
-For one fixed network and 100 sampled inputs, the physical behavioural path closely matches the analytical sigmoid network. Zero ordering mismatches is not dataset classification accuracy. No throughput, energy, area, fabricated-chip or LLM performance claim follows from this result.
+Converter jitter, DNL/INL, kT/C reset noise, drift, parasitics, fabrication effects, weight-setting energy and a calibrated device-level activation are outside these models. The scope and parameter help for every block are in the [Designer guide](designer.md).
 
-The source includes some placeholders (including CNN and temporal systems) and an empty linewidth sweep file. Their presence is not evidence of implementation.
+## What is validated
+
+Archived ANN regression remains: RMS error **7.864411795585e-5**, maximum error **1.782838135357e-4**, **0/100** output-order mismatches. This is one fixed network and sampled input set; it does not establish dataset classification accuracy, noisy ANN accuracy, throughput, energy, area or fabricated-chip performance.
+
+Designer integration checks establish correspondence to the existing models and correct controls/transport. They are not new physical measurements. CNN and temporal placeholders remain outside this release; there is no validated LLM/LMM accelerator implementation here.

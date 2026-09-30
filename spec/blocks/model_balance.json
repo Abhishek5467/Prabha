@@ -1,0 +1,30 @@
+{
+  "id": "model_balance",
+  "title": "Balanced current subtraction",
+  "category": "Detection",
+  "block_type": "primitive",
+  "implementation": "ComponentBalance",
+  "description": "Iout=Iupper\u2212Ilower. Each photodetector has its own noise stream. No extra subtractor noise or hidden gain.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "upper",
+        "kind": "current",
+        "domain": "time"
+      },
+      {
+        "name": "lower",
+        "kind": "current",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "current",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": []
+}

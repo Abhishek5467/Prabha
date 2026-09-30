@@ -1,58 +1,320 @@
-import React,{useEffect,useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
+import {version} from '../package.json';
+import {DEFAULT_INPUTS, DEFAULT_NETWORK, PRECISIONS, validateInputs, parseNetwork,
+  numberInRange, importAnn, isReference, batchCsv} from './experiments.js';
+import {LineChart, Network} from './visuals.jsx';
 import './style.css';
-const base=new URL(import.meta.env.BASE_URL,document.baseURI).href;
-const engine=import(/* @vite-ignore */ `${base}engine.js`);
-const run=async p=>(await engine).execute(p);
-const initial=[.9,.3,.7,.5];
-const defaultNetwork={w1:[[.8,-.6,.4,-.9],[-.3,.7,.5,.2],[.6,.1,-.8,.7]],b1:[.2,-.1,.05],w2:[[.7,-.5,.6],[-.4,.9,-.7]],b2:[.1,-.05]};
-const fmt=(n,d=6)=>Number.isFinite(n)?n.toFixed(d):'—';
-const sci=n=>Number.isFinite(n)?n.toExponential(4):'—';
-function download(name,text,type='application/json'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);}
-function Icon({name}){return <span className="nav-symbol" aria-hidden="true">{{ann:'◉',neuron:'⊙',components:'∿',evidence:'▤',designer:'⌘',docs:'↗',community:'↗'}[name]}</span>}
-function LineChart({x,y,xLabel,yLabel}){
- if(!x?.length)return null;
- const w=720,h=280,l=70,r=25,t=25,b=50;
- const xmin=Math.min(...x),xmax=Math.max(...x),rawMin=Math.min(...y),rawMax=Math.max(...y),pad=(rawMax-rawMin||1)*.08,ymin=rawMin-pad,ymax=rawMax+pad;
- const px=v=>l+(v-xmin)/(xmax-xmin||1)*(w-l-r),py=v=>h-b-(v-ymin)/(ymax-ymin||1)*(h-t-b);
- return <svg className="chart" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`${yLabel} versus ${xLabel}`}>
- {[0,.25,.5,.75,1].map(q=><g key={q}><line x1={l} y1={py(ymin+q*(ymax-ymin))} x2={w-r} y2={py(ymin+q*(ymax-ymin))} stroke="#e3e6e3"/><text x={l-10} y={py(ymin+q*(ymax-ymin))+4} textAnchor="end">{(ymin+q*(ymax-ymin)).toPrecision(3)}</text></g>)}
- <polyline points={x.map((v,i)=>`${px(v)},${py(y[i])}`).join(' ')} fill="none" stroke="#23676a" strokeWidth="2"/><text x={w/2} y={h-10} textAnchor="middle">{xLabel}</text><text x="12" y="15">{yLabel}</text><text x={l} y={h-b+22}>{xmin.toPrecision(3)}</text><text x={w-r} y={h-b+22} textAnchor="end">{xmax.toPrecision(3)}</text></svg>
+import './release.css';
+
+const base = new URL(import.meta.env.BASE_URL, document.baseURI).href;
+const engine = import(/* @vite-ignore */ base + 'engine.js');
+const platform = import(/* @vite-ignore */ base + 'platform.js');
+const fmt = (n, d = 6) => Number.isFinite(n) ? n.toFixed(d) : '—';
+const sci = n => Number.isFinite(n) ? n.toExponential(4) : '—';
+const nav = [['start', 'Get started', '◇'], ['ann', 'ANN inference', '◉'],
+  ['neuron', 'Single neuron', '⊙'], ['components', 'Component lab', '∿'],
+  ['evidence', 'Validation archive', '▤']];
+const headings = {
+  start: ['Light, models and reproducible experiments.', 'Explore photonic-electronic computation, from a device response to a small neural network.'],
+  ann: ['Photonic ANN inference', 'Run the 4 → 3 → 2 network and compare physical-model outputs with the analytical reference.'],
+  neuron: ['Inside a photonic neuron', 'Follow optical weighting, charge accumulation, activation and readout.'],
+  components: ['Explore the device physics', 'Change a model parameter and inspect its response.'],
+  evidence: ['A reproducible foundation', 'Browse the original experiments and evidence behind the preview.']
+};
+const currentView = () => nav.some(([key]) => '#' + key === location.hash) ? location.hash.slice(1) : 'start';
+const initialSettings = () => ({inputs: [...DEFAULT_INPUTS], dac_bits: 12, adc_bits: 12,
+  network: JSON.stringify(DEFAULT_NETWORK, null, 2)});
+
+function Inputs({values, onChange}) {
+  return <div className="inputs-grid">{values.map((value, i) =>
+    <label className="input-row" key={i}><span>x<sub>{i + 1}</sub></span>
+      <input aria-label={'Input ' + (i + 1)} type="range" min="0" max="1" step="0.01"
+        value={value === '' ? 0 : value} onChange={e => onChange(values.map((v, j) => j === i ? +e.target.value : v))}/>
+      <input aria-label={'Input ' + (i + 1) + ' value'} type="number" min="0" max="1" step="0.01"
+        value={value} onChange={e => onChange(values.map((v, j) => j === i ? e.target.value : v))}/>
+    </label>)}</div>;
 }
-function Network({inputs,result}){
- const groups=[inputs,result?.physical_hidden||[null,null,null],result?.physical_output||[null,null]];
- const pts=groups.map((g,k)=>g.map((_,i)=>({x:100+k*260,y:88+i*65+(4-g.length)*32.5})));
- return <svg className="network" viewBox="0 0 740 360" role="img" aria-label="Four input signals, three hidden neurons and two output neurons">
- {[0,1].flatMap(k=>pts[k].flatMap((a,i)=>pts[k+1].map((b,j)=><line key={`${k}-${i}-${j}`} x1={a.x+28} y1={a.y} x2={b.x-28} y2={b.y} stroke={k===0?'#c8d8d2':'#b9ced1'} strokeWidth="1.4"/>)))}
- {['Optical inputs','Hidden layer','Output layer'].map((v,k)=><text className="group-label" key={v} x={100+k*260} y="28" textAnchor="middle">{v}</text>)}
- {groups.flatMap((g,k)=>g.map((v,i)=><g key={`${k}-${i}`}><circle cx={pts[k][i].x} cy={pts[k][i].y} r="28" fill={k===2?'#173b42':'#f9faf6'} stroke={k===0?'#bb7830':'#578483'} strokeWidth="1.5"/><text x={pts[k][i].x} y={pts[k][i].y+5} textAnchor="middle" fill={k===2?'white':'#24393b'}>{v===null?'—':fmt(v,3)}</text></g>))}
- <text x="370" y="343" textAnchor="middle" className="graph-note">Each neuron uses the validated electro-optical computation chain</text></svg>
+
+function RunDetails({record}) {
+  return <p className="run-details">Computed with {record.engine} · engine {record.engine_version}
+    <br/>{new Date(record.created_at).toLocaleString()} · settings included in JSON</p>;
 }
-function Inputs({inputs,setInputs}){return <div className="inputs-grid">{inputs.map((v,i)=><label className="input-row" key={i}><span>x<sub>{i+1}</sub></span><input aria-label={`Input ${i+1}`} type="range" min="0" max="1" step="0.01" value={v} onChange={e=>setInputs(inputs.map((x,j)=>j===i?+e.target.value:x))}/><input aria-label={`Input ${i+1} value`} type="number" min="0" max="1" step="0.01" value={v} onChange={e=>setInputs(inputs.map((x,j)=>j===i?+e.target.value:x))}/></label>)}</div>}
-function App(){
- const [communityUrl,setCommunityUrl]=useState(`${base}docs/community/index.html`);
- const [view,setView]=useState('ann'),[inputs,setInputs]=useState(initial),[bits,setBits]=useState(12),[adc,setAdc]=useState(12),[network,setNetwork]=useState(JSON.stringify(defaultNetwork,null,2));
- const [result,setResult]=useState(null),[batch,setBatch]=useState(null),[neuron,setNeuron]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[status,setStatus]=useState('Ready'),[evidence,setEvidence]=useState([]),[filter,setFilter]=useState('All');
- const [component,setComponent]=useState('mzm'),[curve,setCurve]=useState(null),[rin,setRin]=useState(-150),[power,setPower]=useState(1),[vpi,setVpi]=useState(1),[bias,setBias]=useState(1.5707963267948966);
- useEffect(()=>{import(/* @vite-ignore */ `${base}community-config.js`).then(m=>m.getCommunityUrl()).then(url=>{if(url)setCommunityUrl(url);}).catch(()=>{});},[]);
- useEffect(()=>{engine.then(e=>e.engineStatus(setStatus));fetch(`${base}evidence/catalog.json`).then(r=>r.json()).then(setEvidence).catch(()=>{});},[]);
- async function action(task){setBusy(true);setError('');try{await task();}catch(e){setError(e.message);}finally{setBusy(false);}}
- const params=()=>({network:JSON.parse(network),dac_bits:bits,adc_bits:adc});
- const infer=()=>action(async()=>{setResult(await run({action:'infer',inputs,...params()}));setBatch(null);});
- const runBatch=()=>action(async()=>setBatch(await run({action:'batch',count:100,seed:12345,...params()})));
- const runNeuron=()=>action(async()=>setNeuron(await run({action:'neuron',inputs,dac_bits:bits,adc_bits:adc})));
- const runComponent=()=>action(async()=>setCurve(await run({action:'component',kind:component,rin_db_hz:rin,power_mw:power,v_pi:vpi,bias})));
- const nav=[['ann','ANN inference'],['neuron','Single neuron'],['components','Component lab'],['evidence','Validation archive']];
- return <div className="app-shell"><aside className="sidebar"><a className="brand" href="#" onClick={e=>{e.preventDefault();setView('ann')}}><img src={`${base}favicon.svg`} alt=""/><span>Prabha<small>PHOTONIC COMPUTING</small></span></a><div className="section-caption">WORKSPACE</div><nav>{nav.map(([k,t])=><button key={k} className={view===k?'active':''} onClick={()=>{setView(k);setError('')}}><Icon name={k}/>{t}</button>)}<a href={`${base}designer.html`}><Icon name="designer"/>System designer <span className="out">↗</span></a></nav><div className="section-caption">PROJECT</div><nav><a href={`${base}docs/index.html`}><Icon name="docs"/>Documentation</a><a href={communityUrl}><Icon name="community"/>Community</a><a href={`${base}prabha-source.zip`} download><span className="nav-symbol">⌥</span>Source code <span className="out">↗</span></a></nav><div className="sidebar-bottom"><span className="preview-dot"/>v0.1 preview<small>Open photonic-electronic simulation</small></div></aside>
- <main><header className="topbar"><span>Studio <span className="slash">/</span> {nav.find(n=>n[0]===view)?.[1]}</span><span className="engine-status"><i className={busy?'pulse':''}/>{status}</span></header><div className="content"><div className="page-heading"><div><div className="eyebrow">PRABHA STUDIO</div><h1>{view==='ann'?'Photonic ANN inference':view==='neuron'?'Inside a photonic neuron':view==='components'?'Explore the device physics':'A reproducible foundation'}</h1><p>{view==='ann'?'Run the validated 4 → 3 → 2 network and compare physical-model outputs with the analytical reference.':view==='neuron'?'Follow one computation through optical weighting, charge accumulation, activation and readout.':view==='components'?'Change a model parameter and inspect its physical response.':'Browse the experiments and original evidence behind the current prototype.'}</p></div><span className="scope-label">Behavioural simulation</span></div>
- {error&&<div role="alert" className="error">{error}</div>}
- {(view==='ann'||view==='neuron')&&<><div className="work-grid"><section className="controls"><div className="panel-heading"><h2>Input signals</h2><button className="text-button" onClick={()=>{setInputs(initial);setResult(null);setNeuron(null)}}>Reset</button></div><p className="muted small">Normalized amplitude, 0 to 1</p><Inputs inputs={inputs} setInputs={setInputs}/><div className="divider"/><h3>Converter resolution</h3><div className="field-pair"><label>DAC<select value={bits} onChange={e=>setBits(+e.target.value)}>{[3,4,6,8,10,12,16].map(v=><option key={v} value={v}>{v} bits</option>)}</select></label><label>ADC<select value={adc} onChange={e=>setAdc(+e.target.value)}>{[3,4,6,8,10,12,16].map(v=><option key={v} value={v}>{v} bits</option>)}</select></label></div><p className="hint">Reference baseline: 12-bit DAC and ADC. Changing settings starts an exploratory run.</p><button className="primary" disabled={busy} onClick={view==='ann'?infer:runNeuron}>{busy?'Running…':view==='ann'?'Run inference':'Run neuron'} <span>↗</span></button>{view==='ann'&&<button className="secondary" disabled={busy} onClick={runBatch}>Validate 100 inputs</button>}<div className="model-spec">1 mW source · 1 pF capacitor<br/>1 ns integration · sigmoid activation</div></section>
- <section className="results"><div className="panel-heading"><h2>{view==='ann'?'Network propagation':'Computation trace'}</h2><span className="muted small">{view==='ann'?'4 inputs · 3 hidden · 2 outputs':'4 signed products · 1 output'}</span></div>{view==='ann'?<><Network inputs={result?.inputs||inputs} result={result}/>{!result&&<p className="empty-note">Set your inputs and run inference to inspect computed values.</p>}{result&&<><div className="metric-strip"><div><span>Maximum error</span><strong>{sci(result.max_error)}</strong></div><div><span>RMS error</span><strong>{sci(result.rms_error)}</strong></div></div><table><thead><tr><th>Output</th><th>Analytical</th><th>Physical model</th><th>Difference</th></tr></thead><tbody>{result.physical_output.map((v,i)=><tr key={i}><td>y<sub>{i+1}</sub></td><td>{fmt(result.ideal_output[i])}</td><td className="teal">{fmt(v)}</td><td>{sci(result.error[i])}</td></tr>)}</tbody></table><button className="text-button export" onClick={()=>download('prabha-inference.json',JSON.stringify(result,null,2))}>Download result ↓</button></>}</>:neuron?<><table><thead><tr><th>Channel</th><th>Ideal xw</th><th>Recovered xw</th><th>Current (A)</th></tr></thead><tbody>{neuron.products.map((v,i)=><tr key={i}><td>{i+1}</td><td>{fmt(neuron.ideal_products[i])}</td><td>{fmt(v)}</td><td>{sci(neuron.differential_current_A[i])}</td></tr>)}</tbody></table><dl className="trace">{[['Capacitor voltage',neuron.capacitor_voltage_V,'V'],['Pre-activation',neuron.pre_activation,''],['Analog sigmoid',neuron.analog_activation,''],['ADC code',neuron.adc_code,''],['Digital output',neuron.output,''],['Reference output',neuron.ideal,'']].map(([label,v,u])=><div key={label}><dt>{label}</dt><dd>{fmt(v,label==='ADC code'?0:9)} {u}</dd></div>)}</dl><button className="text-button" onClick={()=>download('prabha-neuron.json',JSON.stringify(neuron,null,2))}>Download trace ↓</button></>:<div className="empty-state"><span>Σ xᵢwᵢ + θ</span><h3>Signed optical products, explicit electronic stages</h3><p>The reference weights are [0.8, −0.6, 0.4, −0.9] and the bias is 0.2. Run the neuron to inspect every stage.</p></div>}</section></div>
- {view==='ann'&&<details className="network-editor"><summary>Network weights and biases <span>Fixed 4 → 3 → 2 architecture</span></summary><p className="muted">Weights must lie in [−1, 1]. Biases must lie in [−10, 10]. Custom values are exploratory.</p><textarea aria-label="Network JSON" value={network} onChange={e=>setNetwork(e.target.value)} spellCheck={false}/><button className="text-button" onClick={()=>setNetwork(JSON.stringify(defaultNetwork,null,2))}>Restore reference network</button></details>}
- {view==='ann'&&batch&&<section className="batch-section"><div className="panel-heading"><h2>Batch validation</h2><button className="text-button" onClick={()=>download('prabha-batch.csv','sample,x1,x2,x3,x4,ideal_y1,ideal_y2,physical_y1,physical_y2,error_y1,error_y2\n'+batch.rows.map(r=>[r.sample,...r.inputs,...r.ideal,...r.physical,...r.error].join(',')).join('\n'),'text/csv')}>Export CSV ↓</button></div><div className="metric-strip"><div><span>Output RMS</span><strong>{sci(batch.rms_error)}</strong></div><div><span>Maximum error</span><strong>{sci(batch.max_error)}</strong></div><div><span>Ordering mismatches</span><strong>{batch.winner_mismatches}/{batch.count}</strong></div></div><LineChart x={batch.rows.map(r=>r.sample)} y={batch.rows.map(r=>Math.max(...r.error.map(Math.abs)))} xLabel="Input sample" yLabel="Maximum absolute output error"/><p className="hint">Seed {batch.seed}. Fixed weights and sampled inputs measure numerical agreement. Output ordering is not classification accuracy.</p></section>}
- <p className="scope-note">This model includes DAC/ADC quantization and behavioural activation. Laser RIN, detector noise and receiver bandwidth are studied separately in the validation archive.</p></>}
- {view==='components'&&<><div className="work-grid"><section className="controls"><h2>Live experiment</h2><label>Component<select value={component} onChange={e=>{setComponent(e.target.value);setCurve(null)}}><option value="mzm">Mach–Zehnder modulator</option><option value="laser">CW laser with noise</option></select></label>{component==='mzm'?<><label>Half-wave voltage, Vπ (V)<input type="number" min="0.1" max="10" step="0.1" value={vpi} onChange={e=>setVpi(+e.target.value)}/></label><label>Bias phase (rad)<input type="number" min="-6.28" max="6.28" step="0.1" value={bias} onChange={e=>setBias(+e.target.value)}/></label><p className="formula">T(V) = cos²(πV / 2Vπ + φᵦ / 2)</p></>:<><label>Mean optical power (mW)<input type="number" min="0.01" max="100" step="0.1" value={power} onChange={e=>setPower(+e.target.value)}/></label><label>RIN density (dB/Hz)<input type="number" min="-180" max="-140" step="1" value={rin} onChange={e=>setRin(+e.target.value)}/></label><p className="hint">160 GHz sampling, 10 ns duration, 1 MHz linewidth, seed 1. Gaussian RIN approximation within a bounded preview range.</p></>}<button className="primary" disabled={busy} onClick={runComponent}>{busy?'Running…':'Run experiment'} ↗</button></section><section className="results"><h2>{component==='mzm'?'Optical transfer':'Optical power waveform'}</h2>{curve?<><LineChart x={curve.x} y={curve.y} xLabel={curve.x_label} yLabel={curve.y_label}/><dl className="trace">{Object.entries(curve.summary).map(([k,v])=><div key={k}><dt>{k.replaceAll('_',' ')}</dt><dd>{sci(v)}</dd></div>)}</dl></>:<div className="empty-state"><span>{component==='mzm'?'cos²':'E(t)'}</span><p>Run the experiment to generate the response from the Python model.</p></div>}</section></div><section className="plain-section"><h2>Validated component collection</h2><div className="component-list">{[['CW laser','Power, wavelength, RIN, linewidth and seeds'],['MZM','Transfer curve, local linearity and inverse encoding'],['Photodetector','Responsivity, dark current and shot noise'],['DAC and ADC','Code boundaries and quantization sweeps'],['Transimpedance amplifier','Gain, finite bandwidth and input noise'],['Capacitor and activation','Charge integration, gain, bias and sigmoid']].map(([a,b])=><div key={a}><h3>{a}</h3><p>{b}</p></div>)}</div><p><button className="text-button" onClick={()=>setView('evidence')}>Explore all saved validation evidence →</button></p></section></>}
- {view==='evidence'&&<><div className="archive-top"><span>{evidence.length} saved figures · 48 experiment files · 4 datasets</span><label className="inline-label">Filter<select value={filter} onChange={e=>setFilter(e.target.value)}>{['All',...new Set(evidence.map(x=>x.group))].map(x=><option key={x}>{x}</option>)}</select></label></div><div className="evidence-grid">{evidence.filter(e=>filter==='All'||e.group===filter).map(e=><article key={e.file}><a href={`${base}evidence/${e.file}`} target="_blank" rel="noreferrer"><img src={`${base}evidence/${e.file}`} alt={e.title} loading="lazy"/></a><div><small>{e.group}</small><h3>{e.title}</h3><p>Archived simulation evidence</p><a href={`${base}evidence/${e.file}`} download>Download figure ↓</a></div></article>)}</div><div className="plain-section"><h2>Original numerical datasets</h2>{['ann_batch_validation.csv','dac_adc_resolution_matrix.csv','full_chain_monte_carlo.csv','photodetector_shot_noise_power_sweep.csv'].map(f=><p key={f}><a href={`${base}evidence/${f}`} download>{f.replaceAll('_',' ')} ↓</a></p>)}</div></>}
- <footer><span>Prabha · Abhishek Singh · IIT Patna</span><a href={`${base}docs/model-scope/index.html`}>Model scope and reproducibility ↗</a></footer></div></main></div>
+
+function FigurePreview({figure, close}) {
+  const dialog = useRef(null);
+  useEffect(() => { dialog.current.showModal(); }, []);
+  return <dialog ref={dialog} className="figure-preview" onCancel={close}>
+    <div className="panel-heading"><h2>{figure.title}</h2><button autoFocus onClick={close} aria-label="Close figure">Close ×</button></div>
+    <img src={base + 'evidence/' + figure.file} alt={figure.title}/>
+    <a href={base + 'evidence/' + figure.file} download>Download figure ↓</a>
+  </dialog>;
 }
+
+function App() {
+  const [view, setView] = useState(currentView);
+  const [settings, setSettings] = useState(initialSettings);
+  const [links, setLinks] = useState({forum: base + 'docs/community/index.html', chat: ''});
+  const [records, setRecords] = useState({});
+  const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
+  const [status, setStatus] = useState('Ready to run');
+  const [evidence, setEvidence] = useState(null), [archiveError, setArchiveError] = useState('');
+  const [filter, setFilter] = useState('All'), [figure, setFigure] = useState(null);
+  const [lab, setLab] = useState({kind: 'mzm', v_pi: 1, bias: Math.PI / 2, power_mw: 1, rin_db_hz: -150});
+  const fileInput = useRef(null);
+  const operation = useRef(false);
+  const result = records.infer?.result, batch = records.batch?.result, neuron = records.neuron?.result, curve = records.component?.result;
+
+  useEffect(() => {
+    let active = true, unsubscribe = () => {}, removeNavigation = () => {};
+    engine.then(module => { if (active) unsubscribe = module.engineStatus(setStatus); }).catch(e => setError(e.message));
+    platform.then(module => { if (active) removeNavigation = module.installNavigation(e => setError(e.message || String(e))); });
+    import(/* @vite-ignore */ base + 'community-config.js').then(module => module.getCommunityLinks())
+      .then(value => { if (active) setLinks({forum: value.forum || base + 'docs/community/index.html', chat: value.chat}); });
+    const changeView = () => { setView(currentView()); setError(''); setNotice(''); };
+    window.addEventListener('hashchange', changeView);
+    return () => { active = false; unsubscribe(); removeNavigation(); window.removeEventListener('hashchange', changeView); };
+  }, []);
+
+  useEffect(() => { loadEvidence(); }, []);
+  async function loadEvidence() {
+    setArchiveError('');
+    try {
+      const response = await fetch(base + 'evidence/catalog.json');
+      if (!response.ok) throw new Error('The evidence catalogue is unavailable.');
+      const data = await response.json();
+      if (!Array.isArray(data) || data.some(item => typeof item.file !== 'string' || !/^[a-zA-Z0-9_-]+\.png$/.test(item.file)))
+        throw new Error('The evidence catalogue is invalid.');
+      setEvidence(data);
+    } catch (e) { setArchiveError(e.message); }
+  }
+  const clearMessage = () => { setError(''); setNotice(''); };
+  function updateSettings(patch) {
+    setSettings(value => ({...value, ...patch}));
+    setRecords(value => ({component: value.component}));
+    clearMessage();
+  }
+  function updateLab(patch) {
+    setLab(value => ({...value, ...patch}));
+    setRecords(value => ({...value, component: undefined}));
+    clearMessage();
+  }
+  async function action(task) {
+    if (operation.current) return;
+    operation.current = true; setBusy(true); clearMessage();
+    try { await task(); } catch (e) { setError(e.message || String(e)); }
+    finally { operation.current = false; setBusy(false); }
+  }
+  const annParameters = () => ({network: parseNetwork(settings.network), dac_bits: settings.dac_bits, adc_bits: settings.adc_bits});
+  const annSettings = () => ({inputs: validateInputs(settings.inputs), ...annParameters()});
+  function simulate(kind) {
+    action(async () => {
+      let request;
+      if (kind === 'infer') request = {action: kind, ...annSettings()};
+      else if (kind === 'batch') request = {action: kind, count: 100, seed: 12345, ...annParameters()};
+      else if (kind === 'neuron') request = {action: kind, inputs: validateInputs(settings.inputs),
+        dac_bits: settings.dac_bits, adc_bits: settings.adc_bits, weights: [0.8, -0.6, 0.4, -0.9], bias: 0.2};
+      else request = lab.kind === 'mzm' ? {action: kind, kind: lab.kind,
+        v_pi: numberInRange(lab.v_pi, 'Half-wave voltage', 0.1, 10), bias: numberInRange(lab.bias, 'Bias phase', -2 * Math.PI, 2 * Math.PI)}
+        : {action: kind, kind: lab.kind, power_mw: numberInRange(lab.power_mw, 'Optical power', 0.01, 100),
+          rin_db_hz: numberInRange(lab.rin_db_hz, 'RIN density', -180, -140), linewidth_hz: 1e6, seed: 1};
+      setRecords(value => ({...value, [kind]: undefined}));
+      const module = await engine;
+      const meta = await module.execute({action: 'meta'});
+      const computed = await module.execute(request);
+      const record = {schema: 'prabha.run.v1', studio_version: version, engine_version: meta.version,
+        engine: module.engineMode(), created_at: new Date().toISOString(), request, result: computed};
+      setRecords(value => ({...value, [kind]: record}));
+    });
+  }
+  async function save(name, content, type) {
+    const saved = await (await platform).saveText(name, content, type);
+    setNotice(saved ? 'Export ready: ' + name : 'Export cancelled.');
+  }
+  const exportRun = kind => action(() => save('prabha-' + kind + '.json', JSON.stringify(records[kind], null, 2)));
+  const exportSettings = () => action(() => save('prabha-ann-settings.json',
+    JSON.stringify({schema: 'prabha.ann-settings.v1', studio_version: version, settings: annSettings()}, null, 2)));
+  function importSettings(event) {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+    action(async () => {
+      if (file.size > 256 * 1024) throw new Error('ANN imports must be smaller than 256 KB.');
+      const value = importAnn(await file.text());
+      updateSettings({...value, network: JSON.stringify(value.network, null, 2)});
+      setNotice('ANN settings imported. Run a new simulation to compute results.');
+    });
+  }
+  function resetReference() {
+    setSettings(initialSettings());
+    setRecords(value => ({component: value.component}));
+    clearMessage();
+  }
+  let reference = false;
+  try { reference = isReference(annParameters()); } catch { /* The editor can contain unfinished JSON. */ }
+
+  return <div className="app-shell">
+    <a className="skip-link" href="#workspace" onClick={event => {
+      event.preventDefault(); document.getElementById('workspace').focus();
+    }}>Skip to workspace</a>
+    <aside className="sidebar">
+      <a className="brand" href="#start"><img src={base + 'favicon.svg'} alt=""/><span>Prabha<small>PHOTONIC COMPUTING</small></span></a>
+      <div className="section-caption">WORKSPACE</div>
+      <nav aria-label="Workspace">{nav.map(([key, title, icon]) =>
+        <a key={key} href={'#' + key} className={view === key ? 'active' : ''} aria-current={view === key ? 'page' : undefined}>
+          <span className="nav-symbol" aria-hidden="true">{icon}</span>{title}</a>)}
+        <a href={base + 'designer.html'}><span className="nav-symbol" aria-hidden="true">⌘</span>Component designer <span className="out">↗</span></a>
+      </nav>
+      <div className="section-caption">PROJECT</div>
+      <nav aria-label="Project">
+        <a href={base + 'docs/index.html'}>Documentation ↗</a>
+        <a href={links.forum} target="_blank" rel="noreferrer">Community forum ↗</a>
+        {links.chat && <a href={links.chat} target="_blank" rel="noreferrer">Discord chat ↗</a>}
+        <a href={base + 'prabha-source.zip'} download>Download source ↓</a>
+      </nav>
+      <div className="sidebar-bottom"><span className="preview-dot"/>{version}<small>Open photonic-electronic simulation</small></div>
+    </aside>
+    <main id="workspace" tabIndex="-1">
+      <header className="topbar"><span>Studio <span className="slash">/</span>{nav.find(item => item[0] === view)?.[1]}</span>
+        <span className="engine-status" role="status"><i className={busy ? 'pulse' : ''}/>{status}</span></header>
+      <div className="content">
+        <div className="page-heading"><div><div className="eyebrow">PRABHA STUDIO · V0.1 PREVIEW</div>
+          <h1>{headings[view][0]}</h1><p>{headings[view][1]}</p></div><span className="scope-label">Behavioural simulation</span></div>
+        {error && <div role="alert" className="error">{error} <a href={base + 'docs/troubleshooting/index.html'}>Troubleshooting ↗</a></div>}
+        {notice && <div role="status" className="notice">{notice}</div>}
+
+        {view === 'start' && <>
+          <section className="welcome-grid">
+            <div className="welcome-copy"><span className="eyebrow">YOUR FIRST EXPERIMENT</span><h2>A small network.<br/>Every stage visible.</h2>
+              <p>Start with four inputs and a fixed 4–3–2 ANN. Inspect the neuron chain, compare outputs and export the settings behind your result.</p>
+              <div className="button-row"><a className="primary" href="#ann">Open ANN workspace →</a><a className="secondary" href={base + 'docs/quickstart/index.html'}>Read the quick start</a></div>
+              <p className="hint">No account is needed. The hosted preview downloads Python on your first run; computation then runs in this browser.</p>
+            </div>
+            <div className="welcome-graph"><Network inputs={DEFAULT_INPUTS}/><span className="small muted">Optical weighting · electronic integration · digital readout</span></div>
+          </section>
+          <div className="section-heading"><h2>Explore the prototype</h2><span className="muted small">Models, evidence and people</span></div>
+          <div className="feature-grid">
+            {[['01', 'Reproduce the baseline', 'Keep the reference network and 12-bit converters. Validate 100 inputs with seed 12345.', '#ann', 'Run the ANN'],
+              ['02', 'Inspect a neuron', 'Follow signed products, balanced current, capacitor voltage and activation.', '#neuron', 'View the trace'],
+              ['03', 'Explore components', 'Generate an MZM transfer curve or a seeded laser power waveform.', '#components', 'Open the lab'],
+              ['04', 'Compare the evidence', 'Browse 25 saved figures and four datasets from the original experiments.', '#evidence', 'Browse the archive']].map(([n, title, text, href, cta]) =>
+              <article className="feature-card" key={n}><span className="card-number">{n}</span><h3>{title}</h3><p>{text}</p><a href={href}>{cta} →</a></article>)}
+          </div>
+          <section className="baseline-card"><div><div className="eyebrow">ARCHIVED REFERENCE · 100 INPUTS</div><h2>Numerical agreement you can reproduce</h2></div>
+            <div className="metric-strip"><div><span>Output RMS error</span><strong>7.8644 × 10⁻⁵</strong></div><div><span>Maximum error</span><strong>1.7828 × 10⁻⁴</strong></div><div><span>Ordering mismatches</span><strong>0 / 100</strong></div></div>
+            <p className="hint">Fixed weights, 12-bit DAC/ADC, seed 12345. These results measure agreement with an analytical model; they do not measure task accuracy, speed or energy.</p>
+          </section>
+          <div className="community-grid">
+            <section><h2>Build Prabha with us</h2><p>Ask detailed questions, share reproducible experiments and discuss development in the forum. Use Discord for quick conversations.</p>
+              <div className="button-row"><a href={links.forum} target="_blank" rel="noreferrer">Visit the forum ↗</a>{links.chat && <a href={links.chat} target="_blank" rel="noreferrer">Join Discord ↗</a>}</div></section>
+            <section><h2>Run locally or build desktop</h2><p>The web preview is available now. Windows, macOS and Linux packaging is prepared for native build and installation checks.</p>
+              <a href={base + 'docs/desktop/index.html'}>Desktop build guide →</a><p className="small muted">CNN primitives and LLM evaluation are planned work.</p></section>
+          </div>
+        </>}
+
+        {(view === 'ann' || view === 'neuron') && <>
+          <div className="workspace-toolbar"><span className={'run-badge ' + (reference ? '' : 'exploratory')}>
+            {view === 'neuron' ? 'Fixed reference neuron' : reference ? 'Reference network · 12-bit converters' : 'Exploratory configuration'}</span>
+            {view === 'ann' && <div className="button-row">
+              <button className="text-button" disabled={busy} onClick={() => fileInput.current.click()}>Import ANN JSON ↑</button>
+              <input type="file" accept=".json,application/json" hidden ref={fileInput} onChange={importSettings} aria-label="Import ANN JSON"/>
+              <button className="text-button" disabled={busy} onClick={exportSettings}>Export settings ↓</button>
+              <button className="text-button" disabled={busy} onClick={resetReference}>Reset reference</button>
+            </div>}
+          </div>
+          <div className="work-grid">
+            <fieldset className="controls" disabled={busy}><div className="panel-heading"><h2>Input signals</h2>
+              <button className="text-button" onClick={() => updateSettings({inputs: [...DEFAULT_INPUTS]})}>Reset inputs</button></div>
+              <p className="muted small">Normalized amplitude, 0 to 1</p>
+              <Inputs values={settings.inputs} onChange={inputs => updateSettings({inputs})}/>
+              <div className="divider"/><h3>Converter resolution</h3>
+              <div className="field-pair">{[['dac_bits', 'DAC'], ['adc_bits', 'ADC']].map(([key, label]) =>
+                <label key={key}>{label}<select value={settings[key]} onChange={e => updateSettings({[key]: +e.target.value})}>
+                  {PRECISIONS.map(value => <option key={value} value={value}>{value} bits</option>)}</select></label>)}</div>
+              <p className="hint">Changing settings clears previous results. Keep 12 bits to reproduce the archived reference.</p>
+              <button className="primary" onClick={() => simulate(view === 'ann' ? 'infer' : 'neuron')}>{busy ? 'Running…' : view === 'ann' ? 'Run inference' : 'Run neuron'} ↗</button>
+              {view === 'ann' && <><button className="secondary" onClick={() => simulate('batch')}>Validate 100 inputs</button>
+                <p className="hint">Batch: seed 12345, 100 sampled inputs. Uses your network and converters; ignores the four input sliders.</p></>}
+              <div className="model-spec">1 mW source · 1 pF capacitor<br/>1 ns integration · sigmoid activation</div>
+            </fieldset>
+            <section className="results" aria-busy={busy}><div className="panel-heading"><h2>{view === 'ann' ? 'Network propagation' : 'Computation trace'}</h2>
+              <span className="muted small">{view === 'ann' ? '4 → 3 → 2' : '4 signed products · 1 output'}</span></div>
+              {view === 'ann' ? <>
+                <Network inputs={result?.inputs || settings.inputs.map(v => v === '' ? null : Number(v))} result={result}/>
+                {!result && <p className="empty-note">Run inference to inspect computed values for the current settings.</p>}
+                {result && <><div className="metric-strip"><div><span>Maximum error</span><strong>{sci(result.max_error)}</strong></div><div><span>RMS error</span><strong>{sci(result.rms_error)}</strong></div></div>
+                  <table><thead><tr><th>Output</th><th>Analytical</th><th>Physical model</th><th>Difference</th></tr></thead><tbody>
+                    {result.physical_output.map((v, i) => <tr key={i}><td>y<sub>{i + 1}</sub></td><td>{fmt(result.ideal_output[i])}</td><td className="teal">{fmt(v)}</td><td>{sci(result.error[i])}</td></tr>)}
+                  </tbody></table><RunDetails record={records.infer}/><button className="text-button" disabled={busy} onClick={() => exportRun('infer')}>Export inference JSON ↓</button></>}
+              </> : neuron ? <>
+                <table><thead><tr><th>Channel</th><th>Ideal xw</th><th>Recovered xw</th><th>Current (A)</th></tr></thead>
+                  <tbody>{neuron.products.map((v, i) => <tr key={i}><td>{i + 1}</td><td>{fmt(neuron.ideal_products[i])}</td><td>{fmt(v)}</td><td>{sci(neuron.differential_current_A[i])}</td></tr>)}</tbody></table>
+                <dl className="trace">{[['Capacitor voltage', neuron.capacitor_voltage_V, 'V'], ['Pre-activation', neuron.pre_activation, ''],
+                  ['Analog sigmoid', neuron.analog_activation, ''], ['ADC code', neuron.adc_code, ''], ['Digital output', neuron.output, ''],
+                  ['Reference output', neuron.ideal, '']].map(([label, value, unit]) =>
+                  <div key={label}><dt>{label}</dt><dd>{fmt(value, label === 'ADC code' ? 0 : 9)} {unit}</dd></div>)}</dl>
+                <RunDetails record={records.neuron}/><button className="text-button" disabled={busy} onClick={() => exportRun('neuron')}>Export neuron JSON ↓</button>
+              </> : <div className="empty-state"><span>Σ xᵢwᵢ + θ</span><h3>Signed optical products, explicit electronic stages</h3>
+                <p>Weights: [0.8, −0.6, 0.4, −0.9]. Bias: 0.2. Run the neuron to inspect every stage.</p></div>}
+            </section>
+          </div>
+          {view === 'ann' && <details className="network-editor"><summary>Network weights and biases <span>Fixed 4 → 3 → 2 architecture</span></summary>
+            <p className="muted">Weights: [−1, 1]. Biases: [−10, 10]. Custom values are exploratory.</p>
+            <textarea aria-label="Network JSON" value={settings.network} disabled={busy} onChange={e => updateSettings({network: e.target.value})} spellCheck={false}/>
+            <button className="text-button" disabled={busy} onClick={() => updateSettings({network: JSON.stringify(DEFAULT_NETWORK, null, 2)})}>Restore reference network</button></details>}
+          {view === 'ann' && batch && <section className="batch-section" aria-label="Batch validation">
+            <div className="panel-heading"><h2>Batch validation</h2><div className="button-row">
+              <button className="text-button" disabled={busy} onClick={() => exportRun('batch')}>Export batch JSON ↓</button>
+              <button className="text-button" disabled={busy} onClick={() => action(() => save('prabha-batch.csv', batchCsv(records.batch), 'text/csv'))}>Export CSV ↓</button></div></div>
+            <div className="metric-strip"><div><span>Output RMS</span><strong>{sci(batch.rms_error)}</strong></div><div><span>Maximum error</span><strong>{sci(batch.max_error)}</strong></div><div><span>Ordering mismatches</span><strong>{batch.winner_mismatches}/{batch.count}</strong></div></div>
+            <LineChart x={batch.rows.map(row => row.sample)} y={batch.rows.map(row => Math.max(...row.error.map(Math.abs)))} xLabel="Input sample" yLabel="Maximum absolute output error"/>
+            <p className="hint">{isReference(records.batch.request) ? 'Reference configuration.' : 'Exploratory configuration.'} Seed {batch.seed}. Output ordering is not classification accuracy. Keep the JSON alongside CSV for the full network settings.</p>
+            <RunDetails record={records.batch}/>
+          </section>}
+          <p className="scope-note">This ANN includes converter quantization and behavioural activation. Laser RIN, detector noise and receiver bandwidth are studied separately in the archive.</p>
+        </>}
+
+        {view === 'components' && <>
+          <div className="work-grid"><fieldset className="controls" disabled={busy}><h2>Live experiment</h2>
+            <label>Component<select value={lab.kind} onChange={e => updateLab({kind: e.target.value})}><option value="mzm">Mach–Zehnder modulator</option><option value="laser">CW laser with noise</option></select></label>
+            {(lab.kind === 'mzm' ? [['v_pi', 'Half-wave voltage, Vπ (V)', 0.1, 10, 0.1], ['bias', 'Bias phase (rad)', -2 * Math.PI, 2 * Math.PI, 0.1]]
+              : [['power_mw', 'Mean optical power (mW)', 0.01, 100, 0.1], ['rin_db_hz', 'RIN density (dB/Hz)', -180, -140, 1]]).map(([key, label, min, max, step]) =>
+              <label key={key}>{label}<input type="number" min={min} max={max} step={step} value={lab[key]} onChange={e => updateLab({[key]: e.target.value})}/></label>)}
+            {lab.kind === 'mzm' ? <p className="formula">T(V) = cos²(πV / 2Vπ + φᵦ / 2)</p> :
+              <p className="hint">160 GHz sampling, 10 ns duration, 1 MHz linewidth, seed 1. Bounded Gaussian RIN approximation.</p>}
+            <button className="primary" onClick={() => simulate('component')}>{busy ? 'Running…' : 'Run experiment'} ↗</button>
+          </fieldset><section className="results"><h2>{lab.kind === 'mzm' ? 'Optical transfer' : 'Optical power waveform'}</h2>
+            {curve ? <><LineChart x={curve.x} y={curve.y} xLabel={curve.x_label} yLabel={curve.y_label}/>
+              <dl className="trace">{Object.entries(curve.summary).map(([key, value]) => <div key={key}><dt>{key.replaceAll('_', ' ')}</dt><dd>{sci(value)}</dd></div>)}</dl>
+              <RunDetails record={records.component}/><button className="text-button" disabled={busy} onClick={() => exportRun('component')}>Export experiment JSON ↓</button>
+            </> : <div className="empty-state"><span>{lab.kind === 'mzm' ? 'cos²' : 'E(t)'}</span><p>Run the experiment to generate a response from the Python model.</p></div>}
+          </section></div>
+          <section className="plain-section"><h2>More component evidence</h2><div className="component-list">
+            {[['CW laser', 'Power, wavelength, RIN, linewidth and seeds'], ['MZM', 'Transfer, local linearity and inverse encoding'],
+              ['Photodetector', 'Responsivity, dark current and shot noise'], ['DAC and ADC', 'Code boundaries and resolution sweeps'],
+              ['Transimpedance amplifier', 'Gain, finite bandwidth and input noise'], ['Capacitor and activation', 'Charge, gain, bias and sigmoid']].map(([title, text]) =>
+              <div key={title}><h3>{title}</h3><p>{text}</p></div>)}</div><a href="#evidence">Explore saved validation evidence →</a></section>
+        </>}
+
+        {view === 'evidence' && <>
+          {archiveError ? <div role="alert" className="error">{archiveError} <button onClick={loadEvidence}>Retry catalogue</button></div> : !evidence ? <p role="status">Loading evidence…</p> : <>
+            <div className="archive-top"><span>{evidence.length} saved figures · 47 nonempty experiment files · 4 datasets</span>
+              <label className="inline-label">Filter<select value={filter} onChange={e => setFilter(e.target.value)}>{['All', ...new Set(evidence.map(item => item.group))].map(item => <option key={item}>{item}</option>)}</select></label></div>
+            <div className="evidence-grid">{evidence.filter(item => filter === 'All' || item.group === filter).map(item =>
+              <article key={item.file}><button className="figure-button" onClick={() => setFigure(item)} aria-label={'Enlarge ' + item.title}>
+                <img src={base + 'evidence/' + item.file} alt={item.title} loading="lazy"/></button>
+                <div><small>{item.group}</small><h3>{item.title}</h3><p>Archived simulation evidence</p><a href={base + 'evidence/' + item.file} download>Download figure ↓</a></div></article>)}</div>
+          </>}
+          <section className="plain-section"><h2>Original numerical datasets</h2>
+            {['ann_batch_validation.csv', 'dac_adc_resolution_matrix.csv', 'full_chain_monte_carlo.csv', 'photodetector_shot_noise_power_sweep.csv'].map(file =>
+              <p key={file}><a href={base + 'evidence/' + file} download>{file.replaceAll('_', ' ')} ↓</a></p>)}
+          </section>
+        </>}
+        <footer><span>Prabha · Abhishek Singh · IIT Patna · {version}</span><a href={base + 'docs/model-scope/index.html'}>Model scope and reproducibility ↗</a></footer>
+      </div>
+    </main>
+    {figure && <FigurePreview figure={figure} close={() => setFigure(null)}/>}
+  </div>;
+}
+
 createRoot(document.getElementById('root')).render(<App/>);

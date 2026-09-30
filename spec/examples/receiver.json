@@ -1,0 +1,67 @@
+{
+  "title": "Noisy receiver \u00b7 PD and TIA",
+  "description": "Inspect laser phase/power, detector current and TIA voltage. Global noise gates laser RIN, phase diffusion, PD shot noise and TIA noise. TIA bandwidth remains active with noise off. No automatic extra load thermal term is added.",
+  "model_revision": "components-1",
+  "design": {
+    "blocks": [
+      {
+        "id": "laser",
+        "ref": "model_laser",
+        "params": {}
+      },
+      {
+        "id": "pd",
+        "ref": "model_pd",
+        "params": {
+          "dark_current_A": 1e-09
+        }
+      },
+      {
+        "id": "tia",
+        "ref": "model_tia",
+        "params": {}
+      }
+    ],
+    "connections": [
+      {
+        "from": [
+          "laser",
+          "out"
+        ],
+        "to": [
+          "pd",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "pd",
+          "out"
+        ],
+        "to": [
+          "tia",
+          "in"
+        ]
+      }
+    ]
+  },
+  "settings": {
+    "duration_ns": 32,
+    "noise": true,
+    "seed": 1
+  },
+  "positions": {
+    "laser": {
+      "x": 25,
+      "y": 100
+    },
+    "pd": {
+      "x": 325,
+      "y": 100
+    },
+    "tia": {
+      "x": 625,
+      "y": 100
+    }
+  }
+}

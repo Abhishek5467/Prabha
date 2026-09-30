@@ -1,0 +1,30 @@
+{
+  "id": "model_weights",
+  "title": "Signed weight encoder",
+  "category": "Photonic",
+  "block_type": "primitive",
+  "implementation": "ComponentWeights",
+  "description": "Dimensionless signed w in [\u22121,1] becomes t+=(1+w)/2 and t\u2212=(1\u2212w)/2. Ideal weight settings; no weight DAC or drift model has been validated.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "upper",
+        "kind": "voltage",
+        "domain": "time"
+      },
+      {
+        "name": "lower",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": []
+}

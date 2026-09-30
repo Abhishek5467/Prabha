@@ -1,0 +1,65 @@
+{
+  "id": "model_pd",
+  "title": "Photodetector",
+  "category": "Detection",
+  "block_type": "primitive",
+  "implementation": "ComponentPD",
+  "description": "Uses Photodetector.detect_white_shot: I=R|E|\u00b2+Idark, white-shot variance=2q Imean fs/2. Single optical channel. Receiver filtering/noise is handled explicitly by TIA; no automatic load-thermal term is added.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "optical",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "current",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "responsivity",
+      "type": "number",
+      "default": 1.0,
+      "description": "Photocurrent per watt of incident optical power.",
+      "unit": "A/W",
+      "min": 0,
+      "max": 100
+    },
+    {
+      "name": "dark_enabled",
+      "type": "boolean",
+      "default": true,
+      "description": "Adds deterministic dark current even when global noise is off."
+    },
+    {
+      "name": "dark_current_A",
+      "type": "number",
+      "default": 0.0,
+      "description": "Mean dark current, included in shot-noise variance when enabled.",
+      "unit": "A",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "name": "shot_enabled",
+      "type": "boolean",
+      "default": true,
+      "description": "Global noise AND this switch enable white Gaussian shot noise, variance 2 q Imean fs/2."
+    },
+    {
+      "name": "seed",
+      "type": "number",
+      "default": 0,
+      "description": "Block seed offset. Combined with run seed and instance ID; integer 0..2^32-1.",
+      "min": 0,
+      "max": 4294967295,
+      "step": 1
+    }
+  ]
+}

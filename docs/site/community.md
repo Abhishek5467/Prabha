@@ -1,26 +1,42 @@
 # Prabha community
 
-<p id="community-status">Our discussion space is being prepared. You can already explore the source, report issues and propose contributions below.</p>
+Connect with students, researchers and developers exploring photonic computing and neural-network inference. Beginners are welcome.
 
-<p><a id="community-join-link" hidden rel="noopener noreferrer">Join the Prabha community →</a></p>
+<p><a id="community-join-link" href="https://prabhacommunity5701.flarum.cloud/" target="_blank" rel="noreferrer">Open the Prabha forum</a> · <a id="community-chat-link" href="https://discord.gg/RUdRMHBFp" target="_blank" rel="noreferrer">Join Prabha on Discord</a></p>
 
-The community will provide public discussions and a place for live chat. The hosting platform is being selected. It is a new project; no existing membership or support commitment is implied.
+Use the forum for detailed questions, reproducible results and ongoing project discussions. Use Discord for quick questions and live conversation. Reading the public forum does not require a forum account; posting requires joining. Forum and Discord accounts are separate from the Studio, which needs no account.
 
-- [Report a reproducible bug](https://github.com/Abhishek5467/Prabha/issues/new?template=bug_report.yml).
-- [Propose a component or experiment](https://github.com/Abhishek5467/Prabha/issues/new?template=feature_request.yml).
-- [Browse open work](https://github.com/Abhishek5467/Prabha/issues).
-- Read the [contribution guide](contributing.md) before opening a pull request.
+## Find the right place
 
-Useful first contributions include a reproducible tutorial, improved error messages, independent converter-boundary checks, and evidence for a new primitive. Include units, references and model limits in scientific contributions.
+| Forum tag | What to post |
+|---|---|
+| Announcements | Maintainer news and release updates |
+| Help | Installation, usage and troubleshooting questions |
+| Research and validation | Reproducible experiments, model questions and validation results |
+| Showcase | Projects and demonstrations built with Prabha |
+| Development | Implementation ideas, contributions and roadmap discussions |
 
-The source package includes structured issue forms and a pull-request template. These become active after the preview source is pushed to GitHub.
+For a reproducible software defect, use the [GitHub issue tracker](https://github.com/Abhishek5467/Prabha/issues). Code changes use pull requests; see [contributing](contributing.md).
 
-## Discussion spaces
+## Share a useful experiment
 
-The opening categories will be **Announcements**, **Help**, **Research and validation**, **Showcase**, and **Development**. General and Contributor chat channels will support shorter conversations. Keep detailed results in discussion topics so that other people can find and reproduce them.
+Include the Prabha version, engine mode, expected behaviour and observed result. Attach the exported run JSON so other people can reproduce the inputs, converter settings and network coefficients. Add CSV or a screenshot if helpful. Keep the complete run JSON alongside a batch CSV.
 
-When sharing a result, include your Prabha version, configuration, units, seed, expected behaviour and any relevant plot or numerical output. Questions and work in progress are welcome; label them clearly.
+State whether a result comes from a simulation, an analytical calculation or a hardware measurement. An output-ordering match in the small ANN is not classification accuracy or an energy benchmark.
 
-## Conduct
+Do not post passwords, tokens or confidential datasets. Treat other members respectfully and follow the project's [Code of Conduct](https://github.com/Abhishek5467/Prabha/blob/main/CODE_OF_CONDUCT.md).
 
-Be respectful, give evidence-based feedback, credit prior work and avoid posting credentials or private student/personal data. Project participation follows `CODE_OF_CONDUCT.md` in the repository.
+## Maintainer: update community links
+
+Edit the public settings in `frontend/studio/public/community.json`:
+
+```json
+{
+  "url": "https://prabhacommunity5701.flarum.cloud/",
+  "chat_url": "https://discord.gg/RUdRMHBFp"
+}
+```
+
+Only HTTPS addresses without credentials are accepted. The Studio falls back to this documentation page if the forum URL is missing or invalid, and hides the chat link if its URL is missing. Update the fallback links in this page when moving either community. Push your changes, then start a new **Publish web preview** workflow on the updated branch.
+
+The website links to both communities; it does not embed their chats or synchronize memberships.

@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "Please cite the Prabha software version and the models used in your experiment."
 title: "Prabha: Specification-first photonic-electronic simulation"
-version: 0.1.0-preview.1
+version: 0.1.0-preview.3
 type: software
 authors:
   - family-names: Singh

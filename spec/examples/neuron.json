@@ -1,0 +1,162 @@
+{
+  "title": "Component neuron \u00b7 B22 parity",
+  "description": "Read adc.voltage at the final sample. Four symbols \u00d7 1 ns integrate the four currents with the same total charge as B22 parallel integration. This final-value equivalence assumes leakage disabled, ideal weights and the reference gain/calibration; it is not a latency equivalence. Noise is off for the regression reference.",
+  "model_revision": "components-1",
+  "design": {
+    "blocks": [
+      {
+        "id": "laser",
+        "ref": "model_laser",
+        "params": {}
+      },
+      {
+        "id": "x",
+        "ref": "model_source",
+        "params": {}
+      },
+      {
+        "id": "w",
+        "ref": "model_source",
+        "params": {
+          "values": "0.8,-0.6,0.4,-0.9"
+        }
+      },
+      {
+        "id": "mac",
+        "ref": "model_mac",
+        "params": {}
+      },
+      {
+        "id": "cap",
+        "ref": "model_capacitor",
+        "params": {}
+      },
+      {
+        "id": "amp",
+        "ref": "model_amplifier",
+        "params": {}
+      },
+      {
+        "id": "act",
+        "ref": "model_activation",
+        "params": {}
+      },
+      {
+        "id": "adc",
+        "ref": "model_adc",
+        "params": {}
+      }
+    ],
+    "connections": [
+      {
+        "from": [
+          "laser",
+          "out"
+        ],
+        "to": [
+          "mac",
+          "light"
+        ]
+      },
+      {
+        "from": [
+          "x",
+          "out"
+        ],
+        "to": [
+          "mac",
+          "x"
+        ]
+      },
+      {
+        "from": [
+          "w",
+          "out"
+        ],
+        "to": [
+          "mac",
+          "w"
+        ]
+      },
+      {
+        "from": [
+          "mac",
+          "out"
+        ],
+        "to": [
+          "cap",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "cap",
+          "out"
+        ],
+        "to": [
+          "amp",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "amp",
+          "out"
+        ],
+        "to": [
+          "act",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "act",
+          "out"
+        ],
+        "to": [
+          "adc",
+          "in"
+        ]
+      }
+    ]
+  },
+  "settings": {
+    "duration_ns": 4,
+    "noise": false,
+    "seed": 1
+  },
+  "positions": {
+    "laser": {
+      "x": 25,
+      "y": 25
+    },
+    "x": {
+      "x": 25,
+      "y": 200
+    },
+    "w": {
+      "x": 25,
+      "y": 375
+    },
+    "mac": {
+      "x": 315,
+      "y": 130
+    },
+    "cap": {
+      "x": 605,
+      "y": 25
+    },
+    "amp": {
+      "x": 605,
+      "y": 245
+    },
+    "act": {
+      "x": 905,
+      "y": 25
+    },
+    "adc": {
+      "x": 905,
+      "y": 245
+    }
+  }
+}

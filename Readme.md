@@ -6,9 +6,11 @@ dual-engine, and built to grow toward full photonic-EDA capability.
 
 Open photonic-electronic simulation, from typed device models to a validated small ANN.
 
-**v0.1.0-preview.1** connects the existing experiments to a React/Vite Studio, shared Python interface, documentation and desktop packaging. PEMAN remains the first neuron demonstrator; Prabha is the broader simulator.
+**v0.1.0-preview.3** connects the existing experiments to a React/Vite Studio, shared Python interface, documentation and desktop packaging. This cumulative update adds a 19-block component Designer, MZM nonlinearity, converter quantization, TIA noise/bandwidth, capacitor leakage, amplifier saturation and activation thresholds, alongside guided onboarding, reproducible exports/imports, connected communities and native packaging workflows. PEMAN remains the first neuron demonstrator; Prabha is the broader simulator.
 
-**Updating your existing folder?** Start with [UPDATE_FRONTEND.md](UPDATE_FRONTEND.md) for Windows commands, folder merging, the community address setting, and your GitHub push/Pages workflow.
+[Open Studio](https://abhishek5467.github.io/Prabha/) · [Documentation](https://abhishek5467.github.io/Prabha/docs/) · [Forum](https://prabhacommunity5701.flarum.cloud/) · [Discord](https://discord.gg/RUdRMHBFp)
+
+**Updating your existing folder?** Start with [UPDATE_DESIGNER.md](UPDATE_DESIGNER.md) for Windows commands, folder merging, the community address setting, and your GitHub push/Pages workflow.
 
 ## Try the prototype locally
 
@@ -30,11 +32,11 @@ Open http://127.0.0.1:8000. For a static deployment, serve `frontend/studio/dist
 ## Included
 
 - Four-input, three-hidden-neuron, two-output ANN inference with editable inputs, coefficients and converter resolutions.
-- Full neuron traces, reproducible 100-input validation and JSON/CSV export.
+- Full neuron traces, reproducible 100-input validation, complete run JSON/CSV exports and ANN settings import.
 - Live MZM and CW laser experiments; 25 archived figures and 4 datasets.
 - Original graph designer and typed Python engine.
 - MkDocs documentation and community contribution files.
-- Tauri desktop source, Python sidecar builder and native OS CI workflow.
+- Tauri desktop source with native Save dialogs, sidecar checks, hashes and separate Windows/Linux/Intel Mac/Apple Silicon build jobs.
 
 ## Evidence and boundaries
 
@@ -55,7 +57,15 @@ python core-py/tests/run_conformance.py
 python -m pytest tests -q
 ```
 
-The 16 product checks include all 200 archived ANN outputs, malformed inputs, graph allocation limits and HTTP behaviour. Desktop source is provided; Windows/macOS/Linux installers need native build and acceptance checks. The Linux Python sidecar has passed the reference batch in the authoring environment.
+The 16 product checks include all 200 archived ANN outputs, malformed inputs, graph allocation limits and HTTP behaviour. Frontend unit and browser checks cover import/export, stale results, worker recovery, native bridge routing and repository subpath hosting. Desktop installers still require native build and acceptance checks; see [the release record](release/V0_1_PREVIEW_2.md).
+
+```bash
+npm test --prefix frontend/studio
+npx --prefix frontend/studio playwright install chromium
+npm run test:ui --prefix frontend/studio
+```
+
+Build web assets and the frontend before UI tests. They start local servers on ports 8000 and 8081.
 
 ## Source map
 

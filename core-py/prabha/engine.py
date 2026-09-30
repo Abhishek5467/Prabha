@@ -121,6 +121,8 @@ class System:
             if len(fss) > 1:
                 raise ValidationError([Violation("R11", "error", {"instance": nid},
                     f"fs mismatch at {nid}: {sorted(fss)}")])
+            if len({s.n for s in inputs.values() if s is not None}) > 1:
+                raise ValueError(f'Input sample counts differ at {nid}. Match all source time grids.')
             out = self.kernels[nid].process(inputs)
             results[nid] = out
             for pname, sig in out.items():

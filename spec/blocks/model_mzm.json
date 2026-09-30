@@ -1,0 +1,58 @@
+{
+  "id": "model_mzm",
+  "title": "Mach\u2013Zehnder modulator",
+  "category": "Photonic",
+  "block_type": "primitive",
+  "implementation": "ComponentMZM",
+  "description": "Nonlinear power transfer T=cos\u00b2(\u03c0V/(2Vpi)+bias/2) \u00d7 10^(\u2212loss/10). Uses MachZehnderModulator.transfer. Envelope phase is passed through; modulator chirp and coherent field sign are not modeled.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "light",
+        "kind": "optical",
+        "domain": "time"
+      },
+      {
+        "name": "drive",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "optical",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "v_pi",
+      "type": "number",
+      "default": 1.0,
+      "description": "MZM half-wave voltage.",
+      "unit": "V",
+      "min": 1e-09,
+      "max": 1000
+    },
+    {
+      "name": "bias_rad",
+      "type": "number",
+      "default": 1.5707963267948966,
+      "description": "Differential bias phase; transfer uses bias_rad / 2.",
+      "unit": "rad",
+      "min": -100,
+      "max": 100
+    },
+    {
+      "name": "loss_dB",
+      "type": "number",
+      "default": 0.0,
+      "description": "Deterministic insertion loss; remains active with noise off.",
+      "unit": "dB",
+      "min": 0,
+      "max": 200
+    }
+  ]
+}

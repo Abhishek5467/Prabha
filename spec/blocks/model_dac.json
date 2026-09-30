@@ -1,0 +1,53 @@
+{
+  "id": "model_dac",
+  "title": "DAC: codes to voltage",
+  "category": "Electronic",
+  "block_type": "primitive",
+  "implementation": "ComponentDAC",
+  "description": "Uses DAC.code_to_voltage. Input must contain integer codes in [0,2^bits\u22121]; output is volts. Use the command quantizer when starting from a requested analog voltage.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "code",
+        "kind": "digital",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "bits",
+      "type": "number",
+      "default": 12,
+      "description": "Integer converter resolution.",
+      "min": 1,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "v_min",
+      "type": "number",
+      "default": -0.5,
+      "description": "Converter lower endpoint. Must be less than v_max.",
+      "unit": "V",
+      "min": -1000000.0,
+      "max": 1000000.0
+    },
+    {
+      "name": "v_max",
+      "type": "number",
+      "default": 0.5,
+      "description": "Converter upper endpoint.",
+      "unit": "V",
+      "min": -1000000.0,
+      "max": 1000000.0
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "id": "model_laser",
+  "title": "CW laser",
+  "category": "Sources",
+  "block_type": "primitive",
+  "implementation": "ComponentLaser",
+  "description": "Uses experiments\u2019 CWLaser complex envelope. RIN and phase noise have separate switches. Optical probes include power and unwrapped phase; no phase-to-intensity conversion is assumed.",
+  "ports": {
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "optical",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "power_mW",
+      "type": "number",
+      "default": 1.0,
+      "description": "Mean optical power.",
+      "unit": "mW",
+      "min": 0,
+      "max": 10000
+    },
+    {
+      "name": "wavelength_nm",
+      "type": "number",
+      "default": 1550.0,
+      "description": "Carrier wavelength; optical metadata, not sampled carrier oscillation.",
+      "unit": "nm",
+      "min": 1,
+      "max": 1000000.0
+    },
+    {
+      "name": "fs",
+      "type": "number",
+      "default": 16000000000.0,
+      "description": "Sample rate; match rate \u00d7 10^9 \u00d7 sps of electrical sources.",
+      "unit": "Hz",
+      "min": 1e-06,
+      "max": 1000000000000000.0
+    },
+    {
+      "name": "phase_rad",
+      "type": "number",
+      "default": 0.0,
+      "description": "Initial envelope phase.",
+      "unit": "rad",
+      "min": -1000000.0,
+      "max": 1000000.0
+    },
+    {
+      "name": "rin_enabled",
+      "type": "boolean",
+      "default": true,
+      "description": "Enables laser intensity fluctuations only with global noise on."
+    },
+    {
+      "name": "rin_db_hz",
+      "type": "number",
+      "default": -150.0,
+      "description": "One-sided RIN density. Linearized Gaussian power model; invalid negative-power realizations are rejected.",
+      "unit": "dB/Hz",
+      "min": -300,
+      "max": -60
+    },
+    {
+      "name": "linewidth_enabled",
+      "type": "boolean",
+      "default": true,
+      "description": "Enables phase diffusion only with global noise on."
+    },
+    {
+      "name": "linewidth_hz",
+      "type": "number",
+      "default": 1000000.0,
+      "description": "Lorentzian linewidth: phase-increment variance 2\u03c0 linewidth/fs. Direct power detection is phase insensitive.",
+      "unit": "Hz",
+      "min": 0,
+      "max": 1000000000000.0
+    },
+    {
+      "name": "seed",
+      "type": "number",
+      "default": 0,
+      "description": "Block seed offset. Combined with run seed and instance ID; integer 0..2^32-1.",
+      "min": 0,
+      "max": 4294967295,
+      "step": 1
+    }
+  ]
+}

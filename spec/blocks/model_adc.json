@@ -1,0 +1,64 @@
+{
+  "id": "model_adc",
+  "title": "ADC",
+  "category": "Output",
+  "block_type": "primitive",
+  "implementation": "ComponentADC",
+  "description": "Uses ADC.convert/code_to_voltage. code is the actual integer code; voltage is the reconstructed quantized value. Range errors are visible unless clipping is explicitly enabled. No jitter, INL or DNL model.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "code",
+        "kind": "digital",
+        "domain": "time"
+      },
+      {
+        "name": "voltage",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "bits",
+      "type": "number",
+      "default": 12,
+      "description": "Integer resolution; nearest code, NumPy ties-to-even.",
+      "min": 1,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "v_min",
+      "type": "number",
+      "default": 0.0,
+      "description": "Lower conversion endpoint.",
+      "unit": "V",
+      "min": -1000000.0,
+      "max": 1000000.0
+    },
+    {
+      "name": "v_max",
+      "type": "number",
+      "default": 1.0,
+      "description": "Upper conversion endpoint.",
+      "unit": "V",
+      "min": -1000000.0,
+      "max": 1000000.0
+    },
+    {
+      "name": "clip",
+      "type": "boolean",
+      "default": false,
+      "description": "False rejects out-of-range commands; true explicitly clips to converter rails."
+    }
+  ]
+}

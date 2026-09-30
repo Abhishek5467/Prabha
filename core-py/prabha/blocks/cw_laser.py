@@ -102,6 +102,8 @@ class CWLaser:
             phi = np.full(n_samples,self.phase0,)
         
             
+        if np.any(P < 0) or not np.all(np.isfinite(P)):
+            raise ValueError('Linearized laser RIN produced invalid power; reduce RIN density or sample bandwidth.')
         E = np.sqrt(P)*np.exp(1j*phi)
         
         return t, E

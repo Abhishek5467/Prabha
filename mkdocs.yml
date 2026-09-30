@@ -15,6 +15,9 @@ nav:
   - Overview: index.md
   - Quick start: quickstart.md
   - Studio guide: studio.md
+  - Troubleshooting: troubleshooting.md
+  - Component Designer: designer.md
+  - User manual and mathematics: user-manual.md
   - Model scope: model-scope.md
   - Architecture: architecture.md
   - API: api.md

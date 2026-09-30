@@ -1,0 +1,55 @@
+{
+  "id": "model_activation",
+  "title": "Nonlinear activation",
+  "category": "Output",
+  "block_type": "primitive",
+  "implementation": "ComponentActivation",
+  "description": "Uses Activation.activate. Sigmoid, tanh, ReLU and linear; sigmoid argument clipped to \u00b160 for numerical stability. Behavioral output is represented on a normalized 1 V scale; this is not a transistor-level device model. B22 places activation BEFORE ADC.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "kind",
+      "type": "enum",
+      "default": "sigmoid",
+      "description": "Behavioral transfer function.",
+      "options": [
+        "sigmoid",
+        "tanh",
+        "relu",
+        "linear"
+      ]
+    },
+    {
+      "name": "gain",
+      "type": "number",
+      "default": 1.0,
+      "description": "Pre-activation scaling.",
+      "min": -1000000.0,
+      "max": 1000000.0
+    },
+    {
+      "name": "threshold_V",
+      "type": "number",
+      "default": 0.0,
+      "description": "Shift: z=gain \u00d7 (Vin\u2212threshold).",
+      "unit": "V",
+      "min": -1000000.0,
+      "max": 1000000.0
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "model_code_source",
+  "title": "Digital code source",
+  "category": "Sources",
+  "block_type": "primitive",
+  "implementation": "ComponentSource",
+  "description": "Time-domain sequence of nonnegative integer codes. Connect to a code-to-voltage DAC with sufficient resolution. No source noise is invented.",
+  "ports": {
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "digital",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "values",
+      "type": "string",
+      "default": "0,1024,2048,4095",
+      "description": "Comma-separated samples held for sps steps; final value is held until run end."
+    },
+    {
+      "name": "rate",
+      "type": "number",
+      "default": 1.0,
+      "description": "Symbol rate. fs = rate \u00d7 10^9 \u00d7 sps. Set all connected sources to the same fs.",
+      "unit": "GHz",
+      "min": 1e-12,
+      "max": 1000000.0
+    },
+    {
+      "name": "sps",
+      "type": "number",
+      "default": 16,
+      "description": "Integer samples per symbol.",
+      "min": 1,
+      "max": 256,
+      "step": 1
+    },
+    {
+      "name": "kind",
+      "type": "enum",
+      "default": "digital",
+      "description": "Fixed port type for this source definition.",
+      "options": [
+        "digital"
+      ]
+    }
+  ]
+}

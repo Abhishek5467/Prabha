@@ -4,9 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>प्रभा Prabha — System Designer</title>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <style>
-/* IBM Plex Sans (UI) + JetBrains Mono (values) — engineering look, not the AI default */
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Local system fallbacks keep the Designer usable without a font CDN. */
 
 :root {
   /* ---- Monochrome light theme: white / black / grey only ---- */
@@ -360,6 +360,16 @@ body.learn .node .learn { display: block; }
   box-shadow: var(--shadow2);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.inspect {width:auto; overflow-y:auto;}
+.run-settings {border-bottom:1px solid #ddd;padding-bottom:10px;}
+.run-settings select,.run-settings input {max-width:100%;}
+.run-settings label {display:block;font-size:12px;margin:5px 0;}
+.model-help {font-size:11px;line-height:1.5;color:#5a666b;margin:4px 0 12px;white-space:normal;}
+.model-badge {display:inline-block;font-size:10px;border-radius:4px;background:#e4f2e9;color:#245541;padding:3px 6px;margin-bottom:8px;}
+.palette .legacy-toggle {display:block;font-size:11px;margin-bottom:10px;}
+button:disabled {opacity:.55;cursor:wait;}
+#exampleNote {font-size:11px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -373,8 +383,9 @@ body.learn .node .learn { display: block; }
         <div class="mh">Recent</div>
         <div id="recentList"></div>
         <hr>
-        <div class="mi" onclick="loadTemplate();closeMenus()">New from PEMAN template</div>
-        <div class="mi" onclick="saveDesign()">Save .prabha <span class="kb">Ctrl+S</span></div>
+        <div class="mi" onclick="loadTemplate();closeMenus()">New component neuron</div>
+        <div class="mi" onclick="exportJSON();closeMenus()">Export engine netlist (.prabha)</div>
+        <div class="mi" onclick="saveDesign()">Save Designer project <span class="kb">Ctrl+S</span></div>
       </div></div>
     <div class="menu" data-m="edit"><button>Edit</button>
       <div class="dropdown">
@@ -390,7 +401,7 @@ body.learn .node .learn { display: block; }
         <div class="mi" onclick="zoomBy(1/1.2);closeMenus()">Zoom out</div>
         <div class="mi" onclick="viewReset();closeMenus()">Reset view</div>
         <hr>
-        <div class="mi" onclick="toggleMode();closeMenus()">Toggle Fast / Learn</div>
+        <div class="mi" onclick="toggleMode();closeMenus()">Show / hide block theory</div>
       </div></div>
     <div class="menu" data-m="tools"><button>Tools</button>
       <div class="dropdown">
@@ -408,12 +419,12 @@ body.learn .node .learn { display: block; }
         <div class="mi" onclick="showAbout()">About Prabha</div>
       </div></div>
   </nav>
-  <span class="sub">all physics &amp; validation by core-py</span>
+  <span class="sub">Component models · preview.3</span>
   <span class="spacer"></span>
   <button class="btn toggle" id="leftT" onclick="togglePanel('left')" title="blocks panel">☰</button>
-  <button class="btn mode" id="modeBtn" onclick="toggleMode()">Fast</button>
-  <label>noise <input id="noise" type="checkbox" checked></label>
-  <button class="btn run" onclick="runSim()">&#9654; Run</button>
+  <button class="btn mode" id="modeBtn" onclick="toggleMode()" title="Show block explanations; computation is unchanged">Show theory</button>
+  <label title="Gates stochastic sources only; deterministic nonlinearities remain active">Noise <input id="noise" type="checkbox" onchange="invalidateRun()"></label>
+  <button id="runBtn" class="btn run" onclick="runSim()">&#9654; Run</button>
   <button class="btn toggle" id="rightT" onclick="togglePanel('right')" title="inspector panel">☰</button>
   <input id="imp" type="file" accept=".prabha,.json" style="display:none" onchange="importJSON(event)">
 </header>
@@ -436,7 +447,21 @@ body.learn .node .learn { display: block; }
     </div>
   </div>
   <aside class="inspect">
-    <h3>Inspector</h3><div id="insBody" class="muted">Select a block.</div>
+    <div class="run-settings">
+      <h3>Simulation</h3>
+      <label for="exampleSel">Example</label>
+      <select id="exampleSel" onchange="loadExample(this.value)">
+        <option value="neuron">Component neuron · B22 reference</option>
+        <option value="expanded">Expanded component chain</option>
+        <option value="receiver">Noisy receiver · PD + TIA</option>
+        <option value="nonlinear">Leakage, rails and activation</option>
+        <option value="legacy">Legacy PEMAN compatibility</option>
+      </select>
+      <div class="field"><label for="durationNs">Duration (ns)</label><input id="durationNs" type="number" min="0.000001" max="1000000000" step="any" value="4" onchange="invalidateRun()"></div>
+      <div class="field"><label for="runSeed">Run seed</label><input id="runSeed" type="number" min="0" max="4294967295" step="1" value="1" onchange="invalidateRun()"></div>
+      <p class="muted" id="exampleNote">Loading current component models…</p>
+      <p class="muted">Noise gates random sources only. Select a block for all model parameters and limitations.</p>
+    </div><h3>Inspector</h3><div id="insBody" class="muted">Select a block.</div>
     <div id="violBox"></div><div id="results"></div>
   </aside>
 </div>
@@ -444,18 +469,18 @@ body.learn .node .learn { display: block; }
   <span><i style="background:var(--opt)"></i>optical</span>
   <span><i style="background:var(--elec)"></i>voltage/current</span>
   <span><i style="background:var(--dig)"></i>digital</span>
-  <span class="muted">F = focus selected · . = fit all · drag canvas to pan · wheel = zoom · click wire to delete · Learn mode = block theory</span>
+  <span class="muted">F = focus selected · . = fit all · drag canvas to pan · wheel = zoom · click wire to delete · Theory = explanations only</span>
 </div>
 <div class="toast" id="toast"></div>
 <div id="modal" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="box" id="modalBox"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 /* Prabha thin client. NO physics here: the palette, parameter forms, validation
    markers and waveforms all come from the engine via /api. */
-let DEFS = {};
+let DEFS = Object.create(null);
 let G = {blocks: [], connections: []};
 let POS = {};
 let selId = null, uid = 1, lastRun = null;
@@ -533,20 +558,20 @@ addEventListener('click', ()=>{ closeMenus(); hideAddMenu(); });
 function loadRecent(){ try{ return JSON.parse(localStorage.getItem('prabha_recent')||'[]'); }catch(e){ return []; } }
 function pushRecent(name){
   const rec = loadRecent().filter(r=>r.name!==name);
-  rec.unshift({name, when: Date.now(), G: JSON.parse(JSON.stringify(G)), POS: {...POS}});
+  rec.unshift({name, when: Date.now(), G: JSON.parse(JSON.stringify(G)), POS: {...POS},settings:runSettings()});
   localStorage.setItem('prabha_recent', JSON.stringify(rec.slice(0,8)));
 }
 function renderRecent(){
   const box = document.getElementById('recentList');
   const rec = loadRecent();
   box.innerHTML = rec.length
-    ? rec.map((r,i)=>`<div class="mi" onclick="openRecent(${i})">${r.name}
+    ? rec.map((r,i)=>`<div class="mi" onclick="openRecent(${i})">${esc(r.name)}
         <span class="kb">${new Date(r.when).toLocaleDateString()}</span></div>`).join('')
     : '<div class="mi dis">no recent designs</div>';
 }
 function openRecent(i){
   const r = loadRecent()[i]; if(!r) return;
-  G = r.G; POS = r.POS;
+  loadDocument({design:r.G,positions:r.POS,settings:r.settings});
   uid = G.blocks.length + 1; selId = null;
   render(); frameAll(); closeMenus(); toast('opened: ' + r.name);
 }
@@ -557,14 +582,8 @@ function fileNew(){
   render(); showInspector(); viewReset(); closeMenus(); toast('new design');
 }
 function saveDesign(){
-  const name = prompt('Design name:', 'design-' + new Date().toISOString().slice(0,10));
-  if(name === null) return;
-  pushRecent(name || 'untitled');
-  const blob = new Blob([JSON.stringify({blocks:G.blocks,connections:G.connections},null,1)],
-                        {type:'application/json'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = (name||'design') + '.prabha'; a.click();
-  closeMenus(); toast('saved & added to recent');
+  const name=prompt('Design name:','prabha-components');if(name===null)return;
+  pushRecent(name||'untitled');downloadJSON(designDocument(),(name||'design')+'.prabha.json');closeMenus();toast('Saved graph, positions and run settings');
 }
 
 /* ---------- Shift+A add-node menu ---------- */
@@ -589,7 +608,7 @@ function fillAddMenu(q){
   q = q.toLowerCase();
   const cats = {};
   for(const d of Object.values(DEFS))
-    if(!q || d.title.toLowerCase().includes(q) || d.id.includes(q) || d.category.toLowerCase().includes(q))
+    if((showLegacy || d.id.startsWith('model_')) && (!q || d.title.toLowerCase().includes(q) || d.id.includes(q) || d.category.toLowerCase().includes(q)))
       (cats[d.category] = cats[d.category] || []).push(d);
   const order = [...CAT_ORDER.filter(c=>cats[c]), ...Object.keys(cats).filter(c=>!CAT_ORDER.includes(c))];
   let h = '';
@@ -623,7 +642,7 @@ function deleteSel(){
 function duplicateSel(){
   if(!selId){ toast('select a block first'); return; }
   const b = G.blocks.find(x=>x.id===selId); if(!b) return;
-  const id = b.ref.split('_')[0] + '_' + (uid++);
+  let id;do{id=b.ref+'_'+(uid++);}while(G.blocks.some(item=>item.id===id));
   G.blocks.push({id, ref: b.ref, params: JSON.parse(JSON.stringify(b.params||{}))});
   POS[id] = {x: POS[selId].x + 36, y: POS[selId].y + 36};
   selId = id; render(); showInspector(); toast('duplicated (wires not copied)');
@@ -640,7 +659,7 @@ function showShortcuts(){
     <tr><td class="kb">F</td><td>focus selected node</td></tr>
     <tr><td class="kb">.</td><td>fit all nodes in view</td></tr>
     <tr><td class="kb">Ctrl + Enter</td><td>run simulation</td></tr>
-    <tr><td class="kb">Ctrl + S</td><td>save design (.prabha + recent)</td></tr>
+    <tr><td class="kb">Ctrl + S</td><td>save Designer project (graph + settings)</td></tr>
     <tr><td class="kb">Esc</td><td>close menus</td></tr>
     <tr><td class="kb">wheel / drag</td><td>zoom (at cursor) / pan canvas</td></tr>
   </table>`;
@@ -651,9 +670,9 @@ function showAbout(){
   document.getElementById('modalBox').innerHTML = `<h2>प्रभा Prabha</h2>
   <p style="font-size:12.5px;line-height:1.6">Indigenous photonic–electronic system designer.
   This interface is a <b>thin client</b>: every waveform, number and validation
-  message comes from the conformance-tested core-py engine — no physics runs in
-  the browser.</p>
-  <p class="muted" style="font-size:11.5px">spec v0.1.0 · dual-engine (Python / C++) · 14/14 conformance</p>`;
+  message comes from core-py. On GitHub Pages the same Python runs in your browser
+  through Pyodide; local and desktop modes use native Python.</p>
+  <p class="muted" style="font-size:11.5px">preview.3 · components-1 · current models use Python. C++ conformance covers the historical PEMAN fixtures only.</p>`;
   document.getElementById('modal').classList.add('show');
 }
 
@@ -738,9 +757,9 @@ function plotSVG(inst,p,pr,W,H){
   const yr=pr.data, n=yr.length, pl=86, pb=64, pt=46, prr=26;
   const col=pr.kind==='optical'?'#c85a17':pr.kind==='digital'?'#2f8a4c':'#2b6cb0';
 
-  /* time axis from the ORIGINAL length + fs; decimated samples map linearly */
-  const T=pr.n/pr.fs, tsc=engScale(T);
-  const tx=k=>k/(n-1)*T/tsc.s;                       // scaled time of sample k
+  /* Time axis uses original sample indices; single-sample plots use one dt of padding. */
+  const T=Math.max(1,pr.n-1)/pr.fs, tsc=engScale(T);
+  const tx=k=>(pr.sample_indices?.[k]??k/Math.max(1,n-1)*(pr.n-1))/pr.fs/tsc.s;                       // scaled time of sample k
   let mn=Math.min(...yr), mx=Math.max(...yr);
   if(mx-mn<1e-18){mx+=Math.abs(mx)||1; mn-=Math.abs(mn)||1;}
   const ysc=engScale(Math.max(Math.abs(mn),Math.abs(mx)));
@@ -787,6 +806,7 @@ function plotSVG(inst,p,pr,W,H){
   /* min / max markers with (t, y) */
   const kmax=yr.indexOf(mx), kmin=yr.indexOf(mn);
   for(const [k,v,lab] of [[kmax,mx,'max'],[kmin,mn,'min']]){
+    if(k<0)continue;
     const ax=X(tx(k)), ay=Y(v);
     const left=ax>(pl+W-prr)/2;
     s+=`<circle cx="${ax}" cy="${ay}" r="4" fill="${col}"/>
@@ -811,8 +831,8 @@ function plotSVG(inst,p,pr,W,H){
   return s;
 }
 function svgToPng(svg,W,H){
-  return new Promise(res=>{
-    const img=new Image();
+  return new Promise((res,reject)=>{
+    const img=new Image();img.onerror=()=>reject(new Error("Plot image could not be rendered."));
     img.onload=()=>{const c=document.createElement('canvas');c.width=W*2;c.height=H*2;
       const g=c.getContext('2d');g.scale(2,2);g.drawImage(img,0,0);
       c.toBlob(b=>res(b),'image/png');};
@@ -824,6 +844,7 @@ async function exportPlots(){
   if(typeof JSZip==='undefined'){toast('JSZip failed to load (offline?)');return;}
   toast('rendering plots…');
   const zip=new JSZip();
+  zip.file("run.json",JSON.stringify({request:lastRequest,result:lastRun},null,2));
   for(const [inst,ports] of Object.entries(lastRun.probes))
     for(const [pname,pr] of Object.entries(ports)){
       const png=await svgToPng(plotSVG(inst,pname,pr,1000,500),1000,500);
@@ -834,7 +855,7 @@ async function exportPlots(){
   a.download='prabha_plots.zip'; a.click(); toast('⤓ all plots exported');
 }
 /* display-only typography: x_i -> x<sub>i</sub>; spec files stay plain ASCII */
-function fmt(s){ return String(s).replace(/_([A-Za-z0-9\u0370-\u03FF()·]+)/g, '<sub>$1</sub>'); }
+function fmt(s){ return esc(s).replace(/_([A-Za-z0-9\u0370-\u03FF()·]+)/g, '<sub>$1</sub>'); }
 
 /* how an engineer writes each spec param / port name (display only) */
 const PSYM = {P0:'P_0', wavelength:'λ', linewidth:'Δν', RIN:'RIN', fs:'f_s',
@@ -844,7 +865,7 @@ const PSYM = {P0:'P_0', wavelength:'λ', linewidth:'Δν', RIN:'RIN', fs:'f_s',
 const PORTSYM = {Vc:'V_c', i1:'i_1', i2:'i_2', wu:'w_u', wl:'w_l'};
 
 function fmtVal(v){
-  if(typeof v !== 'number') return String(v);
+  if(typeof v !== 'number') return esc(v);
   if(v !== 0 && (Math.abs(v) >= 1e4 || Math.abs(v) < 1e-3)){
     const e = Math.floor(Math.log10(Math.abs(v)));
     const m = Math.round(v/10**e*100)/100;
@@ -859,12 +880,36 @@ function labelFor(p){
   if(p.unit) h += ` <span class="muted">${p.unit}</span>`;
   return h;
 }
+// Display roles come from actual consumers, never from instance names.
+// The saved signal kind remains unchanged for preview.3 compatibility.
+function sourceRole(b){
+  if(b.ref==='model_current_source')return {symbol:'I',title:'Current source',unit:'A',help:'Physical current samples in amperes.'};
+  if(b.ref==='model_code_source')return {symbol:'code',title:'Digital code source',unit:'code',help:'Nonnegative integer converter codes.'};
+  if(b.ref!=='model_source')return null;
+  const consumers=G.connections.filter(c=>c.from[0]===b.id).map(c=>{
+    const target=G.blocks.find(x=>x.id===c.to[0]);
+    if((target?.ref==='model_mac'||target?.ref==='model_encoder')&&c.to[1]==='x')return 'x';
+    if((target?.ref==='model_mac'&&c.to[1]==='w')||(target?.ref==='model_weights'&&c.to[1]==='in'))return 'w';
+    if(target?.ref==='model_transmission'&&c.to[1]==='transmission')return 'T';
+    return 'V';
+  });
+  const roles=new Set(consumers);
+  if(roles.size===1&&roles.has('x'))return {symbol:'x',title:'Normalized input x',unit:'dimensionless',help:'x is a dimensionless command in [0, 1]. The voltage-kind port is its transport; the encoder/DAC generates the physical MZM drive in volts.'};
+  if(roles.size===1&&roles.has('w'))return {symbol:'w',title:'Signed weight w',unit:'dimensionless',help:'w is a dimensionless command in [-1, 1], carried by a voltage-kind port. The signed weight encoder produces ideal transmissions (1+w)/2 and (1-w)/2.'};
+  if(roles.size===1&&roles.has('T'))return {symbol:'T',title:'Transmission command',unit:'dimensionless',help:'Dimensionless power transmission in [0, 1], carried by a voltage-kind port.'};
+  return {symbol:roles.size>1?'values':'V',title:'Voltage / normalized source',unit:'V / control',help:'Generic voltage-kind transport. Actual voltage consumers use volts; normalized control consumers use dimensionless values. Check each connected input; this source has no single inferred normalized role.'};
+}
+function sourceTitle(b,d){return sourceRole(b)?.title||d.title;}
+function probeUnit(inst,pr){
+  const b=G.blocks.find(x=>x.id===inst),role=b&&sourceRole(b);
+  return role?.unit==='dimensionless'?'dimensionless':pr.unit||KINDUNIT[pr.kind];
+}
 function bodyText(b, d){
   const has = n => d.params.some(p => p.name === n);
   if(has('values') && has('rate')){                      // sources: show the vector
     const vec = String(paramVal(b,'values')).split(',').map(s=>s.trim()).filter(Boolean);
-    const sym = /weight/i.test(d.id) ? 'w' : 'x';
-    return `${sym} = [${vec.join(', ')}] @ ${fmtVal(+paramVal(b,'rate'))} GHz`;
+    const sym = sourceRole(b)?.symbol || (/weight/i.test(d.id) ? 'w' : 'x');
+    return `${sym} = [${esc(vec.join(', '))}] @ ${fmtVal(+paramVal(b,'rate'))} GHz`;
   }
   const parts = [];
   for(const p of d.params){
@@ -894,22 +939,27 @@ function accentOf(d){
 
 /* ---------- boot: palette from the engine, in canonical category order ---------- */
 async function boot(){
-  const defs = await (await fetch('/api/blocks')).json();
-  for(const d of defs) DEFS[d.id] = d;
-  const cats = {};
-  for(const d of defs) (cats[d.category] = cats[d.category] || []).push(d);
-  const order = [...CAT_ORDER.filter(c=>cats[c]), ...Object.keys(cats).filter(c=>!CAT_ORDER.includes(c))];
-  let h = '';
-  for(const cat of order){
-    h += `<h3>${cat}</h3>`;
-    for(const d of cats[cat]){
-      h += `<div class="pblock" draggable="true"
-              ondragstart="event.dataTransfer.setData('t','${d.id}')">
-              <span class="dot" style="background:${accentOf(d)}"></span><span class="pl">${fmt(d.title)}</span></div>`;
-    }
+  try {
+    const defs = await (await fetch('/api/blocks')).json();
+    if(!Array.isArray(defs)) throw new Error(defs.error || 'Cannot load block definitions.');
+    for(const d of defs) DEFS[d.id] = d;
+    renderPalette(); await loadExample('neuron');
+  } catch(e) { document.getElementById('palette').textContent=e.message; toast(e.message); }
+}
+let showLegacy=false;
+function renderPalette(){
+  const cats={};
+  for(const d of Object.values(DEFS)) {
+    if(!showLegacy && !d.id.startsWith('model_')) continue;
+    const cat=d.id.startsWith('model_')?d.category:'Legacy PEMAN';
+    (cats[cat]=cats[cat]||[]).push(d);
   }
-  document.getElementById('palette').innerHTML = h;
-  loadTemplate();
+  let h='<h3>Component library</h3><label class="legacy-toggle"><input id="showLegacy" type="checkbox" '+(showLegacy?'checked':'')+' onchange="showLegacy=this.checked;renderPalette()"> Show legacy blocks</label>';
+  for(const cat of [...CAT_ORDER.filter(c=>cats[c]),...Object.keys(cats).filter(c=>!CAT_ORDER.includes(c))]){
+    h+='<h3>'+esc(cat)+'</h3>';
+    for(const d of cats[cat]) h+=`<div class="pblock" draggable="true" title="${esc(d.description||d.title)}" ondragstart="event.dataTransfer.setData('t','${d.id}')" ondblclick="addBlock('${d.id}',60,60)"><span class="dot" style="background:${accentOf(d)}"></span><span class="pl">${fmt(d.title)}</span></div>`;
+  }
+  document.getElementById('palette').innerHTML=h;
 }
 stage.addEventListener('dragover', e=>e.preventDefault());
 stage.addEventListener('drop', e=>{
@@ -937,7 +987,7 @@ stage.addEventListener('wheel', e=>{
 }, {passive:false});
 
 function addBlock(ref, x, y){
-  const id = ref.split('_')[0] + '_' + (uid++);
+  let id;do{id=ref+'_'+(uid++);}while(G.blocks.some(b=>b.id===id));
   G.blocks.push({id, ref, params: {}});
   POS[id] = {x: Math.max(8,x), y: Math.max(8,y)};
   render(); return id;
@@ -956,6 +1006,7 @@ function paramVal(b, name){
 
 /* ---------- rendering ---------- */
 function render(errInstances){
+  if(lastRun && lastSignature!==designSignature())invalidateRun();
   errInstances = errInstances || new Set();
   [...world.querySelectorAll(".node")].forEach(n => n.remove());
 
@@ -978,10 +1029,10 @@ function render(errInstances){
 
     el.innerHTML = `
       <div class="hd">${icon}
-        <span class="node-title">${fmt(d.title)}</span>
+        <span class="node-title">${fmt(sourceTitle(b,d))}</span>
         <span class="del" title="delete">✕</span>
       </div>
-      <div class="bd" style="margin-top:${portZone}px">${bodyText(b,d)} <span class="iid">#${b.id}</span></div>
+      <div class="bd" style="margin-top:${portZone}px">${bodyText(b,d)} <span class="iid">#${esc(b.id)}</span></div>
       ${d.description ? `<div class="learn">${d.description}</div>` : ""}`;
 
     d.ports.inputs.forEach((p,i)=>{
@@ -1052,7 +1103,7 @@ function endWire(inst,port,kind){
   pending=null; render();
 }
 function portCenter(inst,port,dir){
-  const el = world.querySelector(`.port.${dir}[data-inst="${inst}"][data-port="${port}"]`);
+  const el = world.querySelector(`.port.${dir}[data-inst="${CSS.escape(inst)}"][data-port="${CSS.escape(port)}"]`);
   if(!el) return null;
   const r=el.getBoundingClientRect(), sr=stage.getBoundingClientRect();
   return {x:r.left-sr.left+r.width/2, y:r.top-sr.top+r.height/2};
@@ -1082,37 +1133,34 @@ function path(a,b,col,i,dash){
 
 /* ---------- inspector ---------- */
 function showInspector(){
-  const box=document.getElementById('insBody');
-  const b=G.blocks.find(x=>x.id===selId);
+  const box=document.getElementById('insBody'), b=G.blocks.find(x=>x.id===selId);
   if(!b){box.innerHTML='<span class="muted">Select a block.</span>';return;}
   const d=DEFS[b.ref];
-  let h=`<div style="font-weight:600;margin-bottom:8px">${fmt(d.title)} <span class="muted">(${b.id})</span></div>`;
-  if(document.body.classList.contains('learn') && d.description)
-    h+=`<div class="muted" style="margin-bottom:10px;font-size:11px">${d.description}</div>`;
+  box.innerHTML=`<div class="model-badge">${b.ref.startsWith('model_')?'Current component model':'Legacy PEMAN · original semantics'}</div><div style="font-weight:600">${esc(sourceTitle(b,d))} · ${esc(b.id)}</div><p class="model-help">${esc(d.description||'Historical PEMAN implementation. Use current component blocks for the latest experiment models.')}</p>${sourceRole(b)?`<p class="model-help source-role">${esc(sourceRole(b).help)}</p>`:''}`;
   for(const p of d.params){
-    const v = paramVal(b,p.name);
-    if(p.type==='enum'){
-      h+=`<div class="field"><label>${labelFor(p)}</label>
-        <select onchange="setP('${b.id}','${p.name}',this.value)">
-        ${p.options.map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select></div>`;
-    } else if(p.type==='boolean'){
-      h+=`<div class="field"><label>${labelFor(p)}</label>
-        <select onchange="setP('${b.id}','${p.name}',this.value==='true')">
-        <option ${v?'selected':''}>true</option><option ${!v?'selected':''}>false</option></select></div>`;
-    } else if(p.type==='number'){
-      h+=`<div class="field"><label>${labelFor(p)}</label>
-        <input type="number" step="any" value="${v}"
-          onchange="setP('${b.id}','${p.name}',+this.value)"></div>`;
-    } else {
-      h+=`<div class="field"><label>${labelFor(p)}</label>
-        <input type="text" value="${v}" onchange="setP('${b.id}','${p.name}',this.value)"></div>`;
+    const field=document.createElement('div');field.className='field';
+    const label=document.createElement('label');label.htmlFor='param-'+p.name;label.innerHTML=p.name==='values'&&sourceRole(b)?esc(sourceRole(b).symbol+' values · '+sourceRole(b).unit):labelFor(p);field.append(label);
+    const control=document.createElement(p.type==='enum'||p.type==='boolean'?'select':'input');
+    control.id='param-'+p.name;control.dataset.param=p.name;
+    const v=paramVal(b,p.name);
+    if(control.tagName==='SELECT'){
+      for(const o of (p.type==='boolean'?['true','false']:p.options)) {const opt=document.createElement('option');opt.value=o;opt.textContent=o;control.append(opt);}
+      control.value=String(v);
+    } else {control.type=p.type==='number'?'number':'text';control.value=v;control.required=true;
+      if(p.type==='number'){control.step=p.step||'any';if(p.min!==undefined)control.min=p.min;if(p.max!==undefined)control.max=p.max;}
     }
+    control.addEventListener('change',()=>{
+      if(!control.checkValidity()){control.reportValidity();return;}
+      const value=p.type==='number'?Number(control.value):p.type==='boolean'?control.value==='true':control.value;
+      setP(b.id,p.name,value);
+    });
+    field.append(control);box.append(field);
+    if(p.description){const help=document.createElement('p');help.className='model-help';help.textContent=p.description;box.append(help);}
   }
-  box.innerHTML=h;
 }
 function setP(id,name,val){
-  const b=G.blocks.find(x=>x.id===id); if(!b) return;
-  b.params=b.params||{}; b.params[name]=val; render();
+  const b=G.blocks.find(x=>x.id===id);if(!b)return;
+  b.params=b.params||{};b.params[name]=val;invalidateRun();render();
 }
 
 /* ---------- run: POST to the engine ---------- */
@@ -1130,78 +1178,60 @@ function inferDuration(){
   return dur;
 }
 async function runSim(){
-  if(!G.blocks.length){toast('canvas is empty');return;}
-  toast('running on core-py…');
-  const req={design:{blocks:G.blocks,connections:G.connections},
-             duration:inferDuration(), noise:document.getElementById('noise').checked, seed:0};
-  let resp;
-  try{ resp=await (await fetch('/api/run',{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify(req)})).json(); }
-  catch(e){ toast('server unreachable — is server.py running?'); return; }
-  lastRun=resp;
-  showViolations(resp);
-  if(resp.ok){ toast('✔ engine run complete'); showResults(resp); }
-  else{ toast('✖ validation errors — see inspector'); document.getElementById('results').innerHTML=''; }
+  if(running)return;
+  if(!G.blocks.length){toast('Canvas is empty.');return;}
+  for(const el of document.querySelectorAll('.inspect input'))if(!el.checkValidity()){el.reportValidity();return;}
+  const settings=runSettings(), signature=designSignature();
+  const req=JSON.parse(JSON.stringify({action:'graph',design:G,duration:settings.duration_ns*1e-9,noise:settings.noise,seed:settings.seed}));
+  invalidateRun();running=true;document.getElementById('runBtn').disabled=true;toast('Running component models…');
+  try {
+    const resp=await(await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(req)})).json();
+    if(signature!==designSignature()){toast('Design changed during the run. Run again for current results.');return;}
+    lastSignature=signature;lastRequest=req;lastRun=resp;showViolations(resp);
+    if(resp.ok){toast('Engine run complete');showResults(resp);}else{toast(resp.error||'Validation failed.');}
+  } catch(e) { document.getElementById('violBox').textContent='Simulation failed: '+e.message;toast(e.message); }
+  finally {running=false;document.getElementById('runBtn').disabled=false;}
 }
 function showViolations(resp){
-  const box=document.getElementById('violBox');
-  const items=[...(resp.violations||[]),...(resp.warnings||[])];
-  const errInst=new Set();
-  for(const v of (resp.violations||[])) if(v.where&&v.where.instance) errInst.add(v.where.instance.split('/')[0]);
-  render(errInst);
-  if(!items.length){box.innerHTML='';return;}
-  box.innerHTML='<h3>Engine validation</h3>'+items.map(v=>
-    `<div class="viol ${v.severity}"><b>${v.rule}</b> · ${v.severity}<br>${v.message}</div>`).join('');
+  const box=document.getElementById('violBox'), items=[...(resp.violations||[]),...(resp.warnings||[])];
+  const errInst=new Set((resp.violations||[]).map(v=>v.where?.instance).filter(Boolean));render(errInst);
+  box.innerHTML=(resp.error?'<p class="viol error">'+esc(resp.error)+'</p>':'')+(items.length?'<details><summary>'+items.length+' validation messages (unused probe outputs are allowed)</summary>'+items.map(v=>`<div class="viol ${v.severity==='error'?'error':'warning'}"><b>${esc(v.rule)}</b> · ${esc(v.message)}</div>`).join('')+'</details>':'');
 }
+
 function showResults(resp){
-  const div=document.getElementById('results');
   const opts=[];
-  for(const [inst,ports] of Object.entries(resp.probes))
-    for(const p of Object.keys(ports)) opts.push(`${inst}:${p}`);
+  for(const [inst,ports] of Object.entries(resp.probes))for(const [port,probe] of Object.entries(ports))opts.push({inst,port,probe});
   let cards='';
-  for(const key of opts){
-    const [i,p]=key.split(':');
-    const pr=resp.probes[i][p];
-    if(pr.kind==='digital'||i==='amp')
-      cards+=`<div class="out-card"><div class="k">${i}.${p} (last)</div>
-              <div class="v">${pr.last.toPrecision(5)}</div></div>`;
-  }
-  div.innerHTML=`<h3>Results (from engine)</h3>
-    <button class="btn" style="width:100%;margin-bottom:10px" onclick="exportPlots()">⤓ Export all plots (.zip)</button>${cards}
-    <select id="scopeSel" onchange="drawScope()">
-      ${opts.map(o=>`<option>${o}</option>`).join('')}</select>
-    <svg id="scope" viewBox="0 0 280 150"></svg>`;
-  const prefer=opts.find(o=>o.startsWith('cap:'))||opts[0];
-  document.getElementById('scopeSel').value=prefer;
-  drawScope();
+  for(const {inst,port,probe} of opts)if(probe.kind==='digital'||['cap','amp','act','adc'].includes(inst))
+    cards+=`<div class="out-card"><div class="k">${esc(inst+'.'+port)} · final ${esc(probe.unit||KINDUNIT[probe.kind])}</div><div class="v">${probe.last.toPrecision(7)}</div></div>`;
+  document.getElementById('results').innerHTML=`<h3>Results · ${esc((resp.model_profiles||['legacy']).join(' + '))}</h3><p class="model-help">Model revision ${esc(resp.model_revision||'legacy')}. Seed ${resp.settings?.seed??0}. Waveforms display up to 1,200 sampled points; final values use the full simulation. Capacitor samples are interval-end states.</p><button class="btn" onclick="exportRun()">Export reproducible run (.json)</button> <button class="btn" onclick="exportPlots()">Plot ZIP</button>${cards}<label for="scopeSel">Probe</label><select id="scopeSel" onchange="drawScope()">${opts.map((o,i)=>`<option value="${i}">${esc(o.inst+'.'+o.port)} (${esc(probeUnit(o.inst,o.probe))})</option>`).join('')}</select><label for="scopeView">Optical view</label><select id="scopeView" onchange="drawScope()"><option value="power">Power / electrical value</option><option value="phase">Unwrapped optical phase (rad)</option></select><p id="scopeHelp" class="model-help"></p><svg id="scope" viewBox="0 0 280 150"></svg>`;
+  scopeProbes=opts;document.getElementById('scopeSel').value=Math.max(0,opts.findIndex(o=>o.inst==='adc'&&o.port==='voltage'));drawScope();
 }
+let scopeProbes=[];
 function drawScope(){
-  const sel=document.getElementById('scopeSel'); if(!sel||!lastRun||!lastRun.ok)return;
-  const [i,p]=sel.value.split(':'); const pr=lastRun.probes[i][p];
-  const y=pr.data, n=y.length, W=280,H=150,pl=44,pb=24,pt=10;
-  let mn=Math.min(...y),mx=Math.max(...y); if(mx-mn<1e-18){mx+=1;mn-=1;}
-  const ysc=engScale(Math.max(Math.abs(mn),Math.abs(mx)));
-  const yunit=(ysc.p+KINDUNIT[pr.kind])||'';
-  const T=pr.n/pr.fs, tsc=engScale(T);
-  const X=k=>pl+k/(n-1)*(W-pl-8), Y=v=>pt+(1-(v-mn)/(mx-mn))*(H-pt-pb);
-  let s=`<line x1="${pl}" y1="${Y(0)}" x2="${W-8}" y2="${Y(0)}" stroke="#c9c9c9"/>
-         <line x1="${pl}" y1="${pt}" x2="${pl}" y2="${H-pb}" stroke="#c9c9c9"/>`;
-  let d='M '+X(0)+' '+Y(y[0]);
-  for(let k=1;k<n;k++)d+=' L '+X(k)+' '+Y(y[k]);
-  const col=pr.kind==='optical'?'#c85a17':pr.kind==='digital'?'#2f8a4c':'#2b6cb0';
-  s+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="1.6"/>`;
-  s+=`<text x="3" y="${Y(mx)+4}" fill="#6e6e6e" font-size="8">${fnum(mx/ysc.s)}</text>`;
-  s+=`<text x="3" y="${Y(mn)+2}" fill="#6e6e6e" font-size="8">${fnum(mn/ysc.s)} ${yunit}</text>`;
-  s+=`<text x="${pl}" y="${H-8}" fill="#6e6e6e" font-size="8">0</text>`;
-  s+=`<text x="${W-8}" y="${H-8}" text-anchor="end" fill="#6e6e6e" font-size="8">${fnum(T/tsc.s)} ${tsc.p}s</text>`;
-  document.getElementById('scope').innerHTML=s;
+  if(!lastRun?.ok)return;
+  const item=scopeProbes[Number(document.getElementById('scopeSel').value)];if(!item)return;
+  const pr=item.probe,view=document.getElementById('scopeView');
+  const optical=pr.kind==='optical'&&Array.isArray(pr.phase_rad);
+  view.disabled=!optical;if(!optical)view.value='power';
+  document.getElementById('scopeHelp').textContent=optical
+    ? 'Power = |E|² (W). Phase = unwrap(arg(E)) (rad); undefined at zero power. This direct-detection model does not convert phase noise to intensity.'
+    : 'Electrical probe: '+probeUnit(item.inst,pr)+'. Optical phase is available only for an optical probe.';
+  const phase=optical&&view.value==='phase'?pr.phase_rad:null;
+  const y=phase||pr.data,n=y.length,W=280,H=150,pl=44,pb=24,pt=10;
+  let mn=Math.min(...y),mx=Math.max(...y);if(mx-mn<1e-18){mx+=Math.abs(mx)*.05||1;mn-=Math.abs(mn)*.05||1;}
+  const ys=engScale(Math.max(Math.abs(mn),Math.abs(mx))),unit=phase?'rad':probeUnit(item.inst,pr);
+  const T=(pr.n-1)/pr.fs,ts=engScale(T),indices=pr.sample_indices;
+  const X=k=>pl+(indices?indices[k]/Math.max(1,pr.n-1):k/Math.max(1,n-1))*(W-pl-8),Y=v=>pt+(1-(v-mn)/(mx-mn))*(H-pt-pb);
+  let d='M '+X(0)+' '+Y(y[0]);for(let k=1;k<n;k++)d+=' L '+X(k)+' '+Y(y[k]);
+  document.getElementById('scope').innerHTML=`<path d="${d}" fill="none" stroke="#287d79" stroke-width="1.7"/><text x="2" y="14" font-size="9">${fnum(mx/ys.s)}</text><text x="2" y="122" font-size="9">${fnum(mn/ys.s)} ${esc(ys.p+unit)}</text><text x="44" y="145" font-size="9">0</text><text x="272" y="145" text-anchor="end" font-size="9">${fnum(T/ts.s)} ${ts.p}s</text>`;
 }
 
 /* ---------- mode / io / template ---------- */
 function toggleMode(){
   document.body.classList.toggle('learn');
   document.getElementById('modeBtn').textContent =
-    document.body.classList.contains('learn') ? 'Learn' : 'Fast';
+    document.body.classList.contains('learn') ? 'Hide theory' : 'Show theory';
   render(); showInspector();
 }
 function exportJSON(){
@@ -1211,16 +1241,12 @@ function exportJSON(){
   a.download='design.prabha';a.click();toast('exported .prabha');
 }
 function importJSON(ev){
-  const f=ev.target.files[0]; if(!f)return; const r=new FileReader();
-  r.onload=()=>{try{
-    const d=JSON.parse(r.result); G={blocks:d.blocks,connections:d.connections};
-    let x=40,y=40; POS={};
-    for(const b of G.blocks){POS[b.id]={x,y}; x+=270; if(x>1100){x=40;y+=230;}}
-    uid=G.blocks.length+1; render(); toast('imported');
-  }catch(e){toast('bad .prabha file');}};
-  r.readAsText(f); ev.target.value='';
+  const f=ev.target.files[0];if(!f)return;
+  f.text().then(text=>{const data=JSON.parse(text);loadDocument(data);toast('Opened '+f.name);}).catch(e=>toast('Cannot open design: '+e.message));
+  ev.target.value='';
 }
-function loadTemplate(){
+
+function loadLegacyTemplate(){
   G={blocks:[
     {id:"laser",ref:"laser_cw",params:{P0:1,fs:1.6e11}},
     {id:"x",ref:"drive_source",params:{values:"0.9,0.3,0.7,0.5"}},
@@ -1244,11 +1270,55 @@ function loadTemplate(){
        mac:{x:330,y:170},
        cap:{x:630,y:40},  amp:{x:630,y:280},
        adc:{x:930,y:170}, act:{x:1210,y:170}};
-  uid=1; render(); toast('PEMAN template loaded — press Run');
+  uid=1;selId=null;invalidateRun();render();showInspector();requestAnimationFrame(frameAll);toast('Legacy PEMAN template loaded');
 }
 let toastT;
 function toast(m){const el=document.getElementById('toast');el.textContent=m;
   el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
+
+let running=false,lastSignature='',lastRequest=null;
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function runSettings(){return {duration_ns:Number(document.getElementById('durationNs').value),seed:Number(document.getElementById('runSeed').value),noise:document.getElementById('noise').checked};}
+function designSignature(){return JSON.stringify([G,runSettings()]);}
+function invalidateRun(){lastRun=null;lastRequest=null;scopeProbes=[];document.getElementById('results').innerHTML='';document.getElementById('violBox').innerHTML='';}
+function downloadJSON(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}
+function designDocument(){return {format:'prabha-designer/1',model_revision:'components-1',design:G,positions:POS,settings:runSettings()};}
+function exportRun(){if(lastRun?.ok)downloadJSON({format:'prabha-run/1',request:lastRequest,result:lastRun},'prabha-run.json');}
+function loadDocument(doc){
+  if(doc.format && doc.format!=='prabha-designer/1')throw new Error('Unsupported Designer file version.');
+  if(doc.model_revision && doc.model_revision!=='components-1')throw new Error('This project uses a different component model revision.');
+  const d=doc.design||doc;
+  if(!Array.isArray(d.blocks)||!Array.isArray(d.connections)||d.blocks.length>64||d.connections.length>256)throw new Error('Expected a graph with at most 64 blocks and 256 connections.');
+  const ids=new Set(),safeId=/^[A-Za-z0-9_./-]+$/;
+  for(const b of d.blocks){
+    if(typeof b.id!=='string'||!safeId.test(b.id)||['__proto__','constructor','prototype'].includes(b.id)||ids.has(b.id)||!Object.hasOwn(DEFS,b.ref))throw new Error('Unknown block, duplicate or unsupported instance ID.');
+    if(b.params!==undefined && (!b.params||Array.isArray(b.params)||typeof b.params!=='object'))throw new Error('Invalid block parameters.');ids.add(b.id);
+  }
+  for(const c of d.connections)for(const side of ['from','to'])if(!Array.isArray(c[side])||c[side].length!==2||!ids.has(c[side][0])||typeof c[side][1]!=='string')throw new Error('Invalid connection endpoint.');
+  const st=doc.settings||{duration_ns:.4,seed:0,noise:true};
+  if(!Number.isFinite(st.duration_ns)||st.duration_ns<=0||st.duration_ns>1e9||!Number.isInteger(st.seed)||st.seed<0||st.seed>=2**32||typeof st.noise!=='boolean')throw new Error('Invalid saved run settings.');
+  const positions=Object.create(null);
+  d.blocks.forEach((b,i)=>{const v=doc.positions?.[b.id];positions[b.id]=v&&Number.isFinite(v.x)&&Number.isFinite(v.y)?{x:v.x,y:v.y}:{x:25+(i%4)*285,y:25+Math.floor(i/4)*235};});
+  G=JSON.parse(JSON.stringify({blocks:d.blocks,connections:d.connections}));POS=positions;selId=null;uid=1;
+  document.getElementById('durationNs').value=st.duration_ns;document.getElementById('runSeed').value=st.seed;document.getElementById('noise').checked=st.noise;
+  document.getElementById('exampleNote').textContent=doc.description||'Imported design. Inspect parameters and run settings before simulation.';
+  invalidateRun();render();showInspector();requestAnimationFrame(frameAll);
+}
+let exampleTicket=0;
+async function loadExample(name){
+  const ticket=++exampleTicket;
+  if(name==='legacy'){
+    document.getElementById('durationNs').value=.4;document.getElementById('runSeed').value=0;document.getElementById('noise').checked=true;
+    document.getElementById('exampleNote').textContent='Historical PEMAN graph: ideal transmission blocks, original ADC voltage-code convention and activation after ADC. Current component models are available in the other examples.';
+    loadLegacyTemplate();return;
+  }
+  try{
+    const r=await(await fetch('/api/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'example',name})})).json();
+    if(ticket!==exampleTicket)return;if(!r.ok)throw new Error(r.error);loadDocument(r.result);document.getElementById('exampleSel').value=name;toast('Example loaded — press Run');
+  }catch(e){toast(e.message);document.getElementById('exampleNote').textContent=e.message;}
+}
+function loadTemplate(){document.getElementById('exampleSel').value='neuron';return loadExample('neuron');}
+
 boot();
 </script>
 </body>

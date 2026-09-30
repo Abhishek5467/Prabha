@@ -1,13 +1,19 @@
-// Resolve from this script so both /docs/ and /Prabha/docs/ hosting work.
+// Resolve from this script so /docs/, /Prabha/docs/ and bundled desktop paths work.
 (() => {
-  const link = document.getElementById('community-join-link');
-  const status = document.getElementById('community-status');
-  if (!link || !status) return;
-  const loader = new URL('../../community-config.js', document.currentScript.src);
-  import(loader.href).then(module => module.getCommunityUrl()).then(url => {
-    if (!url) return;
-    link.href = url;
-    link.hidden = false;
-    status.textContent = 'Join the Prabha community to ask questions, share experiments and discuss the project.';
+  const appRoot = new URL('../../', document.currentScript.src);
+  import(new URL('platform.js', appRoot).href).then(module => module.installNavigation()).catch(() => {});
+  const content = document.querySelector('.wy-nav-content');
+  if (content) {
+    const back = document.createElement('a');
+    back.href = appRoot.href;
+    back.textContent = '← Back to Prabha Studio';
+    back.style.cssText = 'display:inline-block;margin-bottom:20px;font-size:14px';
+    content.prepend(back);
+  }
+  import(new URL('community-config.js', appRoot).href).then(module => module.getCommunityLinks()).then(links => {
+    for (const [id, href] of [['community-join-link', links.forum], ['community-chat-link', links.chat]]) {
+      const link = document.getElementById(id);
+      if (link && href) link.href = href;
+    }
   }).catch(() => {});
 })();

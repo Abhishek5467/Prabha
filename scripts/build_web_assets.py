@@ -21,14 +21,23 @@ shim = '''
 <script type="module">
 const originalFetch=window.fetch.bind(window);window.__PRABHA_FETCH=originalFetch;
 const engine=import('./engine.js');
+import('./platform.js').then(module=>module.installNavigation());
+window.prabhaDownload=async function(link){
+ try{
+  const platform=await import('./platform.js');
+  if(!platform.isDesktop()){link.click();return;}
+  const response=await originalFetch(link.href);
+  await platform.saveBlob(link.download,await response.blob());
+ }catch(error){alert(error.message||String(error));}
+};
 window.fetch=async function(input,options={}){
  const path=typeof input==='string'?input:input.url;
- if(path==='/api/blocks'||path==='/api/run'){
+ if(path==='/api/blocks'||path==='/api/run'||path==='/api/execute'){
   try {const {execute}=await engine;
-   const payload=path==='/api/blocks'?{action:'blocks'}:{...JSON.parse(options.body),action:'graph'};
+   const payload=path==='/api/blocks'?{action:'blocks'}:path==='/api/run'?{...JSON.parse(options.body),action:'graph'}:JSON.parse(options.body);
    const result=await execute(payload);
-   return new Response(JSON.stringify(path==='/api/blocks'?result:{ok:true,...result}),{headers:{'Content-Type':'application/json'}});
-  } catch(e) {return new Response(JSON.stringify({ok:false,error:e.message}),{status:422,headers:{'Content-Type':'application/json'}});}
+   return new Response(JSON.stringify(path==='/api/blocks'?result:path==='/api/run'?{ok:true,...result}:{ok:true,result}),{headers:{'Content-Type':'application/json'}});
+  } catch(e) {return new Response(JSON.stringify({ok:false,error:e.message,violations:e.violations||[]}),{status:422,headers:{'Content-Type':'application/json'}});}
  }
  return originalFetch(input,options);
 };
@@ -37,6 +46,7 @@ window.fetch=async function(input,options={}){
 # A module is deferred; use a blocking shim that awaits its own lazy import instead.
 shim=shim.replace('type="module"','').replace("const engine=import('./engine.js');", "const engine=import('./engine.js');")
 html=(ROOT/'frontend/web/index.html').read_text(encoding='utf-8')
+html=html.replace('a.click();','window.prabhaDownload(a);')
 html=html.replace('</head>',shim+'</head>').replace('<body>','<body><a href="./" style="position:fixed;right:12px;bottom:12px;z-index:10000;background:#173b42;color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none">← Prabha Studio</a>')
 (PUBLIC/'designer.html').write_text(html, encoding='utf-8')
 subprocess.run([sys.executable,'-m','mkdocs','build','--strict','-f',str(ROOT/'mkdocs.yml')],check=True,cwd=ROOT)

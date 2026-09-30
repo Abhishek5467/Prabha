@@ -1,0 +1,353 @@
+{
+  "title": "Expanded component chain",
+  "description": "Same chain as compact MAC, with separately editable encoder, DAC, MZM, splitter, weight transmissions and detectors. Detector IDs preserve the compact MAC random streams when seeds/settings match. Use F to focus a block and the scope to inspect each stage.",
+  "model_revision": "components-1",
+  "design": {
+    "blocks": [
+      {
+        "id": "laser",
+        "ref": "model_laser",
+        "params": {}
+      },
+      {
+        "id": "x",
+        "ref": "model_source",
+        "params": {}
+      },
+      {
+        "id": "w",
+        "ref": "model_source",
+        "params": {
+          "values": "0.8,-0.6,0.4,-0.9"
+        }
+      },
+      {
+        "id": "enc",
+        "ref": "model_encoder",
+        "params": {}
+      },
+      {
+        "id": "dac",
+        "ref": "model_dac_quantizer",
+        "params": {}
+      },
+      {
+        "id": "mzm",
+        "ref": "model_mzm",
+        "params": {}
+      },
+      {
+        "id": "split",
+        "ref": "model_splitter",
+        "params": {}
+      },
+      {
+        "id": "weights",
+        "ref": "model_weights",
+        "params": {}
+      },
+      {
+        "id": "upper",
+        "ref": "model_transmission",
+        "params": {}
+      },
+      {
+        "id": "lower",
+        "ref": "model_transmission",
+        "params": {}
+      },
+      {
+        "id": "mac/pd_upper",
+        "ref": "model_pd",
+        "params": {}
+      },
+      {
+        "id": "mac/pd_lower",
+        "ref": "model_pd",
+        "params": {}
+      },
+      {
+        "id": "bal",
+        "ref": "model_balance",
+        "params": {}
+      },
+      {
+        "id": "cap",
+        "ref": "model_capacitor",
+        "params": {}
+      },
+      {
+        "id": "amp",
+        "ref": "model_amplifier",
+        "params": {}
+      },
+      {
+        "id": "act",
+        "ref": "model_activation",
+        "params": {}
+      },
+      {
+        "id": "adc",
+        "ref": "model_adc",
+        "params": {}
+      }
+    ],
+    "connections": [
+      {
+        "from": [
+          "x",
+          "out"
+        ],
+        "to": [
+          "enc",
+          "x"
+        ]
+      },
+      {
+        "from": [
+          "enc",
+          "out"
+        ],
+        "to": [
+          "dac",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "dac",
+          "out"
+        ],
+        "to": [
+          "mzm",
+          "drive"
+        ]
+      },
+      {
+        "from": [
+          "laser",
+          "out"
+        ],
+        "to": [
+          "mzm",
+          "light"
+        ]
+      },
+      {
+        "from": [
+          "mzm",
+          "out"
+        ],
+        "to": [
+          "split",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "w",
+          "out"
+        ],
+        "to": [
+          "weights",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "weights",
+          "upper"
+        ],
+        "to": [
+          "upper",
+          "transmission"
+        ]
+      },
+      {
+        "from": [
+          "weights",
+          "lower"
+        ],
+        "to": [
+          "lower",
+          "transmission"
+        ]
+      },
+      {
+        "from": [
+          "split",
+          "upper"
+        ],
+        "to": [
+          "upper",
+          "light"
+        ]
+      },
+      {
+        "from": [
+          "split",
+          "lower"
+        ],
+        "to": [
+          "lower",
+          "light"
+        ]
+      },
+      {
+        "from": [
+          "upper",
+          "out"
+        ],
+        "to": [
+          "mac/pd_upper",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "lower",
+          "out"
+        ],
+        "to": [
+          "mac/pd_lower",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "mac/pd_upper",
+          "out"
+        ],
+        "to": [
+          "bal",
+          "upper"
+        ]
+      },
+      {
+        "from": [
+          "mac/pd_lower",
+          "out"
+        ],
+        "to": [
+          "bal",
+          "lower"
+        ]
+      },
+      {
+        "from": [
+          "bal",
+          "out"
+        ],
+        "to": [
+          "cap",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "cap",
+          "out"
+        ],
+        "to": [
+          "amp",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "amp",
+          "out"
+        ],
+        "to": [
+          "act",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "act",
+          "out"
+        ],
+        "to": [
+          "adc",
+          "in"
+        ]
+      }
+    ]
+  },
+  "settings": {
+    "duration_ns": 4,
+    "noise": false,
+    "seed": 1
+  },
+  "positions": {
+    "laser": {
+      "x": 25,
+      "y": 25
+    },
+    "x": {
+      "x": 25,
+      "y": 220
+    },
+    "w": {
+      "x": 25,
+      "y": 420
+    },
+    "enc": {
+      "x": 300,
+      "y": 220
+    },
+    "dac": {
+      "x": 575,
+      "y": 220
+    },
+    "mzm": {
+      "x": 850,
+      "y": 25
+    },
+    "split": {
+      "x": 1125,
+      "y": 25
+    },
+    "weights": {
+      "x": 850,
+      "y": 420
+    },
+    "upper": {
+      "x": 1400,
+      "y": 25
+    },
+    "lower": {
+      "x": 1400,
+      "y": 270
+    },
+    "bal": {
+      "x": 1950,
+      "y": 135
+    },
+    "cap": {
+      "x": 2225,
+      "y": 25
+    },
+    "amp": {
+      "x": 2225,
+      "y": 245
+    },
+    "act": {
+      "x": 2500,
+      "y": 25
+    },
+    "adc": {
+      "x": 2500,
+      "y": 245
+    },
+    "mac/pd_upper": {
+      "x": 1675,
+      "y": 25
+    },
+    "mac/pd_lower": {
+      "x": 1675,
+      "y": 270
+    }
+  }
+}

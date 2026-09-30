@@ -1,0 +1,73 @@
+warning: in the working copy of '.github/workflows/checks.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.github/workflows/desktop.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'CHANGELOG.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'CITATION.cff', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Readme.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'UPDATE_FRONTEND.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'core-py/prabha/blocks/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'core-py/prabha/blocks/cw_laser.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'core-py/prabha/blocks/mzm.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'core-py/prabha/engine.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'core-py/prabha/product.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'core-py/prabha/validate.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'desktop/src-tauri/Cargo.toml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'desktop/src-tauri/src/main.rs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/site/api.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/site/assets/community.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/site/community.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/site/deployment.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/site/desktop.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/site/index.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/site/model-scope.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/site/quickstart.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/site/studio.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/studio/package-lock.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/studio/package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/studio/public/community-config.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/studio/public/community.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/studio/public/engine.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/studio/src/main.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/studio/src/style.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/web/index.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'mkdocs.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/build_sidecar.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/build_web_assets.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/package_source.py', LF will be replaced by CRLF the next time Git touches it
+ .github/workflows/checks.yml               |   3 [32m+[m
+ .github/workflows/desktop.yml              |  45 [32m+++[m[31m-[m
+ .gitignore                                 |   2 [32m+[m
+ CHANGELOG.md                               |  22 [32m++[m
+ CITATION.cff                               |   2 [32m+[m[31m-[m
+ Readme.md                                  |  20 [32m+[m[31m-[m
+ UPDATE_FRONTEND.md                         | 136 [32m+[m[31m----------[m
+ core-py/prabha/blocks/__init__.py          |   3 [32m+[m[31m-[m
+ core-py/prabha/blocks/cw_laser.py          |   4 [32m+[m[31m-[m
+ core-py/prabha/blocks/mzm.py               |   4 [32m+[m[31m-[m
+ core-py/prabha/engine.py                   |   4 [32m+[m[31m-[m
+ core-py/prabha/product.py                  |  34 [32m++[m[31m-[m
+ core-py/prabha/validate.py                 |   5 [32m+[m[31m-[m
+ desktop/src-tauri/Cargo.toml               |   2 [32m+[m
+ desktop/src-tauri/src/main.rs              |  41 [32m+++[m[31m-[m
+ docs/site/api.md                           |  30 [32m+++[m
+ docs/site/assets/community.js              |  26 [32m+[m[31m-[m
+ docs/site/community.md                     |  44 [32m++[m[31m--[m
+ docs/site/deployment.md                    |  49 [32m++[m[31m--[m
+ docs/site/desktop.md                       |  53 [32m+++[m[31m-[m
+ docs/site/index.md                         |  13 [32m+[m[31m-[m
+ docs/site/model-scope.md                   |  40 [32m+[m[31m--[m
+ docs/site/quickstart.md                    |  55 [32m++++[m[31m-[m
+ docs/site/studio.md                        |  59 [32m++++[m[31m-[m
+ frontend/studio/package-lock.json          |   4 [32m+[m[31m-[m
+ frontend/studio/package.json               |  21 [32m+[m[31m-[m
+ frontend/studio/public/community-config.js |  24 [32m+[m[31m-[m
+ frontend/studio/public/community.json      |   3 [32m+[m[31m-[m
+ frontend/studio/public/engine.js           | 140 [32m+++++++++[m[31m--[m
+ frontend/studio/src/main.jsx               | 366 [32m++++++++++++++++++++++++[m[31m----[m
+ frontend/studio/src/style.css              |   1 [31m-[m
+ frontend/web/index.html                    | 374 [32m+++++++++++++++++[m[31m------------[m
+ mkdocs.yml                                 |   3 [32m+[m
+ scripts/build_sidecar.py                   |  22 [32m+[m[31m-[m
+ scripts/build_web_assets.py                |  18 [32m+[m[31m-[m
+ scripts/package_source.py                  |   2 [32m+[m[31m-[m
+ 36 files changed, 1160 insertions(+), 514 deletions(-)

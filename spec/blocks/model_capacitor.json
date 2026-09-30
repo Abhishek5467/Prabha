@@ -1,0 +1,59 @@
+{
+  "id": "model_capacitor",
+  "title": "Capacitor integrator",
+  "category": "Electronic",
+  "block_type": "primitive",
+  "implementation": "ComponentCapacitor",
+  "description": "Uses Capacitor.integrate_current with dt=1/fs. Output sample k is voltage AFTER interval k; first sample includes one integration step. Without leakage: V+=I dt/C. With leakage: Vnew=Vold exp(\u2212dt/RC)+IR(1\u2212exp(\u2212dt/RC)). No kT/C reset noise.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "current",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "capacitance_pF",
+      "type": "number",
+      "default": 1.0,
+      "description": "Charge storage capacitance.",
+      "unit": "pF",
+      "min": 1e-12,
+      "max": 1000000000000.0
+    },
+    {
+      "name": "initial_V",
+      "type": "number",
+      "default": 0.0,
+      "description": "Initial voltage; resets at start of every run.",
+      "unit": "V",
+      "min": -1000000.0,
+      "max": 1000000.0
+    },
+    {
+      "name": "leakage_enabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Use finite RC leakage; deterministic even with noise off."
+    },
+    {
+      "name": "leakage_ohm",
+      "type": "number",
+      "default": 1000000.0,
+      "description": "Leakage resistance; exact constant-current RC solution per sample.",
+      "unit": "ohm",
+      "min": 1e-09,
+      "max": 1e+20
+    }
+  ]
+}

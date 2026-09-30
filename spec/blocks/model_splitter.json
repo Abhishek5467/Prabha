@@ -1,0 +1,48 @@
+{
+  "id": "model_splitter",
+  "title": "Optical splitter",
+  "category": "Photonic",
+  "block_type": "primitive",
+  "implementation": "ComponentSplitter",
+  "description": "Power-conserving split before explicit insertion loss. Envelopes scale by square roots of branch power ratios. No additional fabrication or coupling model.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "optical",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "upper",
+        "kind": "optical",
+        "domain": "time"
+      },
+      {
+        "name": "lower",
+        "kind": "optical",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 0.5,
+      "description": "Fraction of incident power in upper arm.",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "name": "loss_dB",
+      "type": "number",
+      "default": 0.0,
+      "description": "Deterministic insertion loss; remains active with noise off.",
+      "unit": "dB",
+      "min": 0,
+      "max": 200
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "title": "Leakage, rails and activation",
+  "description": "Inspect cap \u2192 amp \u2192 act \u2192 adc. The capacitor leaks through 1000 ohm and amplifier clips to \u00b10.4 V. Sigmoid and converter quantization are deterministic. Global noise does not disable these effects.",
+  "model_revision": "components-1",
+  "design": {
+    "blocks": [
+      {
+        "id": "current",
+        "ref": "model_current_source",
+        "params": {
+          "values": "0,0.002,-0.002,0"
+        }
+      },
+      {
+        "id": "cap",
+        "ref": "model_capacitor",
+        "params": {
+          "leakage_enabled": true,
+          "leakage_ohm": 1000
+        }
+      },
+      {
+        "id": "amp",
+        "ref": "model_amplifier",
+        "params": {
+          "offset_V": 0,
+          "lower_rail_enabled": true,
+          "upper_rail_enabled": true,
+          "v_min": -0.4,
+          "v_max": 0.4
+        }
+      },
+      {
+        "id": "act",
+        "ref": "model_activation",
+        "params": {
+          "gain": 3,
+          "threshold_V": 0.1
+        }
+      },
+      {
+        "id": "adc",
+        "ref": "model_adc",
+        "params": {
+          "bits": 8
+        }
+      }
+    ],
+    "connections": [
+      {
+        "from": [
+          "current",
+          "out"
+        ],
+        "to": [
+          "cap",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "cap",
+          "out"
+        ],
+        "to": [
+          "amp",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "amp",
+          "out"
+        ],
+        "to": [
+          "act",
+          "in"
+        ]
+      },
+      {
+        "from": [
+          "act",
+          "out"
+        ],
+        "to": [
+          "adc",
+          "in"
+        ]
+      }
+    ]
+  },
+  "settings": {
+    "duration_ns": 4,
+    "noise": false,
+    "seed": 1
+  },
+  "positions": {
+    "current": {
+      "x": 25,
+      "y": 25
+    },
+    "cap": {
+      "x": 315,
+      "y": 25
+    },
+    "amp": {
+      "x": 605,
+      "y": 25
+    },
+    "act": {
+      "x": 605,
+      "y": 270
+    },
+    "adc": {
+      "x": 905,
+      "y": 270
+    }
+  }
+}

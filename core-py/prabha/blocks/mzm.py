@@ -6,7 +6,7 @@ class MachZehnderModulator:
     
     Power transfer function:
     
-        P_out = P_in * cos^2(PI * V/(2*V_pi) + phi_bias)
+        P_out = P_in * cos^2(PI * V/(2*V_pi) + phi_bias/2)
         
     Parameters
     ----------

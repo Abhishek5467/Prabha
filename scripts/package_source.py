@@ -2,7 +2,7 @@
 from pathlib import Path
 import argparse, zipfile
 ROOT=Path(__file__).resolve().parents[1]
-EXCLUDED={'.git','.venv','.pytest_cache','__pycache__','node_modules','build','dist','target','.vscode','.openai'}
+EXCLUDED={'.git','.venv','.pytest_cache','__pycache__','node_modules','build','dist','target','.vscode','.openai','test-results','playwright-report'}
 GENERATED={'frontend/studio/public/docs','frontend/studio/public/evidence','frontend/studio/public/designer.html','frontend/studio/public/prabha-python.zip','frontend/studio/public/prabha-source.zip'}
 def package(output):
     output=Path(output).resolve();output.parent.mkdir(parents=True,exist_ok=True)

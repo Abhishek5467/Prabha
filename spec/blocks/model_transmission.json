@@ -1,0 +1,30 @@
+{
+  "id": "model_transmission",
+  "title": "Power transmission control",
+  "category": "Photonic",
+  "block_type": "primitive",
+  "implementation": "ComponentTransmission",
+  "description": "Ideal weight attenuation: Eout=Ein sqrt(t), 0\u2264t\u22641. Control uses a voltage-kind port as a dimensionless transmission command. This is not a voltage-driven nonlinear MZM.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "light",
+        "kind": "optical",
+        "domain": "time"
+      },
+      {
+        "name": "transmission",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "optical",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": []
+}

@@ -1,0 +1,74 @@
+{
+  "id": "model_tia",
+  "title": "Transimpedance amplifier",
+  "category": "Electronic",
+  "block_type": "primitive",
+  "implementation": "ComponentTIA",
+  "description": "Uses TIA.amplify. Noise is added before gain and finite-bandwidth filtering. Density can represent the measured receiver noise budget; no implicit second thermal-noise source. No TIA saturation model.",
+  "ports": {
+    "inputs": [
+      {
+        "name": "in",
+        "kind": "current",
+        "domain": "time"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "resistance_ohm",
+      "type": "number",
+      "default": 1000.0,
+      "description": "Transimpedance gain.",
+      "unit": "ohm",
+      "min": 1e-09,
+      "max": 1000000000000.0
+    },
+    {
+      "name": "bandwidth_enabled",
+      "type": "boolean",
+      "default": true,
+      "description": "Apply the established first-order backward-Euler low-pass."
+    },
+    {
+      "name": "bandwidth_Hz",
+      "type": "number",
+      "default": 1000000000.0,
+      "description": "Nominal analog \u22123 dB bandwidth; discrete response depends on fs. First output equals first input \u00d7 gain.",
+      "unit": "Hz",
+      "min": 1e-09,
+      "max": 1000000000000000.0
+    },
+    {
+      "name": "noise_enabled",
+      "type": "boolean",
+      "default": true,
+      "description": "Global noise AND this switch enable input-referred white current noise."
+    },
+    {
+      "name": "noise_A_sqrtHz",
+      "type": "number",
+      "default": 1e-12,
+      "description": "User-specified total input current noise density; variance before filtering is density\u00b2 fs/2.",
+      "unit": "A/\u221aHz",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "name": "seed",
+      "type": "number",
+      "default": 0,
+      "description": "Block seed offset. Combined with run seed and instance ID; integer 0..2^32-1.",
+      "min": 0,
+      "max": 4294967295,
+      "step": 1
+    }
+  ]
+}

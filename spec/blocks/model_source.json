@@ -1,0 +1,53 @@
+{
+  "id": "model_source",
+  "title": "Voltage / normalized source",
+  "category": "Sources",
+  "block_type": "primitive",
+  "implementation": "ComponentSource",
+  "description": "Time-domain voltage sequence. Normalized x and signed w may use the voltage transport; these control values are dimensionless by convention. No source noise is invented.",
+  "ports": {
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "out",
+        "kind": "voltage",
+        "domain": "time"
+      }
+    ]
+  },
+  "params": [
+    {
+      "name": "values",
+      "type": "string",
+      "default": "0.9,0.3,0.7,0.5",
+      "description": "Comma-separated samples held for sps steps; final value is held until run end."
+    },
+    {
+      "name": "rate",
+      "type": "number",
+      "default": 1.0,
+      "description": "Symbol rate. fs = rate \u00d7 10^9 \u00d7 sps. Set all connected sources to the same fs.",
+      "unit": "GHz",
+      "min": 1e-12,
+      "max": 1000000.0
+    },
+    {
+      "name": "sps",
+      "type": "number",
+      "default": 16,
+      "description": "Integer samples per symbol.",
+      "min": 1,
+      "max": 256,
+      "step": 1
+    },
+    {
+      "name": "kind",
+      "type": "enum",
+      "default": "voltage",
+      "description": "Fixed port type for this source definition.",
+      "options": [
+        "voltage"
+      ]
+    }
+  ]
+}

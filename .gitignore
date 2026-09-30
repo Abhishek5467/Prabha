@@ -21,3 +21,5 @@ dist/
 frontend/studio/public/prabha-source.zip
 .vscode/
 Thumbs.db
+frontend/studio/test-results/
+frontend/studio/playwright-report/
