@@ -18,7 +18,7 @@ work=ROOT/'build/sidecar'; work.mkdir(parents=True,exist_ok=True)
 cmd=[sys.executable,'-m','PyInstaller','--noconfirm','--clean','--onefile','--name','prabha-engine',
      '--paths',str(ROOT/'core-py'),'--distpath',str(work/'dist'),'--workpath',str(work/'work'),
      '--specpath',str(work)]
-for name in ['spec','blocks-lib','peman.prabha']:
+for name in ['spec','blocks-lib','peman.prabha','results/cnn_digits','validation/datasets']:
     destination='.' if name=='peman.prabha' else name
     cmd.extend(['--add-data',str(ROOT/name)+os.pathsep+destination])
 cmd.append(str(ROOT/'scripts/desktop_entry.py'))

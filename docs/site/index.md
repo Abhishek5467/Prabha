@@ -15,7 +15,7 @@ Prabha is an open-source, specification-first simulator for photonic and electro
 
 The baseline batch has RMS error **7.8644118 × 10⁻⁵**, maximum absolute error **1.7828381 × 10⁻⁴** and **0/100 output-ordering mismatches** against its analytical reference. These are numerical agreement results for one small fixed-weight network, not task accuracy or hardware benchmarks.
 
-See [scope](model-scope.md) before interpreting results. CNN primitives and LLM evaluation are future work.
+See [scope](model-scope.md) before interpreting results. The trained CNN workspace supports editable digit images, weights, converter settings, reproducible settings files and layer inspection. LLM evaluation remains future work.
 
 ## Understand the model
 

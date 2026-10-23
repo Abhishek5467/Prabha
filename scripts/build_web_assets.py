@@ -16,6 +16,7 @@ for f in sorted((ROOT/'core-py').glob('*')):
 (evidence/'catalog.json').write_text(json.dumps(catalog, indent=2), encoding='utf-8')
 with zipfile.ZipFile(PUBLIC/'prabha-python.zip','w',zipfile.ZIP_DEFLATED) as z:
     paths = list((ROOT/'core-py/prabha').rglob('*.py')) + list((ROOT/'spec').rglob('*.json')) + list((ROOT/'blocks-lib').glob('*.json')) + [ROOT/'peman.prabha']
+    paths += [ROOT/'results/cnn_digits/trained_cnn.npz', ROOT/'results/cnn_digits/training_metadata.json', ROOT/'validation/datasets/digits_8x8_split.npz']
     for f in sorted(paths): z.write(f, f.relative_to(ROOT))
 shim = '''
 <script type="module">

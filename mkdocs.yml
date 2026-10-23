@@ -15,6 +15,7 @@ nav:
   - Overview: index.md
   - Quick start: quickstart.md
   - Studio guide: studio.md
+  - Trained CNN: cnn.md
   - Troubleshooting: troubleshooting.md
   - Component Designer: designer.md
   - User manual and mathematics: user-manual.md

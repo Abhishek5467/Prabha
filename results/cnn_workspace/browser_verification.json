@@ -1,0 +1,22 @@
+{
+  "browser": "Chromium 153.0.8010.0",
+  "tests": [
+    "full 360-image held-out inference",
+    "row selection and convolution channel inspection",
+    "edited pixels/weights/DAC/ADC used in computation",
+    "unlabelled accuracy handling",
+    "exact settings export",
+    "invalid imports preserve controls/results",
+    "run import ignores stored results",
+    "imported settings reproduce fresh logits",
+    "run, layer, settings and CSV downloads",
+    "Studio iframe request/export bridge"
+  ],
+  "page_errors": [],
+  "baseline": {
+    "numpy_seconds": 0.0016830550000577205,
+    "prabha_seconds": 7.878153748999921,
+    "correct": 354
+  },
+  "passed": true
+}

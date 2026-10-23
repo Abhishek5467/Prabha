@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-15",
+  "python_tests": {
+    "passed": 78,
+    "warnings": 1
+  },
+  "frontend_engine_tests": {
+    "passed": 6
+  },
+  "studio_production_build": "passed",
+  "demo_functional_test": "Actual standalone launcher and HTTP engine, all 360 images, HTML controller rendering values/rows/canvas calls, row selection and JSON export passed.",
+  "browser_visual_test": "Not run: browser binary download unavailable. HTML controller was exercised with a DOM test harness; no visual rendering claim.",
+  "native_desktop_binary_build": "Not run; source and asset build inclusion supplied.",
+  "existing_ann_rms_error": 7.86441179558465e-05,
+  "integration_test_metrics": {
+    "count": 360,
+    "start": 0,
+    "numpy_correct": 354,
+    "prabha_correct": 354,
+    "numpy_accuracy": 0.9833333333333333,
+    "prabha_accuracy": 0.9833333333333333,
+    "prediction_disagreements": 0,
+    "rms_logit_error": 0.002992909055830674,
+    "max_logit_error": 0.010309588260103197,
+    "numpy_seconds": 0.0021486929999809945,
+    "shared_digital_seconds": 0.10204904500005796,
+    "prabha_seconds": 7.243641353000385,
+    "slowdown_vs_numpy": 3371.1848798615974,
+    "mac_calls": 55440,
+    "device_passes": 55440,
+    "waveform_samples": 9538560,
+    "noise_enabled": false,
+    "native_cnn_run": false,
+    "timing_scope": "Warm software inference with resident inputs and weights. NumPy median of seven runs; Prabha one full pass. Loading and warmup excluded. No artificial delay or hardware timing estimate.",
+    "model_sha256": "f023ab9dddcb6a0d56e2448e5a6cfe2d171c961d50e11028dcbff6e4b7ce0a6e",
+    "dataset_sha256": "3b0a4a80fedd50b3b5ecfb380cbef32ebb23b1e2306c310b73898a69f14c9e21"
+  },
+  "http_demo_metrics": {
+    "count": 360,
+    "start": 0,
+    "numpy_correct": 354,
+    "prabha_correct": 354,
+    "numpy_accuracy": 0.9833333333333333,
+    "prabha_accuracy": 0.9833333333333333,
+    "prediction_disagreements": 0,
+    "rms_logit_error": 0.002992909055830674,
+    "max_logit_error": 0.010309588260103197,
+    "numpy_seconds": 0.00177601700033847,
+    "shared_digital_seconds": 0.1128276810004536,
+    "prabha_seconds": 7.5163623049993475,
+    "slowdown_vs_numpy": 4232.145471336644,
+    "mac_calls": 55440,
+    "device_passes": 55440,
+    "waveform_samples": 9538560,
+    "noise_enabled": false,
+    "native_cnn_run": false,
+    "timing_scope": "Warm software inference with resident inputs and weights. NumPy median of seven runs; Prabha one full pass. Loading and warmup excluded. No artificial delay or hardware timing estimate.",
+    "model_sha256": "f023ab9dddcb6a0d56e2448e5a6cfe2d171c961d50e11028dcbff6e4b7ce0a6e",
+    "dataset_sha256": "3b0a4a80fedd50b3b5ecfb380cbef32ebb23b1e2306c310b73898a69f14c9e21"
+  },
+  "btp_report_modified": false,
+  "updater_tests": {
+    "preview": "passed",
+    "fresh_source_apply": "passed",
+    "all_payload_hashes": "passed",
+    "idempotency": "passed",
+    "local_edit_conflict_preservation": "passed",
+    "files_changed": 42
+  },
+  "snapshot": "Earlier trained-only demo; retained historical record",
+  "superseded_by": "results/cnn_workspace/final_verification.json"
+}

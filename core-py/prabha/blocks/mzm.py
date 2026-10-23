@@ -2,7 +2,7 @@ import numpy as np
 
 class MachZehnderModulator:
     """
-    Ideal Mach-Zehnder Modulator (MZM).
+    Mach-Zehnder intensity modulator with optional finite extinction.
     
     Power transfer function:
     
@@ -21,16 +21,21 @@ class MachZehnderModulator:
         Default: 0 dB for the ideal model.
     """
     
-    def __init__(self, V_pi=1.0, phi_bias=0.0, insertion_loss_dB=0.0):
+    def __init__(self, V_pi=1.0, phi_bias=0.0, insertion_loss_dB=0.0,
+                 *, extinction_ratio_dB=None):
         
         if V_pi <= 0:
             raise ValueError("V_pi must be positive.")
         if insertion_loss_dB < 0:
             raise ValueError("Insertion loss must be non-negative.")
+        if extinction_ratio_dB is not None and (
+                not np.isfinite(extinction_ratio_dB) or extinction_ratio_dB < 0):
+            raise ValueError("Extinction ratio must be None or finite and nonnegative.")
         
         self.V_pi = V_pi
         self.phi_bias = phi_bias
         self.insertion_loss_dB = insertion_loss_dB
+        self.extinction_ratio_dB = extinction_ratio_dB
         
         self.transmission = 10**(-insertion_loss_dB/10.0)
         
@@ -51,6 +56,9 @@ class MachZehnderModulator:
         phase = (np.pi*V/(2*self.V_pi)+self.phi_bias/2.0)
         
         T = np.cos(phase)**2
+        if self.extinction_ratio_dB is not None:
+            floor = 10**(-self.extinction_ratio_dB/10.0)
+            T = floor+(1-floor)*T
         
         return T * self.transmission
     

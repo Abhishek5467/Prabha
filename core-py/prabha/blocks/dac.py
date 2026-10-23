@@ -18,17 +18,20 @@ class DAC:
         Maximum output voltage [V].
     """
     
-    def __init__(self, bits=8, V_min=0.0, V_max=1.0):
+    def __init__(self, bits=8, V_min=0.0, V_max=1.0, *, rounding="nearest_even"):
         
         if bits<=0:
             raise ValueError("DAC resolution must be positive.")
         
         if V_max<=V_min:
             raise ValueError("V_max must be greater than V_min.")
+        if rounding not in ("nearest_even", "nearest_lower"):
+            raise ValueError("rounding must be nearest_even or nearest_lower.")
         
         self.bits=bits
         self.V_min=V_min
         self.V_max=V_max
+        self.rounding=rounding
         
         self.n_codes=2**bits
         
@@ -64,10 +67,20 @@ class DAC:
     def voltage_to_code(self, voltage):
         voltage=np.asarray(voltage,dtype=float)
         
-        if np.any(voltage<self.V_min) or np.any(voltage>self.V_max):
+        if not np.all(np.isfinite(voltage)) or np.any(voltage<self.V_min) or np.any(voltage>self.V_max):
             raise ValueError("Voltage is outside the DAC range.")
         
-        code=np.rint((voltage-self.V_min)/(self.lsb))
+        scaled=(voltage-self.V_min)/self.lsb
+        if self.rounding == "nearest_even":
+            code=np.rint(scaled)
+        else:
+            # Compare in volts so adjacent representable values around a
+            # midpoint remain distinct. No epsilon or tie tolerance is used.
+            lower=np.clip(np.floor(scaled),0,self.max_code-1).astype(int)
+            lo=self.code_to_voltage(lower)
+            hi=self.code_to_voltage(lower+1)
+            midpoint=(lo+hi)/2
+            code=lower+(voltage>midpoint)
         
         return code.astype(int)
     

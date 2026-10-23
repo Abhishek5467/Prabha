@@ -1,0 +1,660 @@
+{
+  "created_at": "20261023T122426_273899Z",
+  "files": [
+    {
+      "path": "CNN_DEMO_README.md",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "1d765ccc455939ea3193b7f79e2958c8cf73caaec9b391cdb25647a56507603c"
+      ],
+      "new_sha256": "14e35d95a407c374858a52914bb46a37dcf6846403abf00f26bdc347f2597ac2",
+      "previous_sha256": null
+    },
+    {
+      "path": "CNN_DIGITS_RESULTS.md",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "a9086f10e3d0f385a175cc4bd4f74679f840d13b24813354c2321c71468a0688"
+      ],
+      "new_sha256": "a9086f10e3d0f385a175cc4bd4f74679f840d13b24813354c2321c71468a0688",
+      "previous_sha256": null
+    },
+    {
+      "path": "FINAL_HANDOFF.md",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "8e1addcaa29ff6ce6312f27138383ae58d289962f259f4e0d5d6f688cdbdd77d",
+      "previous_sha256": null
+    },
+    {
+      "path": "RUN_CNN_DEMO.bat",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "d41650a091219d98b8cff83b58d8a793a84601756b0872e06eaec439a95ed852"
+      ],
+      "new_sha256": "d41650a091219d98b8cff83b58d8a793a84601756b0872e06eaec439a95ed852",
+      "previous_sha256": null
+    },
+    {
+      "path": "RUN_CNN_DEMO.sh",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "e94ed55d8b1e8fdccedbc1b10023ea4eebc8fa50f8d9a8f349add09bbb676ac5"
+      ],
+      "new_sha256": "e94ed55d8b1e8fdccedbc1b10023ea4eebc8fa50f8d9a8f349add09bbb676ac5",
+      "previous_sha256": null
+    },
+    {
+      "path": "Readme.md",
+      "old_sha256": "77443e83bb973e214b5969499f03135847f451f3d58a22600f77324495476ff0",
+      "accepted_sha256": [
+        "77443e83bb973e214b5969499f03135847f451f3d58a22600f77324495476ff0"
+      ],
+      "new_sha256": "05b1cab9ecdec30deb469026aa95bb56362fc79d72608ca28bcbdbe4b2201c93",
+      "previous_sha256": "77443e83bb973e214b5969499f03135847f451f3d58a22600f77324495476ff0"
+    },
+    {
+      "path": "core-py/prabha/blocks/dac.py",
+      "old_sha256": "3eeb84a7edb4883f9f9cd4834cb8270add1d86cfa0070b071235add23088806b",
+      "accepted_sha256": [
+        "3eeb84a7edb4883f9f9cd4834cb8270add1d86cfa0070b071235add23088806b",
+        "947002752d06ce584c3ce191313ebc0fb4524b5104b17d8acd5c9d3024063a22"
+      ],
+      "new_sha256": "947002752d06ce584c3ce191313ebc0fb4524b5104b17d8acd5c9d3024063a22",
+      "previous_sha256": "3eeb84a7edb4883f9f9cd4834cb8270add1d86cfa0070b071235add23088806b"
+    },
+    {
+      "path": "core-py/prabha/blocks/mzm.py",
+      "old_sha256": "d53d7469a46c138da50e27aaaecc22c34d2c9e07fe2650bb550a3c1c71f3b371",
+      "accepted_sha256": [
+        "d53d7469a46c138da50e27aaaecc22c34d2c9e07fe2650bb550a3c1c71f3b371",
+        "1ae0054297e71ce63a81988628f6ea76f8cbddc26d85f85b3e3a96f1c0d6c1ac"
+      ],
+      "new_sha256": "1ae0054297e71ce63a81988628f6ea76f8cbddc26d85f85b3e3a96f1c0d6c1ac",
+      "previous_sha256": "d53d7469a46c138da50e27aaaecc22c34d2c9e07fe2650bb550a3c1c71f3b371"
+    },
+    {
+      "path": "core-py/prabha/product.py",
+      "old_sha256": "f9232390838919890b6fcfa36554c9d2c04220cabaf7ab324e3564d6294d7990",
+      "accepted_sha256": [
+        "f9232390838919890b6fcfa36554c9d2c04220cabaf7ab324e3564d6294d7990",
+        "48c62632fbe6d794e6068cac261566b0fdb60a4bb98d4c65d96ce614da76550b"
+      ],
+      "new_sha256": "a8a964d425aada4fa016784737346b59a08b39fbc7b1808448bd391a0b5403ab",
+      "previous_sha256": "f9232390838919890b6fcfa36554c9d2c04220cabaf7ab324e3564d6294d7990"
+    },
+    {
+      "path": "core-py/prabha/systems/cnn.py",
+      "old_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "accepted_sha256": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "6a4f221e79c2536214f4297d5676f95a78a1022e087c59214c44cfa0fb8e7342"
+      ],
+      "new_sha256": "6a4f221e79c2536214f4297d5676f95a78a1022e087c59214c44cfa0fb8e7342",
+      "previous_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "core-py/prabha/systems/cnn_product.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "63dd79223939a167998fbca0913aedbf4c46224282a1911f7230f3a76304adf3"
+      ],
+      "new_sha256": "f84f397e95febe35ac9c0cf5e10f515e334bc16e3d5dc38917f32522dce20253",
+      "previous_sha256": null
+    },
+    {
+      "path": "core-py/prabha/systems/cnn_training.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "d7460f85fcbb538b28b230d004e5f26d1f950654927e292233ab83becc8f07a7"
+      ],
+      "new_sha256": "d7460f85fcbb538b28b230d004e5f26d1f950654927e292233ab83becc8f07a7",
+      "previous_sha256": null
+    },
+    {
+      "path": "core-py/prabha/systems/cnn_workspace.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "e1337becce5dec00a5200e8e50870b5c969dbbb1565d0ce3c60c547f9647dc96",
+      "previous_sha256": null
+    },
+    {
+      "path": "core-py/prabha/systems/mac.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "3103251c7b804ad10e5d92d8aa5d38a7bef338c0e38e1a7ff0490813998d93b2"
+      ],
+      "new_sha256": "3103251c7b804ad10e5d92d8aa5d38a7bef338c0e38e1a7ff0490813998d93b2",
+      "previous_sha256": null
+    },
+    {
+      "path": "docs/site/cnn.md",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "e0f9f04ebd23560a0772d69db3c26c3beb761a3c595713ca8e8643207ad3e6d8",
+      "previous_sha256": null
+    },
+    {
+      "path": "docs/site/index.md",
+      "old_sha256": "d7468c476402a29a90fdb9abfc9d8ae07b5c3b7a19b1b8a5f450918bf5133f3f",
+      "accepted_sha256": [
+        "d7468c476402a29a90fdb9abfc9d8ae07b5c3b7a19b1b8a5f450918bf5133f3f"
+      ],
+      "new_sha256": "bf2620cc1e06c583098261b86d7aefa865ceb33d86c2aeb8a927927caa62411d",
+      "previous_sha256": "d7468c476402a29a90fdb9abfc9d8ae07b5c3b7a19b1b8a5f450918bf5133f3f"
+    },
+    {
+      "path": "docs/site/model-scope.md",
+      "old_sha256": "daf7ca4945c32269ad921cc7db417e48986d3abc2a4be73e3d3f9b54d0e83cd0",
+      "accepted_sha256": [
+        "daf7ca4945c32269ad921cc7db417e48986d3abc2a4be73e3d3f9b54d0e83cd0"
+      ],
+      "new_sha256": "bed3041381c5bedb099874592c7fc353e4efe07c0099ebb37284ed7647079162",
+      "previous_sha256": "daf7ca4945c32269ad921cc7db417e48986d3abc2a4be73e3d3f9b54d0e83cd0"
+    },
+    {
+      "path": "frontend/studio/public/cnn-demo.html",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "4fca4c79f2eb1dc486e2be1b81afc1681b13d34027f081f39650eb28bdd6da05"
+      ],
+      "new_sha256": "f1ddc21d81d203425613837c40da4f55dd6189e8bd8a0d5a3f73c533d84dca03",
+      "previous_sha256": null
+    },
+    {
+      "path": "frontend/studio/public/cnn-settings.js",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "ce207c822ab6a1cf33c36b3f6e16868179b071d266c2b37b6062e417e5223434",
+      "previous_sha256": null
+    },
+    {
+      "path": "frontend/studio/public/cnn-workspace.js",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "7074be5bc4c8ff687be399ebfac63a63b439442b173cfd0bacf1dd487b4ae107",
+      "previous_sha256": null
+    },
+    {
+      "path": "frontend/studio/src/CnnWorkspace.jsx",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "9abe8eed49b72f2547873dfd2616d0f69c78decb04b7a2030674dcc29c1a29e1"
+      ],
+      "new_sha256": "46b5c2f084468b007e0d3edef9b9db98e7f5b9dad4ae95255a66c03dfbbad9e7",
+      "previous_sha256": null
+    },
+    {
+      "path": "frontend/studio/src/main.jsx",
+      "old_sha256": "aab38fd699ef8cbcac4b10d3436797463c5c1b3483ad5af960a9037b0f9a0ca7",
+      "accepted_sha256": [
+        "aab38fd699ef8cbcac4b10d3436797463c5c1b3483ad5af960a9037b0f9a0ca7",
+        "5893bdb5785f366ce46484bc9b2e3f8451736caaad955454ff4ae74f964e219f"
+      ],
+      "new_sha256": "61116a69ba72c46e9489d99c8bfbeaff12a2d60cf858d66e3ece9dca711170af",
+      "previous_sha256": "aab38fd699ef8cbcac4b10d3436797463c5c1b3483ad5af960a9037b0f9a0ca7"
+    },
+    {
+      "path": "frontend/studio/tests/cnn-settings.test.js",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "9488d976935563b1f09a34540f4ed8815e80ffeae7f41af466557018848d43c0",
+      "previous_sha256": null
+    },
+    {
+      "path": "mkdocs.yml",
+      "old_sha256": "4c952c7e4c59e5f78d91b983c06f5f67fce0432a4cd5b51ec3753ecfc38f12d7",
+      "accepted_sha256": [
+        "4c952c7e4c59e5f78d91b983c06f5f67fce0432a4cd5b51ec3753ecfc38f12d7"
+      ],
+      "new_sha256": "86098855d325cc08107d27d6792451b8ca1154b02f688c2172c5c4a8f11a2d1b",
+      "previous_sha256": "4c952c7e4c59e5f78d91b983c06f5f67fce0432a4cd5b51ec3753ecfc38f12d7"
+    },
+    {
+      "path": "plot_cnn_digits.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "7646d2b724b32968ca150300fb55de27bda7d96e3b5288dcee8fb755026e0b0b"
+      ],
+      "new_sha256": "7646d2b724b32968ca150300fb55de27bda7d96e3b5288dcee8fb755026e0b0b",
+      "previous_sha256": null
+    },
+    {
+      "path": "plot_cnn_workspace.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "d86c2c86f6103116b2a6ffb9c976eda78c5f940ada4363da1ea31fc93880b1bc",
+      "previous_sha256": null
+    },
+    {
+      "path": "requirements-cnn-demo.txt",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "846f703dca8045f4d5214ea2b64b6f4ca167d7e09b84b95730661e8248b421d3"
+      ],
+      "new_sha256": "846f703dca8045f4d5214ea2b64b6f4ca167d7e09b84b95730661e8248b421d3",
+      "previous_sha256": null
+    },
+    {
+      "path": "requirements-cnn-training.txt",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "8a2d2192bd0a9001f28005862ee94cfaa8469389cae5653cacc4afa596ae26c6"
+      ],
+      "new_sha256": "8a2d2192bd0a9001f28005862ee94cfaa8469389cae5653cacc4afa596ae26c6",
+      "previous_sha256": null
+    },
+    {
+      "path": "requirements-cnn.txt",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "48dd366a037fc19a7ef9cc2b7bce8dcadbc4af1c1c297980c732f78125e5b3d6"
+      ],
+      "new_sha256": "48dd366a037fc19a7ef9cc2b7bce8dcadbc4af1c1c297980c732f78125e5b3d6",
+      "previous_sha256": null
+    },
+    {
+      "path": "requirements-recorded-cnn.txt",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "ced9a7fc8211b685f7dd35f37480a8fa0c34a3978516f15da68bb73f6cd74c3c"
+      ],
+      "new_sha256": "ced9a7fc8211b685f7dd35f37480a8fa0c34a3978516f15da68bb73f6cd74c3c",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/Prabha_Trained_CNN.pdf",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "aac775a21f0ddaa2015db8961d5e49ed7f740a5c7793ea9fe79d6ad4cd4e43c2"
+      ],
+      "new_sha256": "aac775a21f0ddaa2015db8961d5e49ed7f740a5c7793ea9fe79d6ad4cd4e43c2",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/Prabha_Trained_CNN.png",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "6b7c3604706891383c0a639b9cf8b5c3aa7146f900ee64e27f3a005f8664ddbb"
+      ],
+      "new_sha256": "6b7c3604706891383c0a639b9cf8b5c3aa7146f900ee64e27f3a005f8664ddbb",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/cnn_digits_results.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "8de9ddb00dd3d0ea86e40da9f83275133edddad8b74efda3f0fdb8d665d0b3ae"
+      ],
+      "new_sha256": "8de9ddb00dd3d0ea86e40da9f83275133edddad8b74efda3f0fdb8d665d0b3ae",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/confusion_matrix.csv",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "4b39764f313434df6378e6741c4f239e8396ca8ba6469035cfe225ee07417873"
+      ],
+      "new_sha256": "4b39764f313434df6378e6741c4f239e8396ca8ba6469035cfe225ee07417873",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/inference_batch_times.csv",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "f8d53a53e977ba8b94ecf66a6f2443f45e4ed29cfa8a9370ffe9cb210fa0126e"
+      ],
+      "new_sha256": "f8d53a53e977ba8b94ecf66a6f2443f45e4ed29cfa8a9370ffe9cb210fa0126e",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/test_logits.npz",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "188061d261ecb7dbef6ffc8c2aa38c452e18784cd8a793921af7e9e7fcdb5399"
+      ],
+      "new_sha256": "188061d261ecb7dbef6ffc8c2aa38c452e18784cd8a793921af7e9e7fcdb5399",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/test_predictions.csv",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "56c260363046f203f951ad49d79655104464488399ffae27338eda06e3dba070"
+      ],
+      "new_sha256": "56c260363046f203f951ad49d79655104464488399ffae27338eda06e3dba070",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/trained_cnn.npz",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "f023ab9dddcb6a0d56e2448e5a6cfe2d171c961d50e11028dcbff6e4b7ce0a6e"
+      ],
+      "new_sha256": "f023ab9dddcb6a0d56e2448e5a6cfe2d171c961d50e11028dcbff6e4b7ce0a6e",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/training_history.csv",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "07bf674bc33bea2195e6adc1c1900074efc65eed0ee5094431e9faa505dde55e"
+      ],
+      "new_sha256": "07bf674bc33bea2195e6adc1c1900074efc65eed0ee5094431e9faa505dde55e",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_digits/training_metadata.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "60e6dc432893b9d144a23e7de04d1b3f014bc631f28bf15065b69c55052dfd77"
+      ],
+      "new_sha256": "60e6dc432893b9d144a23e7de04d1b3f014bc631f28bf15065b69c55052dfd77",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_integration/live_comparison.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "623c1d904d2ed115475bbd217a54aa09fac363a714e6a48f36b5992befa8ca9b"
+      ],
+      "new_sha256": "aa74203abf0521a13d3ad18d54afdf0b55a0c50d423f99df0c0c6e47f550d075",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_integration/verification.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "ef2cba7e0d9392b0339471a9f18d28b6353b85f269497fba640a459de94759dc"
+      ],
+      "new_sha256": "153fc985d895bc6550213e7b9fdd5abc3b49c357381c33d47b444d2a623b3148",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/CNN_Workspace_Controls.pdf",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "79f35478b1aed7aba742f1e1d26d118fe8d36974e90e3603c15a02ad0cc9506b",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/CNN_Workspace_Controls.png",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "4f70dc8e8c84dd092b8f59444915bbca9562a9850b73ce696823065fb05f1833",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/CNN_Workspace_Layer.pdf",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "af825ecdbcda79872e683218cb47fbbdac93d6b9923088faaae41a03027408a9",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/CNN_Workspace_Layer.png",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "04862903083078df077d721f8ff3f9816369f2527790c2d85ab03697a670be46",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/browser_verification.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "ab8d495b3f19adb2005bbbeacca0fd471d679fd59798412baed7e80cca501de1",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/edited_run.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "9bd5cacf0556e196f1c9188456fca25328724bdf02b4dff25681c24fd56594f7",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/edited_settings.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "3b5def78e32735f019d452028c004881f23cac407b677901be476ceb086bbf7f",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/final_verification.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "bc953f6e4fd81fe27dae4ab06082f3067347d0402798679b4bdcaf87550fbb48",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/profile_dac4_adc8.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "31c7740396117f63a823f4746b738b0835292fb42806d1461d9c829a5d9321d2",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/profile_dac4_adc_off.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "6f65a2a4d38e3f76b4e06da1203a6a678f8594fe438261012e84afbfffd7bd0a",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/profile_reference.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "3c3228b62a7aee4fda78771bd9985d17bd67ca8d32f96a7d7630152a2d7072a2",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/reference_settings.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "423edbcdda95f8a78345b927a0919ef2601c9ec2cc20824146e47a809b2d237c",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/selected_layer.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "82374db3598e66860b0f4a392ec07bdb10d13ebcd612a6a696d9c59e9762c965",
+      "previous_sha256": null
+    },
+    {
+      "path": "results/cnn_workspace/workspace_validation.json",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "b536af1faae517dd1de8db498e5e1ff6e22e2a9fb3aad01a1c15a1d70435e14f",
+      "previous_sha256": null
+    },
+    {
+      "path": "run_cnn_demo.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "7d71a99b56ec3e6d3e0433d78288877b5c90895cf684846703758a1c6bc101c1"
+      ],
+      "new_sha256": "38885da33c3b78068821d414b575889cce1aa52e43c333d14d41fef464395e82",
+      "previous_sha256": null
+    },
+    {
+      "path": "run_cnn_digits.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "1e6fd30ad518a756cd31e2b89583db88794fc2029db5a4d92ff3fccaef7f12a5"
+      ],
+      "new_sha256": "1e6fd30ad518a756cd31e2b89583db88794fc2029db5a4d92ff3fccaef7f12a5",
+      "previous_sha256": null
+    },
+    {
+      "path": "scripts/build_sidecar.py",
+      "old_sha256": "53a0c2b67e39bce28acecb90f0d17e5758f053eeb444a3f0b92b6a76a744c227",
+      "accepted_sha256": [
+        "53a0c2b67e39bce28acecb90f0d17e5758f053eeb444a3f0b92b6a76a744c227",
+        "ac39392b821ed9621d4a7efe23e0f3afef2d05fefb24759f8ad40742aed02cb7"
+      ],
+      "new_sha256": "ac39392b821ed9621d4a7efe23e0f3afef2d05fefb24759f8ad40742aed02cb7",
+      "previous_sha256": "53a0c2b67e39bce28acecb90f0d17e5758f053eeb444a3f0b92b6a76a744c227"
+    },
+    {
+      "path": "scripts/build_web_assets.py",
+      "old_sha256": "07b18701fb50bd7921693b3ef6abb36894042588b6e0c589678081b7de3f7ee9",
+      "accepted_sha256": [
+        "07b18701fb50bd7921693b3ef6abb36894042588b6e0c589678081b7de3f7ee9",
+        "ccc886ccdae82aca147f40fd784302025001442e4605e09c25aa73d01f99e96e"
+      ],
+      "new_sha256": "ccc886ccdae82aca147f40fd784302025001442e4605e09c25aa73d01f99e96e",
+      "previous_sha256": "07b18701fb50bd7921693b3ef6abb36894042588b6e0c589678081b7de3f7ee9"
+    },
+    {
+      "path": "scripts/package_source.py",
+      "old_sha256": "180f66634c06b5132a71df00f8716dee12486850e33d1d3d6c0f6904373aedae",
+      "accepted_sha256": [
+        "180f66634c06b5132a71df00f8716dee12486850e33d1d3d6c0f6904373aedae",
+        "62a2280417781af0d685bfce25910a36b5695adf15c710444a35d407ea7b6c9a"
+      ],
+      "new_sha256": "62a2280417781af0d685bfce25910a36b5695adf15c710444a35d407ea7b6c9a",
+      "previous_sha256": "180f66634c06b5132a71df00f8716dee12486850e33d1d3d6c0f6904373aedae"
+    },
+    {
+      "path": "tests/test_cnn.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "090df7d7d4e54198b9c5ee5a324c8f384fa9d3d523796e4e6a420ccaebad1755"
+      ],
+      "new_sha256": "090df7d7d4e54198b9c5ee5a324c8f384fa9d3d523796e4e6a420ccaebad1755",
+      "previous_sha256": null
+    },
+    {
+      "path": "tests/test_cnn_product.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "0c55ff9e19c493eb7dddb7851ed978d9319f3425fc3b89438f196a1cca791439"
+      ],
+      "new_sha256": "0c55ff9e19c493eb7dddb7851ed978d9319f3425fc3b89438f196a1cca791439",
+      "previous_sha256": null
+    },
+    {
+      "path": "tests/test_cnn_training.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "ab9edaa97757bcc5025b6fafc71a0d5dd6e87304e6a480d3eaab42244b507ba5"
+      ],
+      "new_sha256": "ab9edaa97757bcc5025b6fafc71a0d5dd6e87304e6a480d3eaab42244b507ba5",
+      "previous_sha256": null
+    },
+    {
+      "path": "tests/test_cnn_workspace.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null
+      ],
+      "new_sha256": "7ae07a20fc6fcb16c250c56e08be98afae31f4989ec788729ede5ca8a6e0e376",
+      "previous_sha256": null
+    },
+    {
+      "path": "validation/datasets/README.md",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "77460684278967fb323d52cba3bcef3930004c80667c109071ab9e936d94e5cd"
+      ],
+      "new_sha256": "77460684278967fb323d52cba3bcef3930004c80667c109071ab9e936d94e5cd",
+      "previous_sha256": null
+    },
+    {
+      "path": "validation/datasets/digits_8x8_split.npz",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "3b0a4a80fedd50b3b5ecfb380cbef32ebb23b1e2306c310b73898a69f14c9e21"
+      ],
+      "new_sha256": "3b0a4a80fedd50b3b5ecfb380cbef32ebb23b1e2306c310b73898a69f14c9e21",
+      "previous_sha256": null
+    },
+    {
+      "path": "verify_cnn_snapshot.py",
+      "old_sha256": null,
+      "accepted_sha256": [
+        null,
+        "f149fc5b945f77a68ee378d218ec720a1a00117e7b0d43f2e08c89041e0b2f27"
+      ],
+      "new_sha256": "f149fc5b945f77a68ee378d218ec720a1a00117e7b0d43f2e08c89041e0b2f27",
+      "previous_sha256": null
+    }
+  ],
+  "note": "previous_sha256 null means this update added that file; other previous contents are backed up at the matching path."
+}

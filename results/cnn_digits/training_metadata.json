@@ -1,0 +1,14 @@
+{
+  "epochs_run": 160,
+  "selected_epoch": 155,
+  "selection_rule": "Minimum validation cross-entropy; test labels not used for selection.",
+  "training_seconds": 3.385505182000088,
+  "seed": 20261015,
+  "batch_size": 64,
+  "learning_rate": 0.005,
+  "optimiser": "Adam, beta1=.9, beta2=.999, epsilon=1e-8",
+  "l2": 0.0001,
+  "filters": 4,
+  "dataset_sha256": "3b0a4a80fedd50b3b5ecfb380cbef32ebb23b1e2306c310b73898a69f14c9e21",
+  "model_sha256": "f023ab9dddcb6a0d56e2448e5a6cfe2d171c961d50e11028dcbff6e4b7ce0a6e"
+}

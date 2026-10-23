@@ -140,7 +140,19 @@ def dispatch(payload):
         if action == 'meta':
             result = {'version': VERSION, 'network': DEFAULT_NETWORK, 'default_inputs': [.9, .3, .7, .5],
                       'model_revision': MODEL_REVISION,
-                      'scope': 'behavioural simulation', 'actions': ['infer', 'batch', 'neuron', 'component', 'graph', 'blocks', 'example']}
+                      'scope': 'behavioural simulation', 'actions': ['infer', 'batch', 'neuron', 'component', 'graph', 'blocks', 'example', 'cnn_info', 'cnn', 'cnn_validate', 'cnn_inspect']}
+        elif action == 'cnn_info':
+            from .systems.cnn_workspace import info
+            result = info(ROOT, payload)
+        elif action == 'cnn':
+            from .systems.cnn_workspace import compare
+            result = compare(ROOT, payload)
+        elif action == 'cnn_validate':
+            from .systems.cnn_workspace import validate
+            result = validate(ROOT, payload)
+        elif action == 'cnn_inspect':
+            from .systems.cnn_workspace import inspect
+            result = inspect(ROOT, payload)
         elif action == 'infer':
             result = infer(payload.get('inputs', [.9, .3, .7, .5]), payload.get('network'), cfg)
         elif action == 'batch':

@@ -1,0 +1,112 @@
+{
+  "dataset": "scikit-learn bundled digits, UCI optical recognition subset; 8x8 pixels, ten classes",
+  "dataset_reference": "https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_digits.html",
+  "preprocessing": "uint8 pixel intensities divided by 16; no fitted preprocessing; NCHW float64",
+  "split": {
+    "train": 1149,
+    "validation": 288,
+    "test": 360,
+    "stratified": true,
+    "split_seeds": [
+      20261015,
+      20261016
+    ],
+    "writer_disjoint": false
+  },
+  "architecture": "8x8 -> Conv(1,4,3 valid) -> ReLU -> MaxPool(2) -> flatten 36 -> Linear(36,10)",
+  "parameter_count": 410,
+  "training": {
+    "epochs_run": 160,
+    "selected_epoch": 155,
+    "selection_rule": "Minimum validation cross-entropy; test labels not used for selection.",
+    "training_seconds": 3.385505182000088,
+    "seed": 20261015,
+    "batch_size": 64,
+    "learning_rate": 0.005,
+    "optimiser": "Adam, beta1=.9, beta2=.999, epsilon=1e-8",
+    "l2": 0.0001,
+    "filters": 4,
+    "dataset_sha256": "3b0a4a80fedd50b3b5ecfb380cbef32ebb23b1e2306c310b73898a69f14c9e21",
+    "model_sha256": "f023ab9dddcb6a0d56e2448e5a6cfe2d171c961d50e11028dcbff6e4b7ce0a6e"
+  },
+  "physical_config": {
+    "dac_bits": 12,
+    "adc_bits": null,
+    "adc_full_scale": 64.0,
+    "tile_size": 64,
+    "samples_per_symbol": 16,
+    "sample_rate_hz": 16000000000.0,
+    "power_mw": 1.0,
+    "responsivity": 1.0,
+    "capacitance_f": 1e-12,
+    "rin_enabled": false,
+    "rin_db_hz": -150.0,
+    "linewidth_enabled": false,
+    "linewidth_hz": 0.0,
+    "shot_enabled": false,
+    "dark_current_a": 0.0,
+    "seed": 12345,
+    "dac_rounding": "nearest_lower",
+    "mzm_extinction_ratio_db": 100.0,
+    "weight_extinction_ratio_db": 100.0
+  },
+  "reference_correct": 354,
+  "prabha_correct": 354,
+  "test_images": 360,
+  "reference_accuracy": 0.9833333333333333,
+  "prabha_accuracy": 0.9833333333333333,
+  "prediction_disagreements": 0,
+  "logit_rms_error": 0.002992909055830674,
+  "logit_max_abs_error": 0.010309588260103197,
+  "reference_operator_max_abs_error": 1.7763568394002505e-14,
+  "physical_mac_calls": 55440,
+  "device_passes": 55440,
+  "waveform_samples": 9538560,
+  "timing": {
+    "vectorised_numpy_seconds_all_test_median_7": 0.0015632049999112496,
+    "vectorised_numpy_seconds_all_test_runs": [
+      0.002002109999921231,
+      0.0016535879999537428,
+      0.0015772659999129246,
+      0.0015632049999112496,
+      0.0014540239999405458,
+      0.0014651110000158951,
+      0.0014391230001820077
+    ],
+    "shared_operators_digital_mac_seconds_all_test_single_run": 0.09752324200007934,
+    "prabha_seconds_all_test_single_pass": 7.346462794998843,
+    "prabha_images_per_second": 49.00317473125605,
+    "prabha_milliseconds_per_image_amortised": 20.406841097219008,
+    "prabha_inference_batches": 12,
+    "batch_size": 30,
+    "scope": "Warm CPU software inference, resident inputs/weights; single full Prabha pass in batches. Loading/training excluded. No hardware latency claim."
+  },
+  "environment": {
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "openblas_threads": "1"
+  },
+  "source_sha256": {
+    "run_cnn_digits.py": "1e6fd30ad518a756cd31e2b89583db88794fc2029db5a4d92ff3fccaef7f12a5",
+    "core-py/prabha/systems/cnn_training.py": "d7460f85fcbb538b28b230d004e5f26d1f950654927e292233ab83becc8f07a7",
+    "core-py/prabha/systems/cnn.py": "6a4f221e79c2536214f4297d5676f95a78a1022e087c59214c44cfa0fb8e7342",
+    "core-py/prabha/systems/mac.py": "3103251c7b804ad10e5d92d8aa5d38a7bef338c0e38e1a7ff0490813998d93b2",
+    "core-py/prabha/blocks/dac.py": "947002752d06ce584c3ce191313ebc0fb4524b5104b17d8acd5c9d3024063a22",
+    "core-py/prabha/blocks/mzm.py": "1ae0054297e71ce63a81988628f6ea76f8cbddc26d85f85b3e3a96f1c0d6c1ac",
+    "core-py/prabha/blocks/cw_laser.py": "ccf9998b6e66a2e1d9747cde79c31f18666ef6718f866ea35d36db65aace8f7a",
+    "core-py/prabha/blocks/photodetector.py": "c10f08dc6df46d7ab84266a63079758871a16b91723f8cf880c4156dde13521e",
+    "core-py/prabha/blocks/capacitor.py": "c6abe18db77234ee861c4803c3d546aacdd12ded311223117be37e79befb9fc3"
+  },
+  "native_full_cnn_run": false,
+  "noise_enabled": false,
+  "weight_training": "Digital NumPy CNN; fixed transferred weights; no physical/noise-aware retraining.",
+  "limitations": [
+    "Small random image-stratified holdout, not a writer-disjoint or official MNIST test.",
+    "Automatic per-MAC input/weight normalisation, digital biases/ReLU/pooling and tiled digital sums.",
+    "Output ADC disabled; no noise, native CNN switching/reset validation or hardware measurements.",
+    "Native stationary RIN endpoint remains inconclusive; earlier 68/69 decision unchanged.",
+    "One physical timing pass, machine-specific; conventional NumPy reference is not PyTorch/GPU or hardware."
+  ]
+}

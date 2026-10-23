@@ -4,6 +4,7 @@ import {version} from '../package.json';
 import {DEFAULT_INPUTS, DEFAULT_NETWORK, PRECISIONS, validateInputs, parseNetwork,
   numberInRange, importAnn, isReference, batchCsv} from './experiments.js';
 import {LineChart, Network} from './visuals.jsx';
+import CnnWorkspace from './CnnWorkspace.jsx';
 import './style.css';
 import './release.css';
 
@@ -12,12 +13,13 @@ const engine = import(/* @vite-ignore */ base + 'engine.js');
 const platform = import(/* @vite-ignore */ base + 'platform.js');
 const fmt = (n, d = 6) => Number.isFinite(n) ? n.toFixed(d) : '—';
 const sci = n => Number.isFinite(n) ? n.toExponential(4) : '—';
-const nav = [['start', 'Get started', '◇'], ['ann', 'ANN inference', '◉'],
+const nav = [['start', 'Get started', '◇'], ['ann', 'ANN inference', '◉'], ['cnn', 'Trained CNN', '▦'],
   ['neuron', 'Single neuron', '⊙'], ['components', 'Component lab', '∿'],
   ['evidence', 'Validation archive', '▤']];
 const headings = {
   start: ['Light, models and reproducible experiments.', 'Explore photonic-electronic computation, from a device response to a small neural network.'],
   ann: ['Photonic ANN inference', 'Run the 4 → 3 → 2 network and compare physical-model outputs with the analytical reference.'],
+  cnn: ['Trained CNN inference', 'Classify held-out digits and compare predictions, numerical error and real software execution time.'],
   neuron: ['Inside a photonic neuron', 'Follow optical weighting, charge accumulation, activation and readout.'],
   components: ['Explore the device physics', 'Change a model parameter and inspect its response.'],
   evidence: ['A reproducible foundation', 'Browse the original experiments and evidence behind the preview.']
@@ -182,6 +184,7 @@ function App() {
           <h1>{headings[view][0]}</h1><p>{headings[view][1]}</p></div><span className="scope-label">Behavioural simulation</span></div>
         {error && <div role="alert" className="error">{error} <a href={base + 'docs/troubleshooting/index.html'}>Troubleshooting ↗</a></div>}
         {notice && <div role="status" className="notice">{notice}</div>}
+        {view === 'cnn' && <CnnWorkspace base={base} engine={engine}/>}
 
         {view === 'start' && <>
           <section className="welcome-grid">
@@ -208,7 +211,7 @@ function App() {
             <section><h2>Build Prabha with us</h2><p>Ask detailed questions, share reproducible experiments and discuss development in the forum. Use Discord for quick conversations.</p>
               <div className="button-row"><a href={links.forum} target="_blank" rel="noreferrer">Visit the forum ↗</a>{links.chat && <a href={links.chat} target="_blank" rel="noreferrer">Join Discord ↗</a>}</div></section>
             <section><h2>Run locally or build desktop</h2><p>The web preview is available now. Windows, macOS and Linux packaging is prepared for native build and installation checks.</p>
-              <a href={base + 'docs/desktop/index.html'}>Desktop build guide →</a><p className="small muted">CNN primitives and LLM evaluation are planned work.</p></section>
+              <a href={base + 'docs/desktop/index.html'}>Desktop build guide →</a><p className="small muted">The trained CNN workspace includes editable inputs, weights, converter settings and layer inspection. LLM evaluation remains planned work.</p></section>
           </div>
         </>}
 

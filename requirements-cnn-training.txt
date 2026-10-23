@@ -1,0 +1,3 @@
+# Existing core/analysis requirements remain in requirements-cnn.txt.
+# Needed only to reconstruct the packaged dataset/split if its NPZ is removed.
+scikit-learn>=1.5,<2
