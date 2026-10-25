@@ -1,5 +1,11 @@
 # Run the trained CNN in Prabha
 
+## Native Studio integration (25 October 2026)
+
+For ANN and CNN together, use **RUN_PRABHA_STUDIO.bat** (Windows) or `bash RUN_PRABHA_STUDIO.sh` (Linux/macOS) from the supplied built application. Open **Trained CNN** in Studio at `http://127.0.0.1:8000/#cnn`. The CNN controls are native React panels, using the ANN engine and export transport. Settings/results survive switching tabs, while settings edits clear old results. Run exports include the execution engine and version. **Validate 360 images** evaluates the complete held-out set with the current weights and converters. See [CNN_STUDIO_INTEGRATION.md](CNN_STUDIO_INTEGRATION.md) for updating an existing checkout and the next validation work.
+
+The sections below describe the preserved standalone demo and the earlier checkpoint evidence. The native Studio uses that same trained model, dataset and Python inference backend.
+
 ## Fast demonstration on Windows
 
 1. Extract the complete source ZIP. Open its `Prabha-v0.1` folder.

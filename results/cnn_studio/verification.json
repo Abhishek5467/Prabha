@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-25",
+  "integration": "Native React CNN in the shared Prabha Studio; ANN/CNN use the same engine, busy state and export transport.",
+  "checks": {
+    "python_regressions": {
+      "passed": 97,
+      "failed": 0
+    },
+    "frontend_unit_tests": {
+      "passed": 10,
+      "failed": 0
+    },
+    "browser_tests": {
+      "passed": 12,
+      "failed": 0,
+      "native_cnn_tests": 5,
+      "native_cnn_rerun_after_layer_export_metadata": "5 passed"
+    },
+    "frozen_checkpoint_audit": "passed",
+    "studio_launcher_http_and_ann_cnn_smoke": "passed",
+    "visual_review": "Native desktop controls, network stages and tensor heatmaps inspected."
+  },
+  "reference_cnn": {
+    "count": 360,
+    "numpy_correct": 354,
+    "prabha_correct": 354,
+    "prediction_disagreements": 0,
+    "rms_logit_error": 0.002992909055830674,
+    "max_logit_error": 0.010309588260103197,
+    "mac_calls": 55440,
+    "waveform_samples": 9538560,
+    "numpy_seconds": 0.0015315109999392007,
+    "prabha_seconds": 6.827101459000005,
+    "model_sha256": "f023ab9dddcb6a0d56e2448e5a6cfe2d171c961d50e11028dcbff6e4b7ce0a6e",
+    "dataset_sha256": "3b0a4a80fedd50b3b5ecfb380cbef32ebb23b1e2306c310b73898a69f14c9e21"
+  },
+  "tested_transports": [
+    "Python API live inference",
+    "Desktop Python simulation/Save bridge contract"
+  ],
+  "hosting_layout": "Repository subpath and mobile tested; computation routed to the local Python API for the subpath test.",
+  "boundaries": [
+    "CNN noise is disabled.",
+    "No full native Lumerical CNN experiment performed.",
+    "Desktop bridge tests do not validate an installed native binary or native file dialogs.",
+    "Software runtimes do not establish hardware latency or energy."
+  ],
+  "source_sha256": {
+    "frontend/studio/src/CnnWorkspace.jsx": "7413f5390e7b2ec4063b9c7bf134dfa074d727bed27a86ed2192b678e44a34eb",
+    "frontend/studio/src/cnn.css": "a6c1531056801c31f0b01d48e4f59efbf2051e15fbee199854db4c9551a90eac",
+    "frontend/studio/src/main.jsx": "4a6d96e3c1b52957d3561b851e6f9177a23ee60cd14e997580ccc7f598b3f024",
+    "frontend/studio/tests/ui/cnn.spec.js": "b9f6645ff85199ea9b7332be89fecabb9d416426887738207ded3b315096d580",
+    "run_studio.py": "0c8d54b34666775517b31884e1415c3fc13952db3d9277f30056e02341034d07"
+  }
+}

@@ -1,0 +1,82 @@
+ CNN_DEMO_README.md                                 |    70 [32m+[m
+ CNN_DIGITS_RESULTS.md                              |    41 [32m+[m
+ FINAL_HANDOFF.md                                   |    15 [32m+[m
+ .../Readme.md                                      |    84 [32m+[m
+ .../backup_manifest.json                           |   660 [32m+[m
+ .../core-py/prabha/blocks/dac.py                   |    78 [32m+[m
+ .../core-py/prabha/blocks/mzm.py                   |    83 [32m+[m
+ .../core-py/prabha/product.py                      |   175 [32m+[m
+ .../core-py/prabha/systems/cnn.py                  |     0
+ .../docs/site/index.md                             |    22 [32m+[m
+ .../docs/site/model-scope.md                       |    36 [32m+[m
+ .../frontend/studio/src/main.jsx                   |   320 [32m+[m
+ .../mkdocs.yml                                     |    29 [32m+[m
+ .../scripts/build_sidecar.py                       |    31 [32m+[m
+ .../scripts/build_web_assets.py                    |    55 [32m+[m
+ .../scripts/package_source.py                      |    25 [32m+[m
+ RUN_CNN_DEMO.bat                                   |    27 [32m+[m
+ RUN_CNN_DEMO.sh                                    |    12 [32m+[m
+ Readme.md                                          |     8 [32m+[m[31m-[m
+ core-py/prabha/blocks/dac.py                       |    21 [32m+[m[31m-[m
+ core-py/prabha/blocks/mzm.py                       |    12 [32m+[m[31m-[m
+ core-py/prabha/product.py                          |    14 [32m+[m[31m-[m
+ core-py/prabha/systems/cnn.py                      |   108 [32m+[m
+ core-py/prabha/systems/cnn_product.py              |    45 [32m+[m
+ core-py/prabha/systems/cnn_training.py             |    95 [32m+[m
+ core-py/prabha/systems/cnn_workspace.py            |   182 [32m+[m
+ core-py/prabha/systems/mac.py                      |   175 [32m+[m
+ docs/site/cnn.md                                   |    23 [32m+[m
+ docs/site/index.md                                 |     2 [32m+[m[31m-[m
+ docs/site/model-scope.md                           |     2 [32m+[m[31m-[m
+ frontend/studio/public/cnn-demo.html               |    29 [32m+[m
+ frontend/studio/public/cnn-settings.js             |    51 [32m+[m
+ frontend/studio/public/cnn-workspace.js            |   147 [32m+[m
+ frontend/studio/src/CnnWorkspace.jsx               |    35 [32m+[m
+ frontend/studio/src/main.jsx                       |     7 [32m+[m[31m-[m
+ frontend/studio/tests/cnn-settings.test.js         |    24 [32m+[m
+ mkdocs.yml                                         |     1 [32m+[m
+ plot_cnn_digits.py                                 |    49 [32m+[m
+ plot_cnn_workspace.py                              |    36 [32m+[m
+ requirements-cnn-demo.txt                          |     3 [32m+[m
+ requirements-cnn-training.txt                      |     3 [32m+[m
+ requirements-cnn.txt                               |     6 [32m+[m
+ requirements-recorded-cnn.txt                      |     7 [32m+[m
+ results/cnn_digits/Prabha_Trained_CNN.pdf          |   Bin [31m0[m -> [32m24497[m bytes
+ results/cnn_digits/Prabha_Trained_CNN.png          |   Bin [31m0[m -> [32m189317[m bytes
+ results/cnn_digits/cnn_digits_results.json         |   112 [32m+[m
+ results/cnn_digits/confusion_matrix.csv            |    11 [32m+[m
+ results/cnn_digits/inference_batch_times.csv       |    13 [32m+[m
+ results/cnn_digits/test_logits.npz                 |   Bin [31m0[m -> [32m57055[m bytes
+ results/cnn_digits/test_predictions.csv            |   361 [32m+[m
+ results/cnn_digits/trained_cnn.npz                 |   Bin [31m0[m -> [32m4037[m bytes
+ results/cnn_digits/training_history.csv            |   161 [32m+[m
+ results/cnn_digits/training_metadata.json          |    14 [32m+[m
+ results/cnn_integration/live_comparison.json       | 37567 [32m+++++++++++++++++++[m
+ results/cnn_integration/verification.json          |    72 [32m+[m
+ results/cnn_workspace/CNN_Workspace_Controls.pdf   |   Bin [31m0[m -> [32m21240[m bytes
+ results/cnn_workspace/CNN_Workspace_Controls.png   |   Bin [31m0[m -> [32m114050[m bytes
+ results/cnn_workspace/CNN_Workspace_Layer.pdf      |   Bin [31m0[m -> [32m16277[m bytes
+ results/cnn_workspace/CNN_Workspace_Layer.png      |   Bin [31m0[m -> [32m44122[m bytes
+ results/cnn_workspace/browser_verification.json    |    22 [32m+[m
+ results/cnn_workspace/edited_run.json              |  2606 [32m++[m
+ results/cnn_workspace/edited_settings.json         |   579 [32m+[m
+ results/cnn_workspace/final_verification.json      |   168 [32m+[m
+ results/cnn_workspace/profile_dac4_adc8.json       | 37567 [32m+++++++++++++++++++[m
+ results/cnn_workspace/profile_dac4_adc_off.json    | 37567 [32m+++++++++++++++++++[m
+ results/cnn_workspace/profile_reference.json       | 37567 [32m+++++++++++++++++++[m
+ results/cnn_workspace/reference_settings.json      |   579 [32m+[m
+ results/cnn_workspace/selected_layer.json          |  2460 [32m++[m
+ results/cnn_workspace/workspace_validation.json    |   150 [32m+[m
+ run_cnn_demo.py                                    |    52 [32m+[m
+ run_cnn_digits.py                                  |   142 [32m+[m
+ scripts/build_sidecar.py                           |     2 [32m+[m[31m-[m
+ scripts/build_web_assets.py                        |     1 [32m+[m
+ scripts/package_source.py                          |     3 [32m+[m[31m-[m
+ tests/test_cnn.py                                  |   115 [32m+[m
+ tests/test_cnn_product.py                          |    34 [32m+[m
+ tests/test_cnn_training.py                         |    29 [32m+[m
+ tests/test_cnn_workspace.py                        |    96 [32m+[m
+ validation/datasets/README.md                      |    16 [32m+[m
+ validation/datasets/digits_8x8_split.npz           |   Bin [31m0[m -> [32m50421[m bytes
+ verify_cnn_snapshot.py                             |    30 [32m+[m
+ 81 files changed, 160930 insertions(+), 14 deletions(-)

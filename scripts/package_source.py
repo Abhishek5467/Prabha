@@ -2,7 +2,7 @@
 from pathlib import Path
 import argparse, zipfile
 ROOT=Path(__file__).resolve().parents[1]
-EXCLUDED={'.git','.venv','.cnn-venv','.pytest_cache','__pycache__','node_modules','build','dist','target','.vscode','.openai','test-results','playwright-report'}
+EXCLUDED={'.git','.venv','.cnn-venv','.studio-venv','.pytest_cache','__pycache__','node_modules','build','dist','target','.vscode','.openai','test-results','playwright-report'}
 GENERATED={'frontend/studio/public/docs','frontend/studio/public/evidence','frontend/studio/public/designer.html','frontend/studio/public/prabha-python.zip','frontend/studio/public/prabha-source.zip'}
 def package(output):
     output=Path(output).resolve();output.parent.mkdir(parents=True,exist_ok=True)
@@ -12,7 +12,7 @@ def package(output):
             rel=f.relative_to(ROOT);name=rel.as_posix()
             if not f.is_file() or f.is_symlink() or f.resolve()==output:continue
             if any(part in EXCLUDED for part in rel.parts):continue
-            if any(part.startswith('Prabha_CNN_Backup_') for part in rel.parts):continue
+            if any(part.startswith(('Prabha_CNN_Backup_', 'Prabha_CNN_Studio_Backup_')) for part in rel.parts):continue
             if any(name==g or name.startswith(g+'/') for g in GENERATED):continue
             if name.startswith('desktop/src-tauri/binaries/prabha-engine-'):continue
             if (f.name=='.env' or f.name.startswith('.env.')) and f.name!='.env.example':continue

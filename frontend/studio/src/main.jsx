@@ -184,7 +184,8 @@ function App() {
           <h1>{headings[view][0]}</h1><p>{headings[view][1]}</p></div><span className="scope-label">Behavioural simulation</span></div>
         {error && <div role="alert" className="error">{error} <a href={base + 'docs/troubleshooting/index.html'}>Troubleshooting ↗</a></div>}
         {notice && <div role="status" className="notice">{notice}</div>}
-        {view === 'cnn' && <CnnWorkspace base={base} engine={engine}/>}
+        <div hidden={view !== 'cnn'}><CnnWorkspace active={view === 'cnn'} engine={engine} platform={platform}
+          busy={busy} runTask={action} onSettingsChange={clearMessage}/></div>
 
         {view === 'start' && <>
           <section className="welcome-grid">

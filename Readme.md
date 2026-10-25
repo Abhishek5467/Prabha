@@ -85,6 +85,8 @@ Install `requirements-dev.txt` when running tests or desktop builds. Read [CONTR
 
 ## Editable trained CNN
 
-Double-click `RUN_CNN_DEMO.bat` on Windows, or run `bash RUN_CNN_DEMO.sh` on Linux/macOS. The supplied digit checkpoint and dataset work offline after the small Python dependency installation. Studio also includes the **Trained CNN** workspace. Edit an 8 x 8 image, convolution/dense weights and biases, DAC/ADC precision and ADC range; compare NumPy and Prabha; export/import settings; inspect all six stages and export their exact tensors. See [CNN_DEMO_README.md](CNN_DEMO_README.md).
+The **Trained CNN** now uses native React controls inside the same Studio as ANN, with the shared Python engine, activity lock, import/export and desktop Save bridge. It preserves settings and results when you switch between ANN and CNN. Edit an 8 x 8 image, convolution/dense weights and biases, DAC/ADC precision and ADC range; compare NumPy and Prabha; inspect all six stages and export their exact tensors. Changes clear previous results.
+
+With the supplied built application, double-click **RUN_PRABHA_STUDIO.bat** on Windows, or run `bash RUN_PRABHA_STUDIO.sh` on Linux/macOS. This opens the complete application at `http://127.0.0.1:8000/#cnn`; ANN remains in the sidebar. Python 3.11+ is required; dependencies are installed on first launch. A source-only checkout needs the normal web build above first. The older `RUN_CNN_DEMO.bat` remains available for the standalone demo. See [CNN_STUDIO_INTEGRATION.md](CNN_STUDIO_INTEGRATION.md).
 
 The reference checkpoint gets 354/360 (98.33%) with zero prediction disagreements. Its waveform simulation is slower in software; the workspace measures live runtime. Edited models/converters require fresh results. Noise, native full-CNN dynamics and hardware performance remain separate validation work.

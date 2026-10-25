@@ -1,10 +1,12 @@
 # Editable trained CNN
 
-The **Trained CNN** workspace compares a trained 8 x 8 digit classifier in NumPy and the Prabha waveform MAC backend. Windows users can launch it directly with `RUN_CNN_DEMO.bat`; Linux/macOS users can run `bash RUN_CNN_DEMO.sh`. Keep its terminal open and visit `http://127.0.0.1:8765/`.
+The **Trained CNN** workspace compares a trained 8 x 8 digit classifier in NumPy and the Prabha waveform MAC backend. It uses native React panels inside Studio, with the same engine, busy state, exports and desktop Save bridge as ANN. Settings and results survive navigation between workspaces.
+
+With the supplied built application, Windows users can double-click `RUN_PRABHA_STUDIO.bat`; Linux/macOS users can run `bash RUN_PRABHA_STUDIO.sh`. Keep its terminal open and visit `http://127.0.0.1:8000/#cnn`. Source-only checkouts need the normal web build first. The original standalone demo remains available through `RUN_CNN_DEMO.bat` at port 8765.
 
 ## Controls
 
-Choose a range of held-out digits, or select an editable image. The custom image accepts an 8-by-8 JSON matrix with pixel values from 0 to 16. Click its canvas to paint with the brush value, or load a held-out digit for editing. Leave the optional true label blank to show predictions without claiming accuracy.
+Choose a range of held-out digits, or select an editable image. The custom image accepts an 8-by-8 JSON matrix with pixel values from 0 to 16. Click a pixel or focus it and press Enter to paint with the brush value, or load a held-out digit for editing. Leave the optional true label blank to show predictions without claiming accuracy. **Run CNN inference** uses the current input; **Validate 360 images** switches to the full held-out set with your current weights and converters.
 
 Expand the weight editor to modify convolution/dense weights and biases. Shapes stay fixed: `[4,1,3,3]`, `[4]`, `[10,36]` and `[10]`. Parameters must be finite and between -100 and 100. Restore the checkpoint weights independently, or restore the entire reference experiment.
 
@@ -14,7 +16,7 @@ DAC and MAC-output ADC controls accept Off or 1 to 24 bits. Set the ADC's positi
 
 Validate and export settings before a run, or export a completed run with its exact settings and fresh results. Import settings or a run file to restore settings; stored predictions are ignored. Editing inputs, weights or converter controls clears old results.
 
-Select a prediction row to inspect normalized input, convolution with bias, ReLU, max pooling, flattened features and logits. Choose a feature channel and compare NumPy/Prabha tensor maps, numerical differences and exact values. Export settings, run JSON, prediction CSV or layer inspection JSON.
+Select an image number in the predictions table to inspect normalized input, convolution with bias, ReLU, max pooling, flattened features and logits. Click a network stage or use the Stage selector, then choose a feature channel and compare NumPy/Prabha tensor maps, numerical differences and exact values. Export settings, run JSON, prediction CSV or layer inspection JSON. Run exports retain engine/version, timestamp, exact settings and model/data hashes. A failed run leaves no exportable old results.
 
 ## Scope
 
