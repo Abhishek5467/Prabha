@@ -1,0 +1,60 @@
+{
+  "doi": "10.5281/zenodo.20744970",
+  "creators": [
+    {
+      "name": "singh, Abhishek",
+      "nameType": "Personal",
+      "givenName": "Abhishek",
+      "familyName": "singh",
+      "affiliation": [
+        "Indian Institute of Technology Patna"
+      ],
+      "nameIdentifiers": [
+        {
+          "nameIdentifier": "0009-0002-2635-7254",
+          "nameIdentifierScheme": "ORCID"
+        }
+      ]
+    }
+  ],
+  "titles": [
+    {
+      "title": "Silicon Photonic Microring Resonators: FDTD Simulations, Coupling Optimization, Quality-Factor Analysis, and Cascaded Filter Architectures"
+    }
+  ],
+  "publisher": "Zenodo",
+  "publicationYear": 2026,
+  "dates": [
+    {
+      "date": "2026-06-18",
+      "dateType": "Issued"
+    },
+    {
+      "date": "2026-06",
+      "dateType": "Collected",
+      "dateInformation": "Initial technical report completion"
+    }
+  ],
+  "types": {
+    "ris": "RRPT",
+    "bibtex": "misc",
+    "citeproc": "report",
+    "schemaOrg": "Report",
+    "resourceType": "",
+    "resourceTypeGeneral": "Report"
+  },
+  "version": "1.1",
+  "rightsList": [
+    {
+      "rights": "Creative Commons Attribution 4.0 International",
+      "rightsUri": "https://creativecommons.org/licenses/by/4.0/legalcode",
+      "schemeUri": "https://spdx.org/licenses/",
+      "rightsIdentifier": "cc-by-4.0",
+      "rightsIdentifierScheme": "SPDX"
+    },
+    {
+      "rights": "Copyright \u00a9 2026 Abhishek Singh",
+      "rightsUri": "http://rightsstatements.org/vocab/InC/1.0/"
+    }
+  ]
+}

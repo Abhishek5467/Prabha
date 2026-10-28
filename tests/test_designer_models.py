@@ -1,5 +1,4 @@
 """Integration gates: public graph operations against established component classes."""
-import copy
 import zlib
 import numpy as np
 import pytest

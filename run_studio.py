@@ -4,6 +4,7 @@ for _name in ('OPENBLAS_NUM_THREADS', 'OMP_NUM_THREADS', 'MKL_NUM_THREADS'):
     os.environ.setdefault(_name, '1')
 from pathlib import Path
 import argparse
+import json
 import socket
 import threading
 import webbrowser
@@ -17,6 +18,10 @@ def main():
     parser.add_argument('--no-browser', action='store_true')
     parser.add_argument('--workspace', choices=['start', 'ann', 'cnn', 'neuron', 'components', 'evidence'], default='cnn')
     args = parser.parse_args()
+    build_info = ROOT / 'frontend/studio/dist/build-info.json'
+    expected = json.loads((ROOT / 'frontend/studio/package.json').read_text())['version']
+    if not build_info.is_file() or json.loads(build_info.read_text()).get('version') != expected:
+        raise SystemExit('Studio assets are missing or outdated. Run SETUP_PRABHA.bat on Windows, or rebuild the documented web assets.')
     if not (ROOT / 'frontend/studio/dist/index.html').is_file():
         raise SystemExit('Studio has not been built. Run python scripts/build_web_assets.py, then npm run build --prefix frontend/studio.')
     import uvicorn

@@ -1,0 +1,24 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> prabha-studio@0.1.0-preview.4 test
+> node --test tests/*.test.js
+
+✔ CNN settings round-trip all edited tensors, inputs and converter choices (4.965583ms)
+✔ CNN run import extracts settings and never imports stored predictions (1.188471ms)
+✔ CNN validation rejects wrong shapes, strings, booleans and nonfinite values (9.569901ms)
+✔ CNN CSV preserves unlabelled inputs and the exact converter profile (0.940448ms)
+✔ Execution selection survives new exports and legacy imports retain automatic mode (3.981389ms)
+✔ a worker crash rejects every pending request and the next request restarts Python (7.602663ms)
+✔ API validation errors keep the connection; malformed HTTP responses reconnect (2.155023ms)
+✔ ANN settings round-trip without trusting stored results (3.013302ms)
+✔ invalid or incomplete values cannot silently become a valid experiment (1.606824ms)
+✔ standard batch imports preserve coefficients, while unsupported batches fail explicitly (0.485953ms)
+✔ batch CSV retains numerical rows and identifies precision, seed and engine (0.392889ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191.97277

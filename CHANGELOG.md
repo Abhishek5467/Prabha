@@ -1,3 +1,7 @@
+# 0.1.0-preview.4 — 2026-10-28
+
+Selectable auto/symbol/waveform CNN execution; separate randomized repeated benchmark; mode-preserving imports/exports; batched linear MAC and pooling; private verified asset cache; explicit cross-correlation alias and asymmetric-kernel checks; clean source distribution and reproducible setup. Frozen model/data/results and nine historical source files retained. See release/V0_1_PREVIEW_4.md for validation and limits.
+
 # 0.1.0-preview.3 — 30 September 2026
 
 - Current component classes integrated into 19 Designer blocks, with 4 examples.

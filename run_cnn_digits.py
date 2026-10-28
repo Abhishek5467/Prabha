@@ -9,12 +9,9 @@ import numpy as np
 
 ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT/'core-py'))
-from prabha.systems.cnn_training import train,forward,probabilities
+from prabha.systems.cnn_training import train,forward
 from prabha.systems.cnn import conv2d,relu,max_pool2d,linear
-from prabha.systems.mac import MACConfig,PhysicalMAC
-
-class DigitalMAC:
-    def dot(self,x,w):return float(np.dot(x,w))
+from prabha.systems.mac import MACConfig,PhysicalMAC,DigitalMAC
 
 def operator_forward(x,p,backend):
     features=max_pool2d(relu(conv2d(x,p['conv_weight'],p['conv_bias'],backend=backend)))
@@ -48,6 +45,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--reuse-model',action='store_true',help='Evaluate the saved selected checkpoint without retraining.')
     parser.add_argument('--epochs',type=int,default=160)
+    parser.add_argument('--execution',choices=['auto','symbol','waveform'],default='waveform')
     parser.add_argument('--batch-size',type=int,default=30,help='Inference timing batch size; final batch may be smaller.')
     args=parser.parse_args()
     out=ROOT/'results/cnn_digits';out.mkdir(parents=True,exist_ok=True)
@@ -75,13 +73,13 @@ def main():
     xt,yt=x[test_ids],y[test_ids]
     config=MACConfig(dac_rounding='nearest_lower',mzm_extinction_ratio_db=100.,weight_extinction_ratio_db=100.)
     # Warm up each implementation before measured inference. Loading/training is excluded.
-    forward(xt[:2],p);operator_forward(xt[:2],p,DigitalMAC());operator_forward(xt[:2],p,PhysicalMAC(config))
+    forward(xt[:2],p);operator_forward(xt[:2],p,DigitalMAC());operator_forward(xt[:2],p,PhysicalMAC(config, execution=args.execution))
     conventional_times=[]
     for _ in range(7):
         start=time.perf_counter();reference=forward(xt,p);conventional_times.append(time.perf_counter()-start)
     start=time.perf_counter();operator_reference=operator_forward(xt,p,DigitalMAC());operator_seconds=time.perf_counter()-start
     np.testing.assert_allclose(operator_reference,reference,rtol=1e-11,atol=1e-11)
-    backend=PhysicalMAC(config);physical=[];timings=[]
+    backend=PhysicalMAC(config, execution=args.execution);physical=[];timings=[]
     for start_index in range(0,len(xt),args.batch_size):
         batch=xt[start_index:start_index+args.batch_size]
         start=time.perf_counter();physical.append(operator_forward(batch,p,backend));elapsed=time.perf_counter()-start

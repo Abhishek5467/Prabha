@@ -12,6 +12,35 @@ async function openCnn(page) {
   await expect(page.locator('iframe')).toHaveCount(0);
 }
 
+test('execution choice changes the actual backend, survives exports and has a separate benchmark', async ({page}) => {
+  await openCnn(page);
+  await page.getByRole('combobox', {name: 'Input source', exact: true}).selectOption('custom');
+  await page.getByRole('combobox', {name: 'Physical execution', exact: true}).selectOption('symbol');
+  await page.getByRole('button', {name: 'Run CNN inference'}).click();
+  await expect(page.getByRole('button', {name: 'Export CNN run JSON ↓', exact: true})).toBeVisible();
+  const fast = await exported(page, 'Export CNN run JSON ↓');
+  expect(fast.result.execution_mode).toBe('symbol');
+  expect(fast.result.materialized_waveform_samples).toBe(0);
+  await page.getByRole('combobox', {name: 'Physical execution', exact: true}).selectOption('waveform');
+  await expect(page.getByRole('button', {name: 'Export CNN run JSON ↓', exact: true})).toHaveCount(0);
+  await page.getByRole('button', {name: 'Run CNN inference'}).click();
+  await expect(page.getByRole('button', {name: 'Export CNN run JSON ↓', exact: true})).toBeVisible();
+  const sampled = await exported(page, 'Export CNN run JSON ↓');
+  expect(sampled.result.execution_mode).toBe('waveform');
+  expect(sampled.result.materialized_waveform_samples).toBeGreaterThan(0);
+  sampled.result.rows[0].prabha_logits.forEach((v,i) => expect(Math.abs(v-fast.result.rows[0].prabha_logits[i])).toBeLessThan(1e-11));
+  const saved = await exported(page, 'Export CNN settings ↓');
+  expect(saved.execution).toBe('waveform');
+  await page.getByRole('combobox', {name: 'Physical execution', exact: true}).selectOption('symbol');
+  await page.getByLabel('Import CNN JSON', {exact: true}).setInputFiles({name:'mode.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(saved))});
+  await expect(page.getByRole('combobox', {name: 'Physical execution', exact: true})).toHaveValue('waveform');
+  await page.getByRole('button', {name:'Benchmark both modes',exact:true}).click();
+  await expect(page.getByRole('region',{name:'Execution benchmark',exact:true})).toContainText('3 measured blocks');
+  const benchmark = await exported(page,'Export benchmark JSON ↓');
+  expect(benchmark.rows).toHaveLength(9);
+  expect(benchmark.symbol_waveform_prediction_disagreements).toBe(0);
+});
+
 test('native CNN validates all 360 images, exports exact results and inspects selected layers', async ({page}) => {
   test.setTimeout(90_000);
   const errors = [];
@@ -20,7 +49,9 @@ test('native CNN validates all 360 images, exports exact results and inspects se
   await page.getByRole('button', {name: 'Validate 360 images', exact: true}).click();
   await expect(page.getByRole('region', {name: 'CNN results', exact: true})).toContainText('354/360', {timeout: 60_000});
   const record = await exported(page, 'Export CNN run JSON ↓');
-  expect(record.schema).toBe('prabha.cnn-run.v2');
+  expect(record.schema).toBe('prabha.cnn-run.v3');
+  expect(record.execution).toBe('auto');
+  expect(record.result.execution_mode).toBe('symbol');
   expect(record.engine).toBe('Python API');
   expect(record.result.count).toBe(360);
   expect(record.result.numpy_correct).toBe(354);

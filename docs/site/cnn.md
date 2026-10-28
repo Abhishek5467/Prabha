@@ -1,6 +1,6 @@
 # Editable trained CNN
 
-The **Trained CNN** workspace compares a trained 8 x 8 digit classifier in NumPy and the Prabha waveform MAC backend. It uses native React panels inside Studio, with the same engine, busy state, exports and desktop Save bridge as ANN. Settings and results survive navigation between workspaces.
+The **Trained CNN** workspace compares a trained 8 x 8 digit classifier in NumPy and the Prabha physical MAC backend. It uses native React panels inside Studio, with the same engine, busy state, exports and desktop Save bridge as ANN. Settings and results survive navigation between workspaces.
 
 With the supplied built application, Windows users can double-click `RUN_PRABHA_STUDIO.bat`; Linux/macOS users can run `bash RUN_PRABHA_STUDIO.sh`. Keep its terminal open and visit `http://127.0.0.1:8000/#cnn`. Source-only checkouts need the normal web build first. The original standalone demo remains available through `RUN_CNN_DEMO.bat` at port 8765.
 
@@ -23,3 +23,6 @@ Select an image number in the predictions table to inspect normalized input, con
 The supplied checkpoint reaches 354/360 (98.33%) in both backends with zero prediction disagreements. The fixed split has 1,149 training / 288 validation / 360 test images. Edited settings do not inherit the recorded accuracy. This is the small digits dataset, not MNIST or a writer-disjoint evaluation.
 
 The reference uses a 12-bit lower-at-tie DAC, 100 dB input/weight MZM extinction, noise off and output ADC off. Bias, activation, pooling and scaling include digital/software operations. The interface measures warm software inference, with validation, loading, warmup, inspection and exports excluded. Prabha's detailed waveform computation is slower than vectorised NumPy in the recorded experiment; no physical hardware speedup follows from this. Complete noisy-CNN and native CNN dynamic validation remain separate work.
+
+
+Read [CNN operators and execution](execution.md) for the cross-correlation convention, three execution choices and repeated benchmark. [Next validation steps](next-steps.md) distinguish completed stationary evidence from planned dynamic and noisy-network experiments.

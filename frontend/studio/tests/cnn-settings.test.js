@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validateSettings,parseSettingsFile,settingsDocument,resultsCsv} from '../public/cnn-settings.js';
+import {validateSettings,parseSettingsFile,parseExperimentFile,settingsDocument,resultsCsv} from '../public/cnn-settings.js';
 const make=()=>({input:{mode:'custom',count:1,start:0,pixels:Array.from({length:8},()=>Array(8).fill(0)),label:null},
   model:{conv_weight:Array.from({length:4},()=>[Array.from({length:3},()=>Array(3).fill(0))]),conv_bias:Array(4).fill(0),dense_weight:Array.from({length:10},()=>Array(36).fill(0)),dense_bias:Array(10).fill(0)},
   converters:{dac_bits:12,adc_bits:null,adc_full_scale:64,dac_rounding:'nearest_lower'}});
@@ -21,4 +21,12 @@ test('CNN validation rejects wrong shapes, strings, booleans and nonfinite value
 test('CNN CSV preserves unlabelled inputs and the exact converter profile',()=>{
   const text=resultsCsv({rows:[{test_position:null,label:null,numpy_prediction:3,prabha_prediction:3,correct:null,maximum_logit_error:.02}],configuration:{dac_bits:null,adc_bits:8},numpy_seconds:.01,prabha_seconds:1,effective_weights_sha256:'abc'});
   assert.match(text,/1,custom,,3,3,unlabelled,0.02,off,8,0.01,1,abc/);
+});
+test('Execution selection survives new exports and legacy imports retain automatic mode',()=>{
+  const s=make();
+  const current=parseExperimentFile(JSON.stringify(settingsDocument(s,'waveform')));
+  assert.equal(current.execution,'waveform');assert.deepEqual(current.settings,s);
+  assert.equal(parseExperimentFile(JSON.stringify({schema:'prabha.cnn-settings.v1',settings:s})).execution,'auto');
+  assert.equal(parseExperimentFile(JSON.stringify({schema:'prabha.cnn-run.v3',execution:'symbol',settings:s,result:{rows:['forged']}})).execution,'symbol');
+  assert.throws(()=>parseExperimentFile(JSON.stringify({...settingsDocument(s),execution:'fast'})));
 });

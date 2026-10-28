@@ -4,6 +4,18 @@ cd /d "%~dp0"
 set "OPENBLAS_NUM_THREADS=1"
 set "OMP_NUM_THREADS=1"
 set "MKL_NUM_THREADS=1"
+if not exist "frontend\studio\dist\build-info.json" (
+  call SETUP_PRABHA.bat
+  if errorlevel 1 goto failed
+)
+findstr /C:"0.1.0-preview.4" "frontend\studio\dist\build-info.json" >nul 2>&1
+if errorlevel 1 (
+  call SETUP_PRABHA.bat
+  if errorlevel 1 goto failed
+)
+if exist ".studio-venv\Scripts\python.exe" (
+  set "STUDIO_PY=%CD%\.studio-venv\Scripts\python.exe"
+) else (
 if exist ".venv\Scripts\python.exe" (
   set "STUDIO_PY=%CD%\.venv\Scripts\python.exe"
 ) else (
@@ -12,6 +24,7 @@ if exist ".venv\Scripts\python.exe" (
     if errorlevel 1 goto failed
   )
   set "STUDIO_PY=%CD%\.studio-venv\Scripts\python.exe"
+)
 )
 "%STUDIO_PY%" -c "import numpy,jsonschema,fastapi,uvicorn" >nul 2>&1
 if errorlevel 1 (

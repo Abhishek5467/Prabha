@@ -33,19 +33,29 @@ export function validateSettings(value) {
   return {input:{mode:source.mode,count,start,pixels,label},model,converters:{...c}};
 }
 export function parseSettingsFile(text) {
+  return parseExperimentFile(text).settings;
+}
+export function executionMode(value = 'auto') {
+  if (!['auto', 'symbol', 'waveform'].includes(value)) throw new Error('Unsupported execution mode.');
+  return value;
+}
+export function parseExperimentFile(text) {
   let value;
   try {value=JSON.parse(text);} catch {throw new Error('Choose valid CNN settings JSON.');}
-  if (!['prabha.cnn-settings.v1','prabha.cnn-run.v2'].includes(value?.schema))
+  if (!['prabha.cnn-settings.v1','prabha.cnn-settings.v2','prabha.cnn-run.v2','prabha.cnn-run.v3'].includes(value?.schema))
     throw new Error('Import CNN settings or an editable-CNN run exported by this version.');
-  return validateSettings(value.settings);
+  return {settings: validateSettings(value.settings),
+    execution: executionMode(value.execution ?? value.result?.execution_requested ?? 'auto')};
 }
-export function settingsDocument(settings) {
-  return {schema:'prabha.cnn-settings.v1',settings:validateSettings(settings)};
+export function settingsDocument(settings, execution = 'auto') {
+  return {schema:'prabha.cnn-settings.v2',execution:executionMode(execution),settings:validateSettings(settings)};
 }
 export function resultsCsv(result) {
   const rows=result.rows.map((r,i)=>[i+1,r.test_position===null?'custom':r.test_position+1,
     r.label??'',r.numpy_prediction,r.prabha_prediction,r.correct===null?'unlabelled':r.correct,
     r.maximum_logit_error,result.configuration.dac_bits??'off',result.configuration.adc_bits??'off',
-    result.numpy_seconds,result.prabha_seconds,result.effective_weights_sha256].join(','));
-  return 'row,test_image,true_digit,numpy_prediction,prabha_prediction,correct,max_logit_error,dac_bits,adc_bits,numpy_seconds,prabha_seconds,effective_weights_sha256\n'+rows.join('\n')+'\n';
+    result.numpy_seconds,result.prabha_seconds,result.effective_weights_sha256,
+    result.execution_requested ?? 'auto',result.execution_mode ?? 'waveform',
+    result.equivalent_waveform_samples ?? result.waveform_samples ?? '',result.materialized_waveform_samples ?? result.waveform_samples ?? ''].join(','));
+  return 'row,test_image,true_digit,numpy_prediction,prabha_prediction,correct,max_logit_error,dac_bits,adc_bits,numpy_seconds,prabha_seconds,effective_weights_sha256,execution_requested,execution_mode,equivalent_samples,materialized_samples\n'+rows.join('\n')+'\n';
 }

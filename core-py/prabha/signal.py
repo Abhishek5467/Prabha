@@ -12,7 +12,7 @@ Conventions locked in the spec:
   digital  -> float64, code;   shape (n,)
 """
 from __future__ import annotations
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional
 import numpy as np
 

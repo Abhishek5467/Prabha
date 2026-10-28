@@ -1,5 +1,7 @@
 # Run the trained CNN in Prabha
 
+Current source release: **v0.1.0-preview.4**. Both CNN interfaces expose automatic, constant-symbol and waveform execution. Use **Benchmark both modes** for repeated timing; JSON exports retain the choice. A fresh Windows source folder builds the current Studio through `RUN_PRABHA_STUDIO.bat` / `SETUP_PRABHA.bat` (Python 3.11+ and Node.js 22 LTS). The standalone demo requires only Python. Historical timing observations below retain their original workload; see `docs/site/execution.md` and `release/V0_1_PREVIEW_4.md` for current behaviour and scope.
+
 ## Native Studio integration (25 October 2026)
 
 For ANN and CNN together, use **RUN_PRABHA_STUDIO.bat** (Windows) or `bash RUN_PRABHA_STUDIO.sh` (Linux/macOS) from the supplied built application. Open **Trained CNN** in Studio at `http://127.0.0.1:8000/#cnn`. The CNN controls are native React panels, using the ANN engine and export transport. Settings/results survive switching tabs, while settings edits clear old results. Run exports include the execution engine and version. **Validate 360 images** evaluates the complete held-out set with the current weights and converters. See [CNN_STUDIO_INTEGRATION.md](CNN_STUDIO_INTEGRATION.md) for updating an existing checkout and the next validation work.

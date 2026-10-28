@@ -1,10 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {version} from '../package.json';
-import {validateSettings, parseSettingsFile, settingsDocument, resultsCsv} from '../public/cnn-settings.js';
+import {validateSettings, parseExperimentFile, settingsDocument, resultsCsv} from '../public/cnn-settings.js';
 import './cnn.css';
 
 const STAGES = [
-  ['input', 'Input', '1 × 8 × 8'], ['convolution', 'Conv + bias', '4 × 6 × 6'],
+  ['input', 'Input', '1 × 8 × 8'], ['convolution', 'Cross-corr + bias', '4 × 6 × 6'],
   ['relu', 'ReLU', '4 × 6 × 6'], ['pool', 'Max pool', '4 × 3 × 3'],
   ['flatten', 'Flatten', '36 features'], ['logits', 'Logits', '10 classes']
 ];
@@ -55,6 +55,7 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
   const [info, setInfo] = useState(null), [settings, setSettings] = useState(null);
   const [pixelsText, setPixelsText] = useState(''), [modelText, setModelText] = useState('');
   const [record, setRecord] = useState(null), [inspection, setInspection] = useState(null);
+  const [execution, setExecution] = useState('auto'), [benchmark, setBenchmark] = useState(null);
   const [selected, setSelected] = useState(0), [stage, setStage] = useState('input'), [channel, setChannel] = useState(0);
   const [brush, setBrush] = useState('16'), [sampleIndex, setSampleIndex] = useState('0');
   const [message, setMessage] = useState('Loading the trained CNN…');
@@ -68,7 +69,7 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
   }
   function invalidate(text = 'Settings changed. Run inference for fresh results.') {
     current.current = null; ticket.current++; inspectionCache.current.clear();
-    setRecord(null); setInspection(null); setSelected(0); setMessage(text); onSettingsChange();
+    setRecord(null); setInspection(null); setBenchmark(null); setSelected(0); setMessage(text); onSettingsChange();
   }
   function edit(section, patch) {
     setSettings(value => ({...value, [section]: {...value[section], ...patch}}));
@@ -104,11 +105,11 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
         snapshot.input = {...snapshot.input, mode: 'heldout', start: 0, count: 360};
         apply(snapshot);
       }
-      invalidate('Computing fresh NumPy and Prabha waveform inference…');
+      invalidate('Computing fresh NumPy and Prabha inference…');
       try {
         const module = await engine, meta = await module.execute({action: 'meta'});
-        const result = await module.execute({action: 'cnn', settings: snapshot});
-        const next = {schema: 'prabha.cnn-run.v2', studio_version: version, engine: module.engineMode(),
+        const result = await module.execute({action: 'cnn', settings: snapshot, execution});
+        const next = {schema: 'prabha.cnn-run.v3', execution, studio_version: version, engine: module.engineMode(),
           engine_version: meta.version, created_at: new Date().toISOString(), settings: result.settings, result};
         current.current = next; setRecord(next); setSelected(0);
         const first = {...result.inspection, index: 0, label: result.rows[0].label,
@@ -125,7 +126,7 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
       if (!snapshot) return;
       const id = ++ticket.current;
       setSelected(index); setInspection(null);
-      const value = inspectionCache.current.get(index) || await (await engine).execute({action: 'cnn_inspect', settings: snapshot.settings, index});
+      const value = inspectionCache.current.get(index) || await (await engine).execute({action: 'cnn_inspect', settings: snapshot.settings, execution: snapshot.execution, index});
       if (current.current !== snapshot || ticket.current !== id) return;
       inspectionCache.current.set(index, value); setInspection(value);
     });
@@ -137,7 +138,7 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
   function exportSettings() {
     runTask(async () => {
       const value = await (await engine).execute({action: 'cnn_validate', settings: read()});
-      await save('prabha-cnn-settings.json', JSON.stringify({...settingsDocument(value.settings), studio_version: version}, null, 2));
+      await save('prabha-cnn-settings.json', JSON.stringify({...settingsDocument(value.settings, execution), studio_version: version}, null, 2));
     });
   }
   function importSettings(event) {
@@ -145,9 +146,9 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
     if (!file) return;
     runTask(async () => {
       if (file.size > 1_000_000) throw new Error('CNN settings imports must be smaller than 1 MB.');
-      const value = parseSettingsFile(await file.text());
-      const accepted = await (await engine).execute({action: 'cnn_validate', settings: value});
-      apply(accepted.settings); invalidate('CNN settings imported. Run inference to compute fresh results.');
+      const value = parseExperimentFile(await file.text());
+      const accepted = await (await engine).execute({action: 'cnn_validate', settings: value.settings, execution: value.execution});
+      apply(accepted.settings); setExecution(value.execution); invalidate('CNN settings imported. Run inference to compute fresh results.');
     });
   }
   function paint(row, column) {
@@ -183,7 +184,7 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
         <button className="text-button" disabled={busy} onClick={() => fileInput.current.click()}>Import CNN JSON ↑</button>
         <input type="file" accept=".json,application/json" ref={fileInput} hidden aria-label="Import CNN JSON" onChange={importSettings}/>
         <button className="text-button" disabled={busy} onClick={exportSettings}>Export CNN settings ↓</button>
-        <button className="text-button" disabled={busy} onClick={() => {apply(clone(info.default_settings)); invalidate('Reference checkpoint and converters restored. Run for fresh results.');}}>Reset CNN reference</button>
+        <button className="text-button" disabled={busy} onClick={() => {apply(clone(info.default_settings)); setExecution('auto'); invalidate('Reference checkpoint and converters restored. Run for fresh results.');}}>Reset CNN reference</button>
       </div>
     </div>
     <div className="work-grid">
@@ -208,7 +209,13 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
             setPixelsText(pixelText(loaded.sample.pixels)); edit('input', {pixels: loaded.sample.pixels, label: loaded.sample.label});
           })}>Load held-out digit for editing</button>
         </>}
-        <div className="divider"/><h3>Converter resolution</h3>
+        <div className="divider"/><h3>Execution</h3>
+        <label>Physical execution<select value={execution} onChange={event => {setExecution(event.target.value); invalidate();}}>
+          <option value="auto">Automatic</option><option value="symbol">Fast constant-symbol</option>
+          <option value="waveform">Sampled waveform</option>
+        </select></label>
+        <p className="hint">Fast mode integrates constant, noiseless symbols and retains the converter settings. Sampled mode evaluates every time sample.</p>
+        <h3>Converter resolution</h3>
         <div className="field-pair">
           <Precision label="Input DAC" value={settings.converters.dac_bits} onChange={value => edit('converters', {dac_bits: value})}/>
           <Precision label="MAC output ADC" value={settings.converters.adc_bits} onChange={value => edit('converters', {adc_bits: value})}/>
@@ -220,6 +227,11 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
         <p className="hint">ADC conversion precedes inverse scaling and digital bias. Values outside its range raise an error.</p>
         <button className="primary" onClick={() => run()}>{busy ? 'Running…' : 'Run CNN inference'} ↗</button>
         <button className="secondary" onClick={() => run(true)}>Validate 360 images</button>
+        <button className="secondary" onClick={() => runTask(async () => {
+          setMessage('Benchmarking both physical modes and NumPy, with three measured repetitions…');
+          const measured = await (await engine).execute({action: 'cnn_benchmark', settings: read(), blocks: 3, warmups: 1});
+          setBenchmark(measured); setMessage('Benchmark complete. The selected workload and timing scope are included in the export.');
+        })}>Benchmark both modes</button>
         <button className="text-button cnn-validate" onClick={() => runTask(async () => {
           await (await engine).execute({action: 'cnn_validate', settings: read()}); setMessage('CNN settings valid. Run inference to compute predictions.');
         })}>Validate CNN settings</button>
@@ -233,7 +245,7 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
           {inspection && <small>Δ {sci(inspection.layers.find(value => value.name === name)?.maximum_error)}</small>}</button>)}</div>
         <p className="cnn-status" role="status">{message}</p>
         {!result ? <div className="empty-state"><span>Conv → ReLU → Pool → Dense</span><h3>One checkpoint, two inference paths</h3>
-          <p>Run the current settings to compare NumPy and the Prabha component waveform model, then inspect each stage.</p>
+          <p>Run the current settings to compare NumPy and the Prabha component model, then inspect each stage. CNN Conv2D uses cross-correlation, without flipping the learned filter.</p>
           <p className="small">Archived reference: 354/360 correct (98.33%), zero prediction disagreements. Live results appear after a new run.</p></div> : <>
           <div className="metric-strip cnn-metrics">
             <div><span>NumPy accuracy</span><strong>{result.numpy_accuracy === null ? 'Unlabelled' : (100 * result.numpy_accuracy).toFixed(2) + '%'}</strong></div>
@@ -274,7 +286,7 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
             <Heatmap matrix={difference} low={-layer.maximum_error} high={layer.maximum_error} label="Prabha minus NumPy"/></div>
           <details><summary>Exact tensor values for both paths</summary><pre>{JSON.stringify({shape: layer.shape, numpy: layer.numpy, prabha: layer.prabha}, null, 2)}</pre></details>
         </> : <p className="muted">Computing the selected image…</p>}
-        <p className="hint">Both output maps share a colour range. The difference uses a symmetric range. Inspection recomputes one image outside inference timing.</p>
+        <p className="hint">Both output maps share a colour range. The difference uses a symmetric range. First-image tensors come from the current run; other selected images are inspected outside inference timing.</p>
       </section>
       <section className="cnn-panel" aria-label="CNN predictions"><h2>Predictions</h2>
         <div className="cnn-table"><table><thead><tr><th>Test image</th><th>True digit</th><th>NumPy</th><th>Prabha</th><th>Result</th></tr></thead><tbody>
@@ -285,14 +297,27 @@ export default function CnnWorkspace({active, engine, platform, busy, runTask, o
             <td className={item.correct === false ? 'cnn-incorrect' : ''}>{item.correct === null ? 'Unlabelled' : item.correct ? 'Correct' : 'Incorrect'}</td></tr>)}
         </tbody></table></div>
         <p className="hint">Logit error: RMS {sci(result.rms_logit_error)} · maximum {sci(result.max_logit_error)}<br/>
-          {result.mac_calls.toLocaleString()} MAC calls · {result.device_passes.toLocaleString()} device passes · {result.waveform_samples.toLocaleString()} waveform samples</p>
+          {result.mac_calls.toLocaleString()} MAC calls · {result.device_passes.toLocaleString()} device passes<br/>
+          {result.equivalent_waveform_samples.toLocaleString()} equivalent samples · {result.materialized_waveform_samples.toLocaleString()} evaluated waveform samples</p>
       </section>
       <section className="cnn-panel" aria-label="CNN software runtime"><h2>Measured software runtime</h2>
         <div className="metric-strip"><div><span>Vectorised NumPy</span><strong>{(1000 * result.numpy_seconds).toFixed(3)} ms</strong></div>
-          <div><span>Prabha waveform model</span><strong>{result.prabha_seconds.toFixed(3)} s</strong></div></div>
+          <div><span>Prabha {result.execution_mode === 'symbol' ? 'constant-symbol' : 'sampled waveform'}</span><strong>{(1000 * result.prabha_seconds).toFixed(3)} ms</strong></div></div>
         <p className="hint">{result.timing_scope} These software runtimes do not measure physical photonic hardware.</p>
       </section>
     </>}
-    <p className="scope-note">8 × 8 digits · 1,149 training / 288 validation / 360 held-out images. Bias, ReLU, pooling and scaling include digital/software operations. Noise is disabled; statistical RIN and Lumerical chain verification remain separate experiments.</p>
+    {benchmark && <section className="cnn-panel" aria-label="Execution benchmark">
+      <h2>Repeated execution benchmark</h2>
+      <p>{benchmark.count} images, {benchmark.blocks} measured blocks, {benchmark.warmups_excluded} excluded warmup blocks.</p>
+      <div className="metric-strip">
+        <div><span>NumPy median</span><strong>{(1000 * benchmark.median_seconds.numpy).toFixed(3)} ms</strong></div>
+        <div><span>Sampled median</span><strong>{(1000 * benchmark.median_seconds.waveform).toFixed(3)} ms</strong></div>
+        <div><span>Constant-symbol median</span><strong>{(1000 * benchmark.median_seconds.symbol).toFixed(3)} ms</strong></div>
+      </div>
+      <p>Sampled / constant-symbol: {benchmark.waveform_over_symbol.toFixed(2)}×. Maximum logit difference: {sci(benchmark.maximum_symbol_waveform_logit_difference)}.</p>
+      <p className="hint">{benchmark.timing_scope} {benchmark.claim_scope}</p>
+      <button className="text-button" disabled={busy} onClick={() => runTask(() => save('prabha-execution-benchmark.json', JSON.stringify(benchmark, null, 2)))}>Export benchmark JSON ↓</button>
+    </section>}
+    <p className="scope-note">8 × 8 digits · 1,149 training / 288 validation / 360 held-out images. Bias, ReLU, pooling and scaling include digital/software operations. Noise is disabled in this network. Native scalar/RIN validation has its own documented configuration.</p>
   </div>;
 }

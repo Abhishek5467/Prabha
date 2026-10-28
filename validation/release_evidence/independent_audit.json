@@ -1,0 +1,59 @@
+{
+  "run_id": "Prabha_IC_1793174970436",
+  "accuracy_rows": 1029,
+  "timing_blocks": 21,
+  "matching_codes_reported": 65856,
+  "stage_maximum_residuals": {
+    "v_dac": 0.0,
+    "p_upper": 8.131516293641283e-20,
+    "p_lower": 8.131516293641283e-20,
+    "i_upper": 8.131516293641283e-20,
+    "i_lower": 8.131516293641283e-20,
+    "i_delta": 5.421010862427522e-20,
+    "v_cap": 1.7763568394002505e-15,
+    "v_pre": 4.440892098500626e-15,
+    "a_analog": 1.995015264100175e-12,
+    "a_quant": 1.1102230246251565e-16
+  },
+  "native_statistics": {
+    "interconnect_run_s": {
+      "median": 49.07699999999999,
+      "q1": 47.37,
+      "q3": 53.836,
+      "min": 43.644,
+      "max": 61.269000000000005
+    },
+    "interconnect_point_s": {
+      "median": 50.49300000000001,
+      "q1": 48.95499999999998,
+      "q3": 55.769,
+      "min": 45.04500000000001,
+      "max": 64.65700000000001
+    },
+    "prabha_waveform_s": {
+      "median": 0.06661950000489014,
+      "q1": 0.06256069999653846,
+      "q3": 0.07047859998056083,
+      "min": 0.0556624000055308,
+      "max": 0.09895259999393602
+    }
+  },
+  "ratio_recomputed": 736.6761983563002,
+  "unpaired_bootstrap_95_ci_recomputed": [
+    699.2624458044154,
+    808.0814144781672
+  ],
+  "bootstrap": {
+    "replicates": 10000,
+    "seed": 20261028,
+    "method": "independent replacement resampling of the 21 native and 21 Prabha 49-point block totals; native array drawn first"
+  },
+  "raw_native_mat_files_received_here": false,
+  "provenance": "CSV/JSON supplied by the user-run analyzer; raw trace hashes are retained in runtime_summary.json",
+  "input_sha256": {
+    "runtime_blocks.csv": "ca953e0ec937ce4c9c20bf8d8252feb206ed725f7f96a6008431907526f4062c",
+    "accuracy.csv": "44276d120a6e0c78efd8d0fdfd26899d8107c28fd81d2c86fa42488da8680ab5",
+    "architecture_benchmark.json": "5d764edfdad68427ebe62d74e142fed6b38a5a0aa7535f46d7782f676933a9d9",
+    "runtime_summary.json": "0e5e6a395d8667009e256506599612e0ec7150f4b4c5ea6f150633239b7cf282"
+  }
+}

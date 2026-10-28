@@ -26,3 +26,5 @@ frontend/studio/public/prabha-source.zip
 Thumbs.db
 frontend/studio/test-results/
 frontend/studio/playwright-report/
+.ruff_cache/
+UPDATE_PRABHA.py

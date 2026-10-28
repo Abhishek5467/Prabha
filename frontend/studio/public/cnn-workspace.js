@@ -1,4 +1,4 @@
-import {validateSettings,parseSettingsFile,settingsDocument,resultsCsv} from './cnn-settings.js';
+import {validateSettings,parseExperimentFile,settingsDocument,resultsCsv} from './cnn-settings.js';
 const $=id=>document.getElementById(id),embedded=window.parent!==window;
 if(embedded)document.documentElement.classList.add('embedded');
 let latest=null,info=null,inspection=null,busy=false,serial=0,selected=0,inspectTicket=0;
@@ -86,7 +86,7 @@ async function sample(index){if(!latest)return;const snapshot=latest,row=snapsho
   $('sample-error').textContent='Maximum logit difference: '+row.maximum_logit_error.toExponential(4);
   [...$('rows').children].forEach((tr,i)=>tr.classList.toggle('selected',i===index));
   const ticket=++inspectTicket;
-  try{const value=inspectionCache.get(index)||await execute({action:'cnn_inspect',settings:snapshot.settings,index});
+  try{const value=inspectionCache.get(index)||await execute({action:'cnn_inspect',settings:snapshot.settings,execution:snapshot.execution_requested,index});
     if(latest!==snapshot||ticket!==inspectTicket)return;inspectionCache.set(index,value);inspection=value;showLayer();
   }catch(e){if(ticket===inspectTicket)error(e.message);}
 }
@@ -94,7 +94,7 @@ async function render(r){latest=r;inspectionCache.clear();inspectionCache.set(0,
   $('numpy-accuracy').textContent=r.numpy_accuracy===null?'Unlabelled':(100*r.numpy_accuracy).toFixed(2)+'%';
   $('prabha-accuracy').textContent=r.prabha_accuracy===null?'Unlabelled':(100*r.prabha_accuracy).toFixed(2)+'%';
   $('disagreements').textContent=String(r.prediction_disagreements);$('images').textContent=String(r.count);
-  $('numpy-time').textContent=(1000*r.numpy_seconds).toFixed(3)+' ms';$('prabha-time').textContent=r.prabha_seconds.toFixed(3)+' s';
+  $('numpy-time').textContent=(1000*r.numpy_seconds).toFixed(3)+' ms';$('prabha-time').textContent=(1000*r.prabha_seconds).toFixed(3)+' ms';
   const max=Math.max(r.numpy_seconds,r.prabha_seconds,1e-12);$('numpy-bar').style.width=100*r.numpy_seconds/max+'%';$('prabha-bar').style.width=100*r.prabha_seconds/max+'%';
   $('slowdown').textContent='Prabha took '+r.slowdown_vs_numpy.toLocaleString(undefined,{maximumFractionDigits:0})+' times the NumPy runtime for the same '+r.count+' image(s).';
   $('rows').replaceChildren();r.rows.forEach((row,i)=>{const tr=document.createElement('tr');
@@ -102,21 +102,21 @@ async function render(r){latest=r;inspectionCache.clear();inspectionCache.set(0,
       const td=document.createElement('td');td.textContent=String(value);tr.append(td);}
     if(row.correct===false)tr.classList.add('bad');tr.addEventListener('click',()=>{if(!busy)sample(i);});$('rows').append(tr);});
   $('errors').textContent='Logit error: RMS '+r.rms_logit_error.toExponential(4)+'; maximum '+r.max_logit_error.toExponential(4);
-  $('operations').textContent=r.mac_calls.toLocaleString()+' MAC calls | '+r.device_passes.toLocaleString()+' device passes | '+r.waveform_samples.toLocaleString()+' waveform samples';
+  $('operations').textContent=r.mac_calls.toLocaleString()+' MAC calls | '+r.device_passes.toLocaleString()+' device passes | '+r.equivalent_waveform_samples.toLocaleString()+' equivalent samples | '+r.materialized_waveform_samples.toLocaleString()+' evaluated waveform samples';
   $('download').disabled=false;$('csv').disabled=false;await sample(0);
 }
 for(const id of ['dac','adc']){for(const value of ['off',...Array.from({length:24},(_,i)=>String(i+1))]){
   const option=document.createElement('option');option.value=value;option.textContent=value==='off'?'Off':value+' bits';$(id).append(option);}}
-const editors=new Set(['input-mode','count','start','pixels','label','weights','dac','adc','adc-range','rounding']);
+const editors=new Set(['input-mode','count','start','pixels','label','weights','dac','adc','adc-range','rounding','execution']);
 $('controls').addEventListener('input',event=>{if(editors.has(event.target.id))changed();});
 $('input-mode').addEventListener('change',changed);
 $('run').addEventListener('click',()=>task(async()=>{
-  const settings=readSettings();invalidate();$('status').textContent='Computing fresh NumPy and Prabha waveform inference...';
-  const r=await execute({action:'cnn',settings});await render(r);
+  const settings=readSettings();invalidate();$('status').textContent='Computing fresh NumPy and Prabha inference...';
+  const r=await execute({action:'cnn',settings,execution:$('execution').value});await render(r);
   $('status').textContent=r.labelled_images?'Complete: NumPy '+r.numpy_correct+'/'+r.labelled_images+', Prabha '+r.prabha_correct+'/'+r.labelled_images+' correct.':'Complete: unlabelled custom image; predictions computed without an accuracy claim.';
 }));
 $('validate').addEventListener('click',()=>task(async()=>{const accepted=await execute({action:'cnn_validate',settings:readSettings()});profile(accepted);$('status').textContent='Settings valid. Run inference to compute predictions.';}));
-$('reset').addEventListener('click',()=>{if(busy)return;applySettings(info.default_settings);invalidate();$('status').textContent='Checkpoint and reference converter settings restored. Run for fresh results.';});
+$('reset').addEventListener('click',()=>{if(busy)return;applySettings(info.default_settings);$('execution').value='auto';invalidate();$('status').textContent='Checkpoint and reference converter settings restored. Run for fresh results.';});
 $('restore-weights').addEventListener('click',()=>{if(busy)return;$('weights').value=JSON.stringify(info.default_settings.model,null,2);changed();});
 $('load-digit').addEventListener('click',()=>task(async()=>{const sample=await execute({action:'cnn_info',sample_index:Number($('digit-index').value)});
   $('pixels').value=pixelText(sample.sample.pixels);$('label').value=String(sample.sample.label);$('input-mode').value='custom';invalidate();mode();draw($('input-digit'),sample.sample.pixels);$('status').textContent='Digit loaded as editable custom input. Run for fresh predictions.';}));
@@ -128,14 +128,15 @@ $('input-digit').addEventListener('pointerdown',event=>{if(busy)return;try{const
 $('import').addEventListener('click',()=>{if(!busy)$('import-file').click();});
 $('import-file').addEventListener('change',()=>task(async()=>{const file=$('import-file').files?.[0];if(!file)return;
   try{if(file.size>1_000_000)throw new Error('CNN settings imports must be smaller than 1 MB.');
-    const settings=parseSettingsFile(await file.text()),accepted=await execute({action:'cnn_validate',settings});
+    const imported=parseExperimentFile(await file.text()),settings=imported.settings,accepted=await execute({action:'cnn_validate',settings,execution:imported.execution});
+    $('execution').value=imported.execution;
     applySettings(accepted.settings);invalidate();profile(accepted);$('status').textContent='Settings imported. Stored results were not imported; run fresh inference.';
   }finally{$('import-file').value='';}
 }));
 $('export-settings').addEventListener('click',()=>task(async()=>{const accepted=await execute({action:'cnn_validate',settings:readSettings()});
-  await save('prabha-cnn-settings.json',JSON.stringify(settingsDocument(accepted.settings),null,2));$('status').textContent='CNN settings exported.';
+  await save('prabha-cnn-settings.json',JSON.stringify(settingsDocument(accepted.settings,$('execution').value),null,2));$('status').textContent='CNN settings exported.';
 }));
-$('download').addEventListener('click',()=>task(async()=>{if(!latest)return;await save('prabha-cnn-run.json',JSON.stringify({schema:'prabha.cnn-run.v2',created_at:new Date().toISOString(),settings:latest.settings,result:latest},null,2));$('status').textContent='Run JSON exported with the exact settings used.';}));
+$('download').addEventListener('click',()=>task(async()=>{if(!latest)return;await save('prabha-cnn-run.json',JSON.stringify({schema:'prabha.cnn-run.v3',execution:latest.execution_requested,created_at:new Date().toISOString(),settings:latest.settings,result:latest},null,2));$('status').textContent='Run JSON exported with the exact settings used.';}));
 $('csv').addEventListener('click',()=>task(async()=>{if(latest)await save('prabha-cnn-results.csv',resultsCsv(latest),'text/csv');}));
 $('export-layer').addEventListener('click',()=>task(async()=>{if(inspection&&latest)await save('prabha-cnn-layer.json',JSON.stringify({schema:'prabha.cnn-layer.v1',settings:latest.settings,row:selected,inspection},null,2));}));
 $('layer').addEventListener('change',()=>{$('channel').value='0';showLayer();});$('channel').addEventListener('change',showLayer);

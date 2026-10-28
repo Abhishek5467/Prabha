@@ -50,3 +50,12 @@ The batch CSV has 16 columns: sample, four inputs, two ideal outputs, two physic
 `{"action":"example","name":"neuron"}` returns a Designer document with `design`, `settings` (duration in ns), `positions` and `model_revision`. Other names: `expanded`, `receiver`, `nonlinear`. Omitting `name` preserves the original legacy netlist response.
 
 Run a current example with `action: "graph"`, its `design`, `duration: settings.duration_ns * 1e-9`, `noise` and `seed`. Graph responses include `model_revision`, `version`, `settings`, `model_profiles`, warnings and probes. Each probe has `sample_indices` and `unit`; optical probes also have `phase_rad`. At most 1,200 plotted points are returned, with `last` computed from the complete signal. New `model_*` definitions are returned by `blocks` alongside the historical definitions.
+
+
+## CNN execution and repeated measurements
+
+CNN `cnn` and `cnn_inspect` requests accept `execution: "auto"`, `"symbol"` or `"waveform"`. The default is automatic. Requests with an unknown mode fail validation. Run exports record both the requested and effective execution modes and distinguish equivalent sampled workload from evaluated waveform samples.
+
+`cnn_benchmark` accepts the same input/model/converter settings, plus `blocks` (1–21), `warmups` (0–5) and an optional `order_seed`. It explicitly compares all three NumPy/waveform/symbol paths, preserving the frozen model/data. It returns raw timing observations, medians, waveform/symbol fidelity checks and environment identifiers. It is separate from ordinary inference.
+
+New settings exports use `prabha.cnn-settings.v2` with a top-level `execution` field. Run exports use `prabha.cnn-run.v3`. Previous settings v1 and runs v2 remain importable and default to automatic execution when no mode is recorded. Imported predictions are ignored; only settings and execution choice are accepted.

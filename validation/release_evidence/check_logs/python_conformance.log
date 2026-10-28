@@ -1,0 +1,16 @@
+[golden    ] peman_noiseless_exact        PASS
+[golden    ] peman_noisy_stats            PASS
+[validation] r10_optical_fanout           PASS
+[validation] r11_fs_mismatch              PASS
+[validation] r12_cycle                    PASS
+[validation] r1_unknown_ref               PASS
+[validation] r2_duplicate_id              PASS
+[validation] r3_bad_port                  PASS
+[validation] r4_param_range               PASS
+[validation] r5_kind_mismatch             PASS
+[validation] r7_two_drivers               PASS
+[validation] r8_required_unconnected      PASS
+[validation] r9_unused_output             PASS
+[validation] voltage_fanout_legal         PASS
+
+14/14 fixtures pass

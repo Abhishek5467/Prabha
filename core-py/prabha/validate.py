@@ -6,8 +6,8 @@ Rule IDs here MUST match the spec exactly; the conformance suite compares them
 across engines. validate_netlist() returns ALL violations, never just the first.
 """
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from dataclasses import dataclass
+from typing import Dict, List
 
 FANOUT_ALLOWED = {"voltage", "digital"}          # R10 policy
 FANOUT_FORBIDDEN = {"optical", "current"}

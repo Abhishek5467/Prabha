@@ -1,5 +1,7 @@
 # Trained CNN: complete labelled benchmark
 
+This file preserves the frozen training/evaluation record. Current execution options and separate release timings are documented in `release/V0_1_PREVIEW_4.md`; the nine original source files are retained under `validation/snapshots/cnn_recorded/` for hash verification.
+
 Date:15 October2026. The four-filter CNN is trained and evaluated; this
 supersedes the earlier two-image untrained smoke as the application milestone.
 

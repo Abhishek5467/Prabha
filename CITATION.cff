@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "Please cite the Prabha software version and the models used in your experiment."
 title: "Prabha: Specification-first photonic-electronic simulation"
-version: 0.1.0-preview.3
+version: 0.1.0-preview.4
 type: software
 authors:
   - family-names: Singh
@@ -9,3 +9,18 @@ authors:
     affiliation: Indian Institute of Technology Patna
 repository-code: https://github.com/Abhishek5467/Prabha
 license: MIT
+
+date-released: 2026-10-28
+references:
+  - type: report
+    authors:
+      - family-names: Singh
+        given-names: Abhishek
+    title: "Silicon Photonic Microring Resonators: FDTD Simulations, Coupling Optimization, Quality-Factor Analysis, and Cascaded Filter Architectures"
+    version: "1.1"
+    year: 2026
+    month: 6
+    day: 18
+    doi: 10.5281/zenodo.20744970
+    url: https://zenodo.org/records/20744970
+    notes: "Author-deposited internship technical report; not peer reviewed."

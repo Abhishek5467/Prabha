@@ -1,4 +1,4 @@
-import csv, importlib.util, json
+import csv, importlib.util
 from pathlib import Path
 import numpy as np
 import pytest

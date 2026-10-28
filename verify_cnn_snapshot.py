@@ -26,5 +26,7 @@ with np.load(root/'results/cnn_digits/test_logits.npz',allow_pickle=False) as re
     np.testing.assert_allclose(np.sqrt(np.mean((actual-ref)**2)),result['logit_rms_error'],rtol=1e-14)
     np.testing.assert_allclose(np.max(abs(actual-ref)),result['logit_max_abs_error'],rtol=1e-14)
 for relative,digest in result['source_sha256'].items():
-    assert hashlib.sha256((root/relative).read_bytes()).hexdigest()==digest,relative
-print('Verified: disjoint 1149/288/360 split, frozen model/data hashes, all 360 test outputs, metrics and source hashes.')
+    path=root/'validation/snapshots/cnn_recorded'/relative
+    if not path.exists(): path=root/relative
+    assert hashlib.sha256(path.read_bytes()).hexdigest()==digest,relative
+print('Verified: disjoint 1149/288/360 split, frozen model/data hashes, all 360 test outputs, metrics and recorded source hashes (original source retained separately from the updated release).')

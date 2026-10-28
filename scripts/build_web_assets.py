@@ -4,6 +4,8 @@ import json, shutil, subprocess, sys, zipfile
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / 'frontend/studio/public'
 PUBLIC.mkdir(parents=True, exist_ok=True)
+version = json.loads((ROOT/'frontend/studio/package.json').read_text())['version']
+(PUBLIC/'build-info.json').write_text(json.dumps({'version': version}, indent=2)+'\n', encoding='utf-8')
 evidence = PUBLIC / 'evidence'
 evidence.mkdir(exist_ok=True)
 catalog = []

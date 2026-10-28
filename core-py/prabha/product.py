@@ -11,7 +11,7 @@ from .blocks.mzm import MachZehnderModulator
 from .blocks.component_kernels import MODEL_REVISION
 
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[2]))
-VERSION = '0.1.0-preview.3'
+VERSION = '0.1.0-preview.4'
 
 
 def registry():
@@ -140,7 +140,10 @@ def dispatch(payload):
         if action == 'meta':
             result = {'version': VERSION, 'network': DEFAULT_NETWORK, 'default_inputs': [.9, .3, .7, .5],
                       'model_revision': MODEL_REVISION,
-                      'scope': 'behavioural simulation', 'actions': ['infer', 'batch', 'neuron', 'component', 'graph', 'blocks', 'example', 'cnn_info', 'cnn', 'cnn_validate', 'cnn_inspect']}
+                      'scope': 'behavioural simulation', 'actions': ['infer', 'batch', 'neuron', 'component', 'graph', 'blocks', 'example', 'cnn_info', 'cnn', 'cnn_validate', 'cnn_inspect', 'cnn_benchmark']}
+        elif action == 'cnn_benchmark':
+            from .systems.cnn_benchmark import benchmark
+            result = benchmark(ROOT, payload)
         elif action == 'cnn_info':
             from .systems.cnn_workspace import info
             result = info(ROOT, payload)

@@ -16,6 +16,8 @@ nav:
   - Quick start: quickstart.md
   - Studio guide: studio.md
   - Trained CNN: cnn.md
+  - CNN operators and execution: execution.md
+  - Next validation steps: next-steps.md
   - Troubleshooting: troubleshooting.md
   - Component Designer: designer.md
   - User manual and mathematics: user-manual.md

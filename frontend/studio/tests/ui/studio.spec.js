@@ -16,7 +16,7 @@ test('ANN inference, complete exports, import, stale results and reference batch
   const record = await downloadedJson(page, 'Export inference JSON ↓');
   expect(record.schema).toBe('prabha.run.v1');
   expect(record.engine).toBe('Python API');
-  expect(record.engine_version).toBe('0.1.0-preview.3');
+  expect(record.engine_version).toBe('0.1.0-preview.4');
   expect(record.request.inputs).toEqual([0.9, 0.3, 0.7, 0.5]);
   expect(record.request.network.w1).toHaveLength(3);
   expect(record.result.physical_output).toHaveLength(2);

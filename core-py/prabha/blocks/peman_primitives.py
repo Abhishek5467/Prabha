@@ -8,7 +8,7 @@ neuron math and thesis noise regimes (thermal P^0 / shot P^1 / RIN P^2).
 from __future__ import annotations
 import numpy as np
 
-from ..signal import Signal, Channel, DEFAULT_CHANNEL
+from ..signal import Signal, Channel
 from ..engine import Kernel, kernel
 
 Q = 1.602176634e-19

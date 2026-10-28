@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-27",
+  "before": {
+    "runs": [
+      {
+        "request_seconds": 8.422662137000088,
+        "prabha_seconds": 8.212115822999976,
+        "numpy_seconds": 0.0020985950000067533
+      },
+      {
+        "request_seconds": 8.212733942999876,
+        "prabha_seconds": 8.014532244000065,
+        "numpy_seconds": 0.0025638069998876745
+      },
+      {
+        "request_seconds": 7.979017735999832,
+        "prabha_seconds": 7.791477647999955,
+        "numpy_seconds": 0.0024693349998869962
+      }
+    ],
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "thread_environment": "OPENBLAS_NUM_THREADS=1; OMP_NUM_THREADS=1",
+    "result": {
+      "count": 360,
+      "prabha_correct": 354,
+      "numpy_correct": 354,
+      "prediction_disagreements": 0,
+      "rms_logit_error": 0.002992909055830674,
+      "max_logit_error": 0.010309588260103197,
+      "model_sha256": "f023ab9dddcb6a0d56e2448e5a6cfe2d171c961d50e11028dcbff6e4b7ce0a6e",
+      "dataset_sha256": "3b0a4a80fedd50b3b5ecfb380cbef32ebb23b1e2306c310b73898a69f14c9e21"
+    }
+  },
+  "after": {
+    "runs": [
+      {
+        "request_seconds": 0.06679089799990834,
+        "prabha_seconds": 0.03120474899992587,
+        "numpy_seconds": 0.009598821000054159
+      },
+      {
+        "request_seconds": 0.03500447099986559,
+        "prabha_seconds": 0.025363926999943942,
+        "numpy_seconds": 0.002387192000014693
+      },
+      {
+        "request_seconds": 0.034051243000021714,
+        "prabha_seconds": 0.02495996700008618,
+        "numpy_seconds": 0.0025131620000138355
+      }
+    ],
+    "numpy": "2.3.5",
+    "python": "3.12.14"
+  },
+  "forward_speedup": 315.9815214740911,
+  "request_speedup": 234.61957025522287,
+  "before_forward_median_seconds": 8.014532244000065,
+  "after_forward_median_seconds": 0.025363926999943942,
+  "before_request_median_seconds": 8.212733942999876,
+  "after_request_median_seconds": 0.03500447099986559,
+  "waveform_comparison": {
+    "maximum_absolute_logit_difference": 2.1316282072803006e-14,
+    "prediction_disagreements": 0,
+    "waveform_seconds": 7.661125927000057
+  },
+  "result": {
+    "count": 360,
+    "numpy_correct": 354,
+    "prabha_correct": 354,
+    "prediction_disagreements": 0,
+    "rms_logit_error": 0.0029929090558306996,
+    "max_logit_error": 0.010309588260103197,
+    "execution_mode": "symbol",
+    "waveform_samples": 9538560,
+    "equivalent_waveform_samples": 9538560,
+    "materialized_waveform_samples": 0,
+    "model_sha256": "f023ab9dddcb6a0d56e2448e5a6cfe2d171c961d50e11028dcbff6e4b7ce0a6e",
+    "dataset_sha256": "3b0a4a80fedd50b3b5ecfb380cbef32ebb23b1e2306c310b73898a69f14c9e21"
+  },
+  "timing_scope": "Three complete resident-input requests for each version, one BLAS thread, identical model and data. medians over three forward timings; software only."
+}

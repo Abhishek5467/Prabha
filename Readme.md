@@ -1,16 +1,14 @@
 # प्रभा Prabha
 
-**Prabha** (प्रभा, Sanskrit for *radiance*) is an indigenous photonic-electronic
-system simulator in the spirit of Lumerical INTERCONNECT — spec-first,
-dual-engine, and built to grow toward full photonic-EDA capability.
+**Prabha** is a photonic-electronic circuit and neural-inference simulator. It connects explicit source, modulator, detector, converter and accumulation models to a small ANN and a trained digit CNN. The Python engine evaluates the neural models; the C++ engine retains the original typed-graph conformance tests.
 
-Open photonic-electronic simulation, from typed device models to a validated small ANN.
-
-**v0.1.0-preview.3** connects the existing experiments to a React/Vite Studio, shared Python interface, documentation and desktop packaging. This cumulative update adds a 19-block component Designer, MZM nonlinearity, converter quantization, TIA noise/bandwidth, capacitor leakage, amplifier saturation and activation thresholds, alongside guided onboarding, reproducible exports/imports, connected communities and native packaging workflows. PEMAN remains the first neuron demonstrator; Prabha is the broader simulator.
+**v0.1.0-preview.4** adds selectable automatic/constant-symbol/waveform execution, a separate repeated benchmark, mode-preserving exports, a precise cross-correlation convention and verified asset caching. It retains the recorded model, data, historical results and sampled noise path. See [execution and mathematical scope](docs/site/execution.md) and [next steps](docs/site/next-steps.md).
 
 [Open Studio](https://abhishek5467.github.io/Prabha/) · [Documentation](https://abhishek5467.github.io/Prabha/docs/) · [Forum](https://prabhacommunity5701.flarum.cloud/) · [Discord](https://discord.gg/RUdRMHBFp)
 
-**Updating your existing folder?** Start with [UPDATE_DESIGNER.md](UPDATE_DESIGNER.md) for Windows commands, folder merging, the community address setting, and your GitHub push/Pages workflow.
+**Windows:** keep your existing Git-connected `Prabha` folder and apply the in-place updater there. Then double-click `RUN_PRABHA_STUDIO.bat`. For a first checkout, extract the source into `Prabha` and use the same launcher. Its first launch calls `SETUP_PRABHA.bat` to create an isolated environment and build the current Studio. Python 3.11+ and Node.js 22 LTS with npm are required. The lighter `RUN_CNN_DEMO.bat` works without Node and exposes the same execution selector. No checkpoint retraining is required.
+
+Keep the original archive and native INTERCONNECT evidence separately. This source package excludes virtual environments, dependencies, duplicate backups and compiled outputs.
 
 ## Try the prototype locally
 
@@ -47,7 +45,7 @@ Open http://127.0.0.1:8000. For a static deployment, serve `frontend/studio/dist
 | ANN maximum absolute error | 1.782838135357 × 10⁻⁴ |
 | Output-ordering mismatch | 0/100 |
 
-The batch uses seed 12345, fixed weights and 12-bit converters. It measures numerical agreement, not classification accuracy. ANN noise, transformer inference, measured throughput and energy are not established. The original typed PEMAN and later standalone ANN have different converter/activation order. See [model scope](docs/site/model-scope.md).
+The batch uses seed 12345, fixed weights and 12-bit converters. It measures numerical agreement, not classification accuracy. ANN noise, transformer inference, physical hardware throughput and energy are not established. The original typed PEMAN and later standalone ANN have different converter/activation order. See [model scope](docs/site/model-scope.md).
 
 Install the development dependencies before running the test commands:
 
@@ -57,7 +55,7 @@ python core-py/tests/run_conformance.py
 python -m pytest tests -q
 ```
 
-The 16 product checks include all 200 archived ANN outputs, malformed inputs, graph allocation limits and HTTP behaviour. Frontend unit and browser checks cover import/export, stale results, worker recovery, native bridge routing and repository subpath hosting. Desktop installers still require native build and acceptance checks; see [the release record](release/V0_1_PREVIEW_2.md).
+The current regression suite includes all 200 archived ANN outputs, all 360 frozen CNN outputs, malformed inputs, graph allocation limits, execution-mode equivalence and HTTP behaviour. See release/V0_1_PREVIEW_4.md for the actual check counts. Frontend unit and browser checks cover import/export, stale results, worker recovery, native bridge routing and repository subpath hosting. Desktop installers still require native build and acceptance checks; see [the release record](release/V0_1_PREVIEW_2.md).
 
 ```bash
 npm test --prefix frontend/studio
@@ -87,6 +85,6 @@ Install `requirements-dev.txt` when running tests or desktop builds. Read [CONTR
 
 The **Trained CNN** now uses native React controls inside the same Studio as ANN, with the shared Python engine, activity lock, import/export and desktop Save bridge. It preserves settings and results when you switch between ANN and CNN. Edit an 8 x 8 image, convolution/dense weights and biases, DAC/ADC precision and ADC range; compare NumPy and Prabha; inspect all six stages and export their exact tensors. Changes clear previous results.
 
-With the supplied built application, double-click **RUN_PRABHA_STUDIO.bat** on Windows, or run `bash RUN_PRABHA_STUDIO.sh` on Linux/macOS. This opens the complete application at `http://127.0.0.1:8000/#cnn`; ANN remains in the sidebar. Python 3.11+ is required; dependencies are installed on first launch. A source-only checkout needs the normal web build above first. The older `RUN_CNN_DEMO.bat` remains available for the standalone demo. See [CNN_STUDIO_INTEGRATION.md](CNN_STUDIO_INTEGRATION.md).
+After the setup build, double-click **RUN_PRABHA_STUDIO.bat** on Windows, or run `bash RUN_PRABHA_STUDIO.sh` on Linux/macOS. This opens the complete application at `http://127.0.0.1:8000/#cnn`; ANN remains in the sidebar. Python 3.11+ is required; dependencies are installed on first launch. A source-only checkout needs the normal web build above first. The older `RUN_CNN_DEMO.bat` remains available for the standalone demo. See [CNN_STUDIO_INTEGRATION.md](CNN_STUDIO_INTEGRATION.md).
 
-The reference checkpoint gets 354/360 (98.33%) with zero prediction disagreements. Its waveform simulation is slower in software; the workspace measures live runtime. Edited models/converters require fresh results. Noise, native full-CNN dynamics and hardware performance remain separate validation work.
+The reference checkpoint gets 354/360 (98.33%) with zero prediction disagreements. Select automatic, constant-symbol or waveform execution; the workspace measures the chosen physical path and the NumPy reference. Edited models/converters require fresh results. Noise, native full-CNN dynamics and hardware performance remain separate validation work.

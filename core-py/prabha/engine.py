@@ -6,7 +6,7 @@ Pipeline per spec: schema-validate (registry) -> validate defs (C1-C6, load time
 at runtime because per-signal fs is only known when signals exist.
 """
 from __future__ import annotations
-from typing import Callable, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from .signal import Signal
 from .validate import validate_netlist, validate_compound_def, check_definition_cycles, Violation

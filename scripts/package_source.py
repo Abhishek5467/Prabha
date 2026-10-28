@@ -2,7 +2,7 @@
 from pathlib import Path
 import argparse, zipfile
 ROOT=Path(__file__).resolve().parents[1]
-EXCLUDED={'.git','.venv','.cnn-venv','.studio-venv','.pytest_cache','__pycache__','node_modules','build','dist','target','.vscode','.openai','test-results','playwright-report'}
+EXCLUDED={'.git','.venv','.cnn-venv','.studio-venv','.pytest_cache','.ruff_cache','__pycache__','node_modules','build','dist','target','.vscode','.openai','test-results','playwright-report'}
 GENERATED={'frontend/studio/public/docs','frontend/studio/public/evidence','frontend/studio/public/designer.html','frontend/studio/public/prabha-python.zip','frontend/studio/public/prabha-source.zip'}
 def package(output):
     output=Path(output).resolve();output.parent.mkdir(parents=True,exist_ok=True)
@@ -16,8 +16,8 @@ def package(output):
             if any(name==g or name.startswith(g+'/') for g in GENERATED):continue
             if name.startswith('desktop/src-tauri/binaries/prabha-engine-'):continue
             if (f.name=='.env' or f.name.startswith('.env.')) and f.name!='.env.example':continue
-            if f.suffix in {'.pyc','.pem','.key','.exe'} or f.name=='Thumbs.db':continue
-            info=zipfile.ZipInfo('Prabha-v0.1/'+name,date_time=(2026,9,28,0,0,0))
+            if f.suffix in {'.pyc','.pem','.key','.exe'} or f.name in {'Thumbs.db','UPDATE_PRABHA.py'}:continue
+            info=zipfile.ZipInfo('Prabha/'+name,date_time=(2026,10,28,0,0,0))
             info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o644<<16
             z.writestr(info,f.read_bytes());count+=1
     print(f'Source package: {count} files -> {output.name}')

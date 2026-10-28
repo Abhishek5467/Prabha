@@ -1,5 +1,7 @@
 # CNN integrated in Prabha Studio
 
+Current source release: **v0.1.0-preview.4**. Both CNN interfaces expose automatic, constant-symbol and waveform execution. Use **Benchmark both modes** for repeated timing; JSON exports retain the choice. A fresh Windows source folder builds the current Studio through `RUN_PRABHA_STUDIO.bat` / `SETUP_PRABHA.bat` (Python 3.11+ and Node.js 22 LTS). The standalone demo requires only Python. Historical timing observations below retain their original workload; see `docs/site/execution.md` and `release/V0_1_PREVIEW_4.md` for current behaviour and scope.
+
 Updated 25 October 2026.
 
 ## Open the complete application
